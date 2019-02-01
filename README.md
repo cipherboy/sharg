@@ -1,3 +1,3 @@
 # sharg
 
-Argument parsing loop for bash
+Argument parsing generator targeting bash and manpages.
