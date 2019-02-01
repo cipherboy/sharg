@@ -19,6 +19,20 @@ class OptionValue(Enum):
     WhitelistedInteger = 9
     Substring = 10
 
+    def format_bash(self, long_name, var_prefix="_", _file=sys.stdout, _indent=0, _increment=4):
+        indent = " " * _indent
+        indent2 = " " * (_indent+_increment)
+
+        if self == OptionValue.FalseTrue:
+            print(indent + var_prefix + long_name + '="true"')
+        elif self == OptionValue.Directory:
+            print(indent + var_prefix + long_name + '="$1"')
+            print(indent + 'shift')
+            print()
+            print(indent + 'if [ ! -d "$' + var_prefix + long_name + '" ]; then')
+            print(indent2 + '_handle_parse_error "' + long_name + '" "$_' + var_prefix + long_name + '"')
+            print(indent + 'fi')
+
 class CommandLine:
     options = []
     arguments = []
@@ -31,6 +45,9 @@ class CommandLine:
 
     parse_unix_style = False
     parse_equals_value = True
+
+    bash_var_prefix = "_pc_"
+    bash_indent_increment = 4
 
     def __init__(self, prog=None, usage=None, description=None, example=None,
                  epilog=None, equals=None, unix=None):
@@ -67,10 +84,12 @@ class CommandLine:
             if self.arguments:
                 self.usage += " [arguments]"
 
-    def add_option(self, long_name=None, short_name=None, help_text=None):
+    def add_option(self, long_name, short_name=None, help_text=None, option_type=OptionValue.FalseTrue):
         assert long_name is None or isinstance(long_name, str)
         assert short_name is None or isinstance(short_name, str)
         assert help_text is None or isinstance(help_text, str)
+        assert isinstance(option_type, OptionValue)
+        assert long_name or short_name
 
         if long_name and long_name.startswith("--"):
             long_name = long_name[2:]
@@ -78,7 +97,7 @@ class CommandLine:
             short_name = short_name[1:]
 
         opt = Option(long_name=long_name, short_name=short_name,
-                     help_text=help_text)
+                     help_text=help_text, option_type=option_type)
 
         opt.parse_equals_value = self.parse_equals_value
         opt.parse_unix_style = self.parse_unix_style
@@ -87,33 +106,62 @@ class CommandLine:
 
         return opt
 
-    def format_help(self, file=sys.stdout, _indent=0):
+    def format_help(self, _file=sys.stdout, _indent=0, _increment=None):
+        if _increment is None:
+            _increment = self.help_indent_increment
+
         indent = " " * _indent
 
-        print(indent + (self.usage % self.program_name), file=file)
+        print(indent + (self.usage % self.program_name), file=_file)
         if self.description:
-            print(indent + self.description, file=file)
+            print(indent + self.description, file=_file)
         if self.example:
-            print(indent + "Example: " + self.example, file=file)
-        print("", file=file)
+            print(indent + "Example: " + self.example, file=_file)
+        print("", file=_file)
 
         if self.arguments:
-            print(indent + "Arguments:", file=file)
+            print(indent + "Arguments:", file=_file)
             for arg in self.arguments:
-                arg.format_help(file=file, _indent=_indent+2)
+                arg.format_help(_file=_file, _indent=_indent+2)
 
         if self.options:
-            print(indent + "Options:", file=file)
+            print(indent + "Options:", file=_file)
             for option in self.options:
-                option.format_help(file=file, _indent=_indent+2)
+                option.format_help(_file=_file, _indent=_indent+2)
 
         if self.epilog:
-            print(indent + self.epilog, file=file)
+            print(indent + self.epilog, file=_file)
 
-    def format_bash(self, file=sys.stdout, _indent=0):
-        pass
+    def format_bash(self, _file=sys.stdout, _indent=0, _increment=None):
+        if _increment is None:
+            _increment = self.bash_indent_increment
 
-    def format_man(self, file=sys.stdout, _indent=0):
+        indent = " " * _indent
+        indent2 = " " * (_indent+_increment)
+
+        print(indent + 'while (( $# > 0 )); do', file=_file)
+        print(indent2 + 'local arg="$1"', file=_file)
+        print(indent2 + 'shift', file=_file)
+        print()
+
+        if self.options:
+            options_count = len(self.options)
+            for _index in range(0, options_count):
+                option = self.options[_index]
+                check = "elif"
+                tail = None
+
+                if _index == 0:
+                    check = "if"
+                if _index == options_count-1:
+                    tail = "fi"
+
+                option.format_bash(check=check, tail=tail, _file=_file, _indent=_indent+_increment, _increment=_increment)
+
+        print(indent + 'done', file=_file)
+
+
+    def format_man(self, _file=sys.stdout, _indent=0):
         pass
 
 
@@ -126,39 +174,62 @@ class Option:
     short_name = None
     help_text = None
 
+    value_type = None
+
     parse_unix_style = False
     parse_equals_value = True
 
     aliases = []
 
-    def __init__(self, long_name=None, short_name=None, help_text=None):
+    def __init__(self, long_name=None, short_name=None, help_text=None, option_type=None):
         self.long_name = long_name
         self.short_name = short_name
         self.help_text = help_text
+        self.value_type = option_type
 
-    def format_help(self, file=sys.stdout, _indent=0):
+    def format_help(self, _file=sys.stdout, _indent=0):
         indent = " " * _indent
         indent2 = " " * (_indent+2)
 
         space = False
 
-        print(indent, end='', file=file)
+        print(indent, end='', file=_file)
         if self.long_name:
-            print("--" + self.long_name, end='', file=file)
+            print("--" + self.long_name, end='', file=_file)
             space = True
         if self.short_name:
             if space:
-                print(", ", end='', file=file)
+                print(", ", end='', file=_file)
                 space = False
-            print("-" + self.short_name, end='', file=file)
+            print("-" + self.short_name, end='', file=_file)
             space = True
         if self.help_text:
             if space:
-                print(": ", end='', file=file)
+                print(": ", end='', file=_file)
                 space = False
-            print(self.help_text, end='', file=file)
+            print(self.help_text, end='', file=_file)
             space = True
-        print("", file=file)
+        print("", file=_file)
         if self.aliases:
             joined_aliases = ", ".join(self.aliases)
-            print(indent2 + "Aliases: " + joined_aliases, end='', file=file)
+            print(indent2 + "Aliases: " + joined_aliases, end='', file=_file)
+
+    def format_bash(self, check="if", tail="fi", _file=sys.stdout, _indent=0, _increment=4):
+        indent = " " * _indent
+        indent2 = " " * (_indent+_increment)
+
+        conditionals = []
+
+        if self.long_name:
+            conditionals.append('[ "x$arg" == "x--' + self.long_name + '" ]')
+            if self.parse_unix_style:
+                conditionals.append('[ "x$arg" == "x-' + self.long_name + '" ]')
+        if self.short_name:
+            conditionals.append('[ "x$arg" == "x-' + self.short_name + '" ]')
+
+        joined_conditionals = " || ".join(conditionals)
+        print(indent + check, " " + joined_conditionals + "; then", file=_file)
+        self.value_type.format_bash(self.long_name, _file=_file, _indent=_indent+_increment, _increment=_increment)
+
+        if tail:
+            print(indent + tail, file=_file)
