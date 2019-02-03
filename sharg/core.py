@@ -2,10 +2,15 @@ import sys
 
 from enum import Enum
 
+from .shell import ShellCodeGen as SCG
+from .shell import ShellConditional as SC
+
+
 class UnknownBehavior(Enum):
     IGNORE = 1
     ERROR = 2
     COLLECT = 3
+
 
 class OptionValue(Enum):
     FalseTrue = 1
@@ -19,19 +24,22 @@ class OptionValue(Enum):
     WhitelistedInteger = 9
     Substring = 10
 
-    def format_bash(self, long_name, var_prefix="_", _file=sys.stdout, _indent=0, _increment=4):
-        indent = " " * _indent
-        indent2 = " " * (_indent+_increment)
-
+    def format_bash(self, code, long_name, var_name, source, do_shift=False):
         if self == OptionValue.FalseTrue:
-            print(indent + var_prefix + long_name + '="true"')
+            code.set_var(var_name, 'true')
         elif self == OptionValue.Directory:
-            print(indent + var_prefix + long_name + '="$1"')
-            print(indent + 'shift')
-            print()
-            print(indent + 'if [ ! -d "$' + var_prefix + long_name + '" ]; then')
-            print(indent2 + '_handle_parse_error "' + long_name + '" "$_' + var_prefix + long_name + '"')
-            print(indent + 'fi')
+            code.define_var("tmp_" + var_name, source)
+            if do_shift:
+                code.add_line('shift')
+            code.add_line('')
+            cond = SC.not_is_dir('$tmp_' + var_name)
+            code.begin_if(cond)
+            code.add_line('_handle_parse_error "' + long_name + '" ' +
+                          '"$tmp_' + var_name + '"')
+            code.begin_else()
+            code.set_var(var_name, "$tmp_" + var_name)
+            code.end_if()
+
 
 class CommandLine:
     options = []
@@ -43,7 +51,7 @@ class CommandLine:
     example = None
     epilog = None
 
-    parse_unix_style = False
+    parse_unix_style = True
     parse_equals_value = True
 
     bash_var_prefix = "_pc_"
@@ -133,32 +141,32 @@ class CommandLine:
             print(indent + self.epilog, file=_file)
 
     def format_bash(self, _file=sys.stdout, _indent=0, _increment=None):
+        code = SCG()
         if _increment is None:
             _increment = self.bash_indent_increment
+        code.indent = _indent
+        code.increment = _increment
 
-        indent = " " * _indent
-        indent2 = " " * (_indent+_increment)
-
-        print(indent + 'while (( $# > 0 )); do', file=_file)
-        print(indent2 + 'local arg="$1"', file=_file)
-        print(indent2 + 'shift', file=_file)
-        print()
+        code.begin_function("parse_args")
+        cond = SC.int_var_greater_value('#', 0)
+        code.begin_while(cond)
+        code.define_var('arg', '$1')
+        code.add_line('shift')
+        code.add_line('')
 
         if self.options:
-            options_count = len(self.options)
-            for _index in range(0, options_count):
-                option = self.options[_index]
-                check = "elif"
-                tail = None
+            for option in self.options:
+                option.format_bash(code)
+            code.end_if()
 
-                if _index == 0:
-                    check = "if"
-                if _index == options_count-1:
-                    tail = "fi"
+        if self.arguments:
+            for argument in self.arguments:
+                option.format_bash(code)
+            code.end_if()
 
-                option.format_bash(check=check, tail=tail, _file=_file, _indent=_indent+_increment, _increment=_increment)
-
-        print(indent + 'done', file=_file)
+        code.end_while()
+        code.end_function()
+        code.write(_file=_file)
 
 
     def format_man(self, _file=sys.stdout, _indent=0):
@@ -171,6 +179,7 @@ class Argument:
 
 class Option:
     long_name = None
+    var_name = None
     short_name = None
     help_text = None
 
@@ -186,6 +195,7 @@ class Option:
         self.short_name = short_name
         self.help_text = help_text
         self.value_type = option_type
+        self.var_name = long_name.replace('-', '_')
 
     def format_help(self, _file=sys.stdout, _indent=0):
         indent = " " * _indent
@@ -214,22 +224,22 @@ class Option:
             joined_aliases = ", ".join(self.aliases)
             print(indent2 + "Aliases: " + joined_aliases, end='', file=_file)
 
-    def format_bash(self, check="if", tail="fi", _file=sys.stdout, _indent=0, _increment=4):
-        indent = " " * _indent
-        indent2 = " " * (_indent+_increment)
-
+    def format_bash(self, code):
         conditionals = []
-
-        if self.long_name:
-            conditionals.append('[ "x$arg" == "x--' + self.long_name + '" ]')
+        if self.parse_equals_value:
+            conditionals.append(SC.substr_var_equals_value('arg', '--' + self.long_name + '='))
             if self.parse_unix_style:
-                conditionals.append('[ "x$arg" == "x-' + self.long_name + '" ]')
+                conditionals.append(SC.substr_var_equals_value('arg', '-' + self.long_name + '='))
+
+            code.begin_if_elif(SC.c_or(*conditionals))
+            self.value_type.format_bash(code, self.long_name, self.var_name, '${arg#*=}', do_shift=False)
+            conditionals = []
+
+        conditionals.append(SC.str_var_equals_value('arg', '--' + self.long_name))
+        if self.parse_unix_style:
+            conditionals.append(SC.str_var_equals_value('arg', '-' + self.long_name))
         if self.short_name:
-            conditionals.append('[ "x$arg" == "x-' + self.short_name + '" ]')
+            conditionals.append(SC.str_var_equals_value('arg', '-' + self.short_name))
 
-        joined_conditionals = " || ".join(conditionals)
-        print(indent + check, " " + joined_conditionals + "; then", file=_file)
-        self.value_type.format_bash(self.long_name, _file=_file, _indent=_indent+_increment, _increment=_increment)
-
-        if tail:
-            print(indent + tail, file=_file)
+        code.begin_if_elif(SC.c_or(*conditionals))
+        self.value_type.format_bash(code, self.long_name, self.var_name, '$1', do_shift=True)
