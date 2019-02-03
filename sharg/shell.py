@@ -13,7 +13,10 @@ class ShellCodeGen:
 
     def add_line(self, line):
         prefix = self.indent_char * self.indent
-        self.add_line(prefix + line)
+        if line:
+            self.code.append(prefix + line)
+        else:
+            self.code.append("")
 
     def begin_block(self):
         self.indent += self.increment
@@ -82,6 +85,19 @@ class ShellCodeGen:
         self.add_line("elif " + str(conditional) + "; then")
         self.begin_block()
         self.stack.append('if')
+
+    def begin_else(self):
+        assert self.stack and self.stack.pop() == 'if'
+        self.end_block()
+
+        self.add_line("else")
+        self.begin_block()
+        self.stack.append('if')
+
+    def begin_if_elif(self, conditional):
+        if self.stack[-1] == "while":
+            return self.begin_if(conditional)
+        return self.begin_elif(conditional)
 
     def end_if(self):
         assert self.stack and self.stack.pop() == 'if'
@@ -198,6 +214,22 @@ class ShellConditional:
         return obj
 
     @classmethod
+    def is_dir(cls, path):
+        obj = cls()
+        obj.c_type = 'check'
+        obj.operator = '-d'
+        obj.rhs = path
+        return obj
+
+    @classmethod
+    def not_is_dir(cls, path):
+        obj = cls()
+        obj.c_type = 'check'
+        obj.operator = '! -d'
+        obj.rhs = path
+        return obj
+
+    @classmethod
     def c_and(cls, *args):
         obj = cls()
         obj.operator = '&&'
@@ -229,6 +261,8 @@ class ShellConditional:
         elif self.c_type == 'numeric':
             line = '(( ' + self.lhs + ' ' + self.operator + ' ' + \
                    self.rhs + ' ))'
+        elif self.c_type == 'check':
+            line = '[ ' + self.operator + ' "' + self.rhs + '" ]'
         elif self.c_type == 'joined':
             str_inner = map(str, self.parts)
             line = (' ' + self.operator + ' ').join(str_inner)

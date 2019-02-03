@@ -1,4 +1,5 @@
 from .shell import ShellCodeGen
+from .shell import ShellConditional
 
 from .core import UnknownBehavior
 from .core import OptionValue
