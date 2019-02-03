@@ -1,3 +1,5 @@
+import sys
+
 class ShellCodeGen:
     code = []
     stack = []
@@ -35,7 +37,7 @@ class ShellCodeGen:
             self.add_line("set -e")
 
     def end_function(self):
-        assert len(self.stack) > 0 and self.stack.pop() == 'function'
+        assert self.stack and self.stack.pop() == 'function'
 
         self.end_block()
 
@@ -52,7 +54,7 @@ class ShellCodeGen:
         self.stack.append('while')
 
     def end_while(self):
-        assert len(self.stack) > 0 and self.stack.pop() == 'while'
+        assert self.stack and self.stack.pop() == 'while'
 
         self.end_block()
         self.add_line("done")
@@ -63,7 +65,7 @@ class ShellCodeGen:
         self.stack.append('for')
 
     def end_for(self):
-        assert len(self.stack) > 0 and self.stack.pop() == 'for'
+        assert self.stack and self.stack.pop() == 'for'
 
         self.end_block()
         self.add_line("done")
@@ -74,7 +76,7 @@ class ShellCodeGen:
         self.stack.append('if')
 
     def begin_elif(self, conditional):
-        assert len(self.stack) > 0 and self.stack.pop() == 'if'
+        assert self.stack and self.stack.pop() == 'if'
         self.end_block()
 
         self.add_line("elif " + str(conditional) + "; then")
@@ -82,7 +84,7 @@ class ShellCodeGen:
         self.stack.append('if')
 
     def end_if(self):
-        assert len(self.stack) > 0 and self.stack.pop() == 'if'
+        assert self.stack and self.stack.pop() == 'if'
         self.end_block()
         self.add_line("fi")
 
@@ -92,7 +94,145 @@ class ShellCodeGen:
     def define_var(self, var_name, value):
         self.add_line('local ' + var_name + '="' + value + '"')
 
+    def export_var(self, var_name, value):
+        self.add_line('export ' + var_name + '="' + value + '"')
+
+    def write(self, _file=sys.stdout, allow_partial=False):
+        if not allow_partial:
+            assert not self.stack
+
+        for line in self.code:
+            print(line, file=_file)
+
 
 class ShellConditional:
-    def __str__():
-        pass
+    c_type = ""
+    lhs = ""
+    operator = ""
+    rhs = ""
+    parts = []
+
+    def __init__(self):
+        self.c_type = ""
+        self.lhs = ""
+        self.operator = ""
+        self.rhs = ""
+        self.parts = []
+
+    @classmethod
+    def str_var_equals_value(cls, var_name, value):
+        obj = cls()
+        obj.lhs = 'x$' + var_name
+        obj.operator = '=='
+        obj.rhs = 'x' + value
+        obj.c_type = 'string'
+        return obj
+
+    @classmethod
+    def substr_var_equals_value(cls, var_name, value):
+        obj = cls()
+        obj.lhs = 'x${' + var_name + ':0:' + str(len(value)) + '}'
+        obj.operator = '=='
+        obj.rhs = 'x' + value
+        obj.c_type = 'string'
+        return obj
+
+    @classmethod
+    def str_var_not_equals_value(cls, var_name, value):
+        obj = cls()
+        obj.lhs = 'x$' + var_name
+        obj.operator = '!='
+        obj.rhs = 'x' + value
+        obj.c_type = 'string'
+        return obj
+
+    @classmethod
+    def str_var_equals_var(cls, lhs_var, rhs_var):
+        obj = cls()
+        obj.lhs = 'x$' + lhs_var
+        obj.operator = '=='
+        obj.rhs = 'x' + rhs_var
+        obj.c_type = 'string'
+        return obj
+
+    @classmethod
+    def str_var_not_equals_var(cls, lhs_var, rhs_var):
+        obj = cls()
+        obj.lhs = 'x$' + lhs_var
+        obj.operator = '!='
+        obj.rhs = 'x' + rhs_var
+        obj.c_type = 'string'
+        return obj
+
+    @classmethod
+    def int_var_greater_value(cls, var_name, value):
+        assert isinstance(value, int)
+
+        obj = cls()
+        obj.lhs = '$' + var_name
+        obj.operator = '>'
+        obj.rhs = str(value)
+        obj.c_type = 'numeric'
+        return obj
+
+    @classmethod
+    def int_var_equals_value(cls, var_name, value):
+        assert isinstance(value, int)
+
+        obj = cls()
+        obj.lhs = '$' + var_name
+        obj.operator = '='
+        obj.rhs = str(value)
+        obj.c_type = 'numeric'
+        return obj
+
+    @classmethod
+    def int_var_less_value(cls, var_name, value):
+        assert isinstance(value, int)
+
+        obj = cls()
+        obj.lhs = '$' + var_name
+        obj.operator = '<'
+        obj.rhs = str(value)
+        obj.c_type = 'numeric'
+        return obj
+
+    @classmethod
+    def c_and(cls, *args):
+        obj = cls()
+        obj.operator = '&&'
+        obj.c_type = 'joined'
+        obj.parts = []
+
+        for arg in args:
+            obj.parts.append(arg)
+
+        return obj
+
+    @classmethod
+    def c_or(cls, *args):
+        obj = cls()
+        obj.operator = '||'
+        obj.c_type = 'joined'
+        obj.parts = []
+
+        for arg in args:
+            obj.parts.append(arg)
+
+        return obj
+
+    def __str__(self):
+        line = ""
+        if self.c_type == 'string':
+            line = '[ "' + self.lhs + '" ' + self.operator + ' "' + \
+                   self.rhs + '" ]'
+        elif self.c_type == 'numeric':
+            line = '(( ' + self.lhs + ' ' + self.operator + ' ' + \
+                   self.rhs + ' ))'
+        elif self.c_type == 'joined':
+            str_inner = map(str, self.parts)
+            line = (' ' + self.operator + ' ').join(str_inner)
+        else:
+            raise Exception("Unknown conditional type: %s" % self.c_type)
+
+        return line
