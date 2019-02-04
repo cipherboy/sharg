@@ -230,6 +230,22 @@ class ShellConditional:
         return obj
 
     @classmethod
+    def is_file(cls, path):
+        obj = cls()
+        obj.c_type = 'check'
+        obj.operator = '-f'
+        obj.rhs = path
+        return obj
+
+    @classmethod
+    def not_is_file(cls, path):
+        obj = cls()
+        obj.c_type = 'check'
+        obj.operator = '! -f'
+        obj.rhs = path
+        return obj
+
+    @classmethod
     def c_and(cls, *args):
         obj = cls()
         obj.operator = '&&'

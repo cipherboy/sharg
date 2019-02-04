@@ -12,33 +12,69 @@ class UnknownBehavior(Enum):
     COLLECT = 3
 
 
-class OptionValue(Enum):
+class Value(Enum):
     FalseTrue = 1
     TrueFalse = 2
     Directory = 3
     File = 4
     String = 5
-    Integer = 6
-    Float = 7
-    WhitelistedString = 8
-    WhitelistedInteger = 9
-    Substring = 10
+    WhitelistedString = 6
+    Substring = 7
 
     def format_bash(self, code, long_name, var_name, source, do_shift=False):
-        if self == OptionValue.FalseTrue:
+        if self == Value.FalseTrue:
             code.set_var(var_name, 'true')
-        elif self == OptionValue.Directory:
-            code.define_var("tmp_" + var_name, source)
+            if do_shift:
+                code.add_line('shift')
+        elif self == Value.TrueFalse:
+            code.set_var(var_name, 'false')
+            if do_shift:
+                code.add_line('shift')
+        elif self == Value.Directory:
+            code.define_var("__tmp_" + var_name, source)
             if do_shift:
                 code.add_line('shift')
             code.add_line('')
-            cond = SC.not_is_dir('$tmp_' + var_name)
+
+            cond = SC.not_is_dir('$__tmp_' + var_name)
             code.begin_if(cond)
             code.add_line('_handle_parse_error "' + long_name + '" ' +
-                          '"$tmp_' + var_name + '"')
+                          '"$__tmp_' + var_name + '"')
             code.begin_else()
-            code.set_var(var_name, "$tmp_" + var_name)
+            code.set_var(var_name, "$__tmp_" + var_name)
             code.end_if()
+        elif self == Value.File:
+            code.define_var("__tmp_" + var_name, source)
+            if do_shift:
+                code.add_line('shift')
+            code.add_line('')
+
+            cond = SC.not_is_file('$__tmp_' + var_name)
+            code.begin_if(cond)
+            code.add_line('_handle_parse_error "' + long_name + '" ' +
+                          '"$__tmp_' + var_name + '"')
+            code.begin_else()
+            code.set_var(var_name, "$__tmp_" + var_name)
+            code.end_if()
+        elif self == Value.String:
+            code.set_var(var_name, source)
+            if do_shift:
+                code.add_line('shift')
+        elif self == Value.WhitelistedString:
+            code.define_var("__tmp_" + var_name, source)
+            if do_shift:
+                code.add_line('shift')
+            code.add_line('')
+
+            cond = '_validate_' + var_name + ' "__tmp_' + var_name + '"'
+            code.begin_if(cond)
+            code.add_line('_handle_parse_error "' + long_name + '" ' +
+                          '"$__tmp_' + var_name + '"')
+            code.begin_else()
+            code.set_var(var_name, "$__tmp_" + var_name)
+            code.end_if()
+        else:
+            raise Exception("Unknown value: %d" % self.value)
 
 
 class CommandLine:
@@ -50,6 +86,9 @@ class CommandLine:
     description = None
     example = None
     epilog = None
+
+    positional_arguments = 0
+    catch_remainder = None
 
     parse_unix_style = True
     parse_equals_value = True
@@ -92,12 +131,21 @@ class CommandLine:
             if self.arguments:
                 self.usage += " [arguments]"
 
-    def add_option(self, long_name, short_name=None, help_text=None, option_type=OptionValue.FalseTrue):
-        assert long_name is None or isinstance(long_name, str)
+    def add_argument(self, name, help_text=None):
+        assert isinstance(name, str)
+        assert help_text is None or isinstance(help_text, str)
+
+        arg = Argument(name=name, position=self.positional_arguments,
+                       help_text=help_text)
+        self.positional_arguments += 1
+
+        return arg
+
+    def add_option(self, long_name, short_name=None, help_text=None, option_type=Value.FalseTrue):
+        assert isinstance(long_name, str)
         assert short_name is None or isinstance(short_name, str)
         assert help_text is None or isinstance(help_text, str)
-        assert isinstance(option_type, OptionValue)
-        assert long_name or short_name
+        assert isinstance(option_type, Value)
 
         if long_name and long_name.startswith("--"):
             long_name = long_name[2:]
@@ -174,7 +222,25 @@ class CommandLine:
 
 
 class Argument:
-    pass
+    name = None
+    var_name = None
+    position = None
+    help_text = None
+
+    aliases = {}
+
+    def __init__(self, name=None, position=None, help_text=None):
+        self.name = name
+        self.position = position
+        self.help_text = help_text
+        self.var_name = name.replace('-', '_')
+
+    def format_help(self, _file=sys.stdout, _indent=0):
+        indent = " " * _indent
+        indent2 = " " * (_indent+2)
+
+        space = False
+        print(indent, end='', file=_file)
 
 
 class Option:
@@ -188,7 +254,7 @@ class Option:
     parse_unix_style = False
     parse_equals_value = True
 
-    aliases = []
+    aliases = {}
 
     def __init__(self, long_name=None, short_name=None, help_text=None, option_type=None):
         self.long_name = long_name
