@@ -24,12 +24,8 @@ class Value(Enum):
     def format_bash(self, code, long_name, var_name, source, do_shift=False):
         if self == Value.FalseTrue:
             code.set_var(var_name, 'true')
-            if do_shift:
-                code.add_line('shift')
         elif self == Value.TrueFalse:
             code.set_var(var_name, 'false')
-            if do_shift:
-                code.add_line('shift')
         elif self == Value.Directory:
             code.define_var("__tmp_" + var_name, source)
             if do_shift:
@@ -96,8 +92,10 @@ class CommandLine:
     bash_var_prefix = "_pc_"
     bash_indent_increment = 4
 
+    help_indent_increment = 2
+
     def __init__(self, prog=None, usage=None, description=None, example=None,
-                 epilog=None, equals=None, unix=None):
+                 epilog=None, equals=None, unix=None, add_help=True):
         assert prog is None or isinstance(prog, str)
         assert usage is None or isinstance(usage, str)
         assert description is None or isinstance(description, str)
@@ -105,6 +103,7 @@ class CommandLine:
         assert epilog is None or isinstance(epilog, str)
         assert equals is None or isinstance(equals, bool)
         assert unix is None or isinstance(unix, bool)
+        assert isinstance(add_help, bool)
 
         self.program_name = prog
         self.usage = usage
@@ -116,6 +115,12 @@ class CommandLine:
             self.parse_equals_value = equals
         if isinstance(unix, bool):
             self.parse_unix_style = unix
+
+        help_option = self.add_option(long_name='help',
+                                      short_name='h',
+                                      help_text='Print this help text.',
+                                      option_type=Value.FalseTrue)
+        help_option.var_name = 'parse_args_print_help'
 
         self.__generate_usage__()
 
@@ -137,7 +142,9 @@ class CommandLine:
 
         arg = Argument(name=name, position=self.positional_arguments,
                        help_text=help_text)
+
         self.positional_arguments += 1
+        self.arguments.append(arg)
 
         return arg
 
@@ -173,19 +180,21 @@ class CommandLine:
             print(indent + self.description, file=_file)
         if self.example:
             print(indent + "Example: " + self.example, file=_file)
-        print("", file=_file)
 
         if self.arguments:
+            print("", file=_file)
             print(indent + "Arguments:", file=_file)
             for arg in self.arguments:
-                arg.format_help(_file=_file, _indent=_indent+2)
+                arg.format_help(_file=_file, _indent=_indent+_increment, _increment=_increment)
 
         if self.options:
+            print("", file=_file)
             print(indent + "Options:", file=_file)
             for option in self.options:
                 option.format_help(_file=_file, _indent=_indent+2)
 
         if self.epilog:
+            print("", file=_file)
             print(indent + self.epilog, file=_file)
 
     def format_bash(self, _file=sys.stdout, _indent=0, _increment=None):
@@ -196,6 +205,7 @@ class CommandLine:
         code.increment = _increment
 
         code.begin_function("parse_args")
+        code.define_var('parse_args_print_help', 'false')
         cond = SC.int_var_greater_value('#', 0)
         code.begin_while(cond)
         code.define_var('arg', '$1')
@@ -209,12 +219,24 @@ class CommandLine:
 
         if self.arguments:
             for argument in self.arguments:
-                option.format_bash(code)
+                argument.format_bash(code)
             code.end_if()
 
         code.end_while()
+        code.add_line('')
+        cond = SC.str_var_equals_value('parse_args_print_help', 'true')
+        code.begin_if(cond)
+        code.add_line('print_help')
+        code.end_if()
         code.end_function()
-        code.write(_file=_file)
+
+        code.begin_function("print_help")
+        code.add_line('cat - << _print_help_EOF')
+        self.format_help(_file=code, _indent=0, _increment=None)
+        code.add_line('_print_help_EOF', indent=0)
+        code.end_function()
+
+        code.to_file(_file=_file)
 
 
     def format_man(self, _file=sys.stdout, _indent=0):
@@ -235,12 +257,17 @@ class Argument:
         self.help_text = help_text
         self.var_name = name.replace('-', '_')
 
-    def format_help(self, _file=sys.stdout, _indent=0):
+    def format_help(self, _file=sys.stdout, _indent=0, _increment=2):
         indent = " " * _indent
-        indent2 = " " * (_indent+2)
+        indent2 = " " * (_indent+_increment)
 
-        space = False
-        print(indent, end='', file=_file)
+        print(indent + self.name, end='', file=_file)
+        if self.help_text:
+            print(": " + self.help_text, end='', file=_file)
+        print("", file=_file)
+        if self.aliases:
+            joined_aliases = ", ".join(self.aliases)
+            print(indent2 + "Aliases: " + joined_aliases, end='', file=_file)
 
 
 class Option:
@@ -291,6 +318,7 @@ class Option:
             print(indent2 + "Aliases: " + joined_aliases, end='', file=_file)
 
     def format_bash(self, code):
+        print(self.var_name, file=sys.stderr)
         conditionals = []
         if self.parse_equals_value:
             conditionals.append(SC.substr_var_equals_value('arg', '--' + self.long_name + '='))

@@ -11,8 +11,13 @@ class ShellCodeGen:
     indent = 0
     increment = 0
 
-    def add_line(self, line):
-        prefix = self.indent_char * self.indent
+    write_buffer = ""
+
+    def add_line(self, line, indent=None):
+        if indent is None:
+            indent = self.indent
+
+        prefix = self.indent_char * indent
         if line:
             self.code.append(prefix + line)
         else:
@@ -113,7 +118,15 @@ class ShellCodeGen:
     def export_var(self, var_name, value):
         self.add_line('export ' + var_name + '="' + value + '"')
 
-    def write(self, _file=sys.stdout, allow_partial=False):
+    def write(self, line):
+        self.write_buffer += line
+        if line.endswith("\n"):
+            parts = self.write_buffer.split('\n')
+            for part in parts[:-1]:
+                self.code.append(part)
+            self.write_buffer = ''
+
+    def to_file(self, _file=sys.stdout, allow_partial=False):
         if not allow_partial:
             assert not self.stack
 
