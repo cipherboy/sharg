@@ -6,12 +6,6 @@ from .shell import ShellCodeGen as SCG
 from .shell import ShellConditional as SC
 
 
-class UnknownBehavior(Enum):
-    IGNORE = 1
-    ERROR = 2
-    COLLECT = 3
-
-
 class Value(Enum):
     FalseTrue = 1
     TrueFalse = 2
@@ -21,53 +15,61 @@ class Value(Enum):
     WhitelistedString = 6
     Substring = 7
 
-    def format_bash(self, code, long_name, var_name, source, do_shift=False):
+    def format_bash(self, code, long_name, var_name, source, do_shift=False,
+                    whitelist=None):
+        tmp_var = "__tmp_" + var_name
+
         if self == Value.FalseTrue:
             code.set_var(var_name, 'true')
         elif self == Value.TrueFalse:
             code.set_var(var_name, 'false')
         elif self == Value.Directory:
-            code.define_var("__tmp_" + var_name, source)
+            code.define_var(tmp_var, source)
             if do_shift:
                 code.add_line('shift')
             code.add_line('')
 
-            cond = SC.not_is_dir('$__tmp_' + var_name)
+            cond = SC.not_is_dir('$' + tmp_var)
             code.begin_if(cond)
             code.add_line('_handle_parse_error "' + long_name + '" ' +
-                          '"$__tmp_' + var_name + '"')
+                          '"$' + tmp_var + '"')
             code.begin_else()
-            code.set_var(var_name, "$__tmp_" + var_name)
+            code.set_var(var_name, "$" + tmp_var)
             code.end_if()
         elif self == Value.File:
-            code.define_var("__tmp_" + var_name, source)
+            code.define_var(tmp_var, source)
             if do_shift:
                 code.add_line('shift')
             code.add_line('')
 
-            cond = SC.not_is_file('$__tmp_' + var_name)
+            cond = SC.not_is_file('$' + tmp_var)
             code.begin_if(cond)
             code.add_line('_handle_parse_error "' + long_name + '" ' +
-                          '"$__tmp_' + var_name + '"')
+                          '"$' + tmp_var + '"')
             code.begin_else()
-            code.set_var(var_name, "$__tmp_" + var_name)
+            code.set_var(var_name, "$" + tmp_var)
             code.end_if()
         elif self == Value.String:
             code.set_var(var_name, source)
             if do_shift:
                 code.add_line('shift')
         elif self == Value.WhitelistedString:
-            code.define_var("__tmp_" + var_name, source)
+            assert whitelist
+
+            code.define_var(tmp_var, source)
             if do_shift:
                 code.add_line('shift')
             code.add_line('')
 
-            cond = '_validate_' + var_name + ' "__tmp_' + var_name + '"'
+            cond_whitelist = list(map(lambda item:
+                                 SC.str_var_not_equals_value(tmp_var, item),
+                                 whitelist))
+            cond = SC.c_and(cond_whitelist)
             code.begin_if(cond)
             code.add_line('_handle_parse_error "' + long_name + '" ' +
-                          '"$__tmp_' + var_name + '"')
+                          '"$' + tmp_var + '"')
             code.begin_else()
-            code.set_var(var_name, "$__tmp_" + var_name)
+            code.set_var(var_name, "$" + tmp_var)
             code.end_if()
         else:
             raise Exception("Unknown value: %d" % self.value)
@@ -84,18 +86,22 @@ class CommandLine:
     epilog = None
 
     positional_arguments = 0
-    catch_remainder = None
+    bash_var_position = "_parse_args_positional_index"
+
+    catch_remainder = False
+    bash_var_remainder = "_parse_args_remainder"
 
     parse_unix_style = True
     parse_equals_value = True
 
-    bash_var_prefix = "_pc_"
+    bash_var_prefix = "_"
     bash_indent_increment = 4
 
     help_indent_increment = 2
 
     def __init__(self, prog=None, usage=None, description=None, example=None,
-                 epilog=None, equals=None, unix=None, add_help=True):
+                 epilog=None, equals=None, unix=None, add_help=True,
+                 catch_remainder=False):
         assert prog is None or isinstance(prog, str)
         assert usage is None or isinstance(usage, str)
         assert description is None or isinstance(description, str)
@@ -104,6 +110,7 @@ class CommandLine:
         assert equals is None or isinstance(equals, bool)
         assert unix is None or isinstance(unix, bool)
         assert isinstance(add_help, bool)
+        assert isinstance(catch_remainder, bool)
 
         self.program_name = prog
         self.usage = usage
@@ -116,11 +123,14 @@ class CommandLine:
         if isinstance(unix, bool):
             self.parse_unix_style = unix
 
-        help_option = self.add_option(long_name='help',
-                                      short_name='h',
-                                      help_text='Print this help text.',
-                                      option_type=Value.FalseTrue)
-        help_option.var_name = 'parse_args_print_help'
+        if add_help:
+            help_option = self.add_option(long_name='help',
+                                          short_name='h',
+                                          help_text='Print this help text.',
+                                          option_type=Value.FalseTrue)
+            help_option.var_name = 'parse_args_print_help'
+
+        self.catch_remainder = catch_remainder
 
         self.__generate_usage__()
 
@@ -136,12 +146,16 @@ class CommandLine:
             if self.arguments:
                 self.usage += " [arguments]"
 
-    def add_argument(self, name, help_text=None):
+    def add_argument(self, name, help_text=None, argument_type=Value.String,
+                     whitelist=None):
         assert isinstance(name, str)
         assert help_text is None or isinstance(help_text, str)
+        assert isinstance(argument_type, Value)
 
-        arg = Argument(name=name, position=self.positional_arguments,
-                       help_text=help_text)
+        arg = Argument(name=name, var_position=self.bash_var_position,
+                       position=self.positional_arguments,
+                       help_text=help_text, argument_type=argument_type,
+                       whitelist=whitelist)
 
         self.positional_arguments += 1
         self.arguments.append(arg)
@@ -206,6 +220,7 @@ class CommandLine:
 
         code.begin_function("parse_args")
         code.define_var('parse_args_print_help', 'false')
+        code.define_var(self.bash_var_position, 0)
         cond = SC.int_var_greater_value('#', 0)
         code.begin_while(cond)
         code.define_var('arg', '$1')
@@ -215,11 +230,16 @@ class CommandLine:
         if self.options:
             for option in self.options:
                 option.format_bash(code)
-            code.end_if()
 
         if self.arguments:
             for argument in self.arguments:
                 argument.format_bash(code)
+
+        if self.catch_remainder:
+            code.begin_else()
+            code.append_array(self.bash_var_remainder, "$arg")
+
+        if self.options or self.arguments:
             code.end_if()
 
         code.end_while()
@@ -227,7 +247,9 @@ class CommandLine:
         cond = SC.str_var_equals_value('parse_args_print_help', 'true')
         code.begin_if(cond)
         code.add_line('print_help')
+        code.add_line('return 1')
         code.end_if()
+        code.add_line('return 0')
         code.end_function()
 
         code.begin_function("print_help")
@@ -238,7 +260,6 @@ class CommandLine:
 
         code.to_file(_file=_file)
 
-
     def format_man(self, _file=sys.stdout, _indent=0):
         pass
 
@@ -246,16 +267,25 @@ class CommandLine:
 class Argument:
     name = None
     var_name = None
-    position = None
     help_text = None
 
+    position = None
+    var_position = None
+
+    value_type = None
+
+    whitelist = []
     aliases = {}
 
-    def __init__(self, name=None, position=None, help_text=None):
+    def __init__(self, name=None, var_position=None, position=None, help_text=None, argument_type=None,
+                 whitelist=None):
         self.name = name
+        self.var_position = var_position
         self.position = position
         self.help_text = help_text
         self.var_name = name.replace('-', '_')
+        self.value_type = argument_type
+        self.whitelist = whitelist
 
     def format_help(self, _file=sys.stdout, _indent=0, _increment=2):
         indent = " " * _indent
@@ -268,6 +298,12 @@ class Argument:
         if self.aliases:
             joined_aliases = ", ".join(self.aliases)
             print(indent2 + "Aliases: " + joined_aliases, end='', file=_file)
+
+    def format_bash(self, code):
+        cond = SC.int_var_equals_value(self.var_position, self.position)
+        code.begin_if_elif(cond)
+        code.increment_var(self.var_position)
+        self.value_type.format_bash(code, self.name, self.var_name, '$arg', do_shift=False, whitelist=self.whitelist)
 
 
 class Option:
@@ -282,13 +318,15 @@ class Option:
     parse_equals_value = True
 
     aliases = {}
+    whitelist = None
 
-    def __init__(self, long_name=None, short_name=None, help_text=None, option_type=None):
+    def __init__(self, long_name=None, short_name=None, help_text=None, option_type=None, whitelist=None):
         self.long_name = long_name
         self.short_name = short_name
         self.help_text = help_text
         self.value_type = option_type
         self.var_name = long_name.replace('-', '_')
+        self.whitelist = whitelist
 
     def format_help(self, _file=sys.stdout, _indent=0):
         indent = " " * _indent
@@ -318,15 +356,15 @@ class Option:
             print(indent2 + "Aliases: " + joined_aliases, end='', file=_file)
 
     def format_bash(self, code):
-        print(self.var_name, file=sys.stderr)
         conditionals = []
+
         if self.parse_equals_value:
             conditionals.append(SC.substr_var_equals_value('arg', '--' + self.long_name + '='))
             if self.parse_unix_style:
                 conditionals.append(SC.substr_var_equals_value('arg', '-' + self.long_name + '='))
 
             code.begin_if_elif(SC.c_or(*conditionals))
-            self.value_type.format_bash(code, self.long_name, self.var_name, '${arg#*=}', do_shift=False)
+            self.value_type.format_bash(code, self.long_name, self.var_name, '${arg#*=}', do_shift=False, whitelist=self.whitelist)
             conditionals = []
 
         conditionals.append(SC.str_var_equals_value('arg', '--' + self.long_name))
@@ -336,4 +374,4 @@ class Option:
             conditionals.append(SC.str_var_equals_value('arg', '-' + self.short_name))
 
         code.begin_if_elif(SC.c_or(*conditionals))
-        self.value_type.format_bash(code, self.long_name, self.var_name, '$1', do_shift=True)
+        self.value_type.format_bash(code, self.long_name, self.var_name, '$1', do_shift=True, whitelist=self.whitelist)

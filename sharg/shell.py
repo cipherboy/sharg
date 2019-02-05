@@ -110,13 +110,19 @@ class ShellCodeGen:
         self.add_line("fi")
 
     def set_var(self, var_name, value):
-        self.add_line(var_name + '="' + value + '"')
+        self.add_line(var_name + '="' + str(value) + '"')
 
     def define_var(self, var_name, value):
-        self.add_line('local ' + var_name + '="' + value + '"')
+        self.add_line('local ' + var_name + '="' + str(value) + '"')
 
     def export_var(self, var_name, value):
-        self.add_line('export ' + var_name + '="' + value + '"')
+        self.add_line('export ' + var_name + '="' + str(value) + '"')
+
+    def increment_var(self, var_name, amount=1):
+        self.add_line(var_name + '=$((' + var_name + ' + ' + str(amount) + '))')
+
+    def append_array(self, var_name, value):
+        self.add_line(var_name + '+=("' + str(value) + '")')
 
     def write(self, line):
         self.write_buffer += line
@@ -210,7 +216,7 @@ class ShellConditional:
 
         obj = cls()
         obj.lhs = '$' + var_name
-        obj.operator = '='
+        obj.operator = '=='
         obj.rhs = str(value)
         obj.c_type = 'numeric'
         return obj
@@ -266,7 +272,11 @@ class ShellConditional:
         obj.parts = []
 
         for arg in args:
-            obj.parts.append(arg)
+            if isinstance(arg, str) or isinstance(arg, ShellConditional):
+                obj.parts.append(str(arg))
+            else:
+                for arg_part in arg:
+                    obj.parts.append(str(arg_part))
 
         return obj
 
@@ -278,7 +288,11 @@ class ShellConditional:
         obj.parts = []
 
         for arg in args:
-            obj.parts.append(arg)
+            if isinstance(arg, str) or isinstance(arg, ShellConditional):
+                obj.parts.append(str(arg))
+            else:
+                for arg_part in arg:
+                    obj.parts.append(str(arg_part))
 
         return obj
 
