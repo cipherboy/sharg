@@ -2,6 +2,10 @@ import io
 import os
 import yaml
 
+from .commandline import CommandLine
+from .value import Value
+
+
 def parse_yaml(yaml_file):
     contents = yaml_file
 
@@ -130,6 +134,49 @@ def type_validate(obj, parse_path=""):
         grammar_parse_path = parse_path + ".grammar[" + str(num) + "]"
         assert_type(obj["grammar"], num, str, grammar_parse_path)
 
-def parse_dict(obj):
+def constraint_validate(obj, parse_path=""):
+    pass
+
+def parse_option(option: dict, result: CommandLine):
+    _o_name = option.get("name", None)
+    _o_short = option.get("short", None)
+    _o_help = option.get("description", None)
+    _o_type = option.get("type", None)
+    _o_value = Value[_o_type]
+
+    result.add_option(_o_name, short_name=_o_short, help_text=_o_help,
+                      option_type=_o_value)
+
+def parse_argument(argument: dict, result: CommandLine):
+    _a_name = argument.get("name", None)
+    _a_help = argument.get("description", None)
+    _a_type = argument.get("type", None)
+    _a_value = Value[_a_type]
+    _a_whitelist = argument.get("whitelist", None)
+
+    result.add_argument(_a_name, help_text=_a_help, argument_type=_a_value,
+                        whitelist=_a_whitelist)
+
+def parse_dict(obj: dict) -> CommandLine:
     type_validate(obj, parse_path="")
-    return obj
+    constraint_validate(obj, parse_path="")
+
+    _prog = obj.get("name", None)
+    _usage = obj.get("usage", None)
+    _description = obj.get("description", None)
+    _example = obj.get("example", None)
+    _epilog = obj.get("epilog", None)
+    _equals = obj.get("equals", None)
+    _unix = obj.get("unix", None)
+
+    result: CommandLine = CommandLine(prog=_prog, usage=_usage,
+                          description=_description, example=_example,
+                          epilog=_epilog, equals=_equals, unix=_unix)
+
+    for option in obj["options"]:
+        parse_option(option, result)
+
+    for argument in obj["arguments"]:
+        parse_argument(argument, result)
+
+    return result

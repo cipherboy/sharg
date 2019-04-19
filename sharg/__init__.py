@@ -6,4 +6,4 @@ from .argument import Argument
 from .option import Option
 from .commandline import CommandLine
 
-from .parser import parse_yaml, parse_dict
+from .config import parse_yaml, parse_dict
