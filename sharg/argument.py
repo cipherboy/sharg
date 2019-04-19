@@ -1,6 +1,7 @@
 import sys
 
 from .shell import ShellConditional as SC
+from .value import Value
 
 
 class Argument:
@@ -34,9 +35,10 @@ class Argument:
         if self.help_text:
             print(": " + self.help_text, end='', file=_file)
         print("", file=_file)
-        if self.aliases:
-            joined_aliases = ", ".join(self.aliases)
-            print(indent2 + "Aliases: " + joined_aliases, end='', file=_file)
+
+        if self.value_type == Value.Subparser:
+            for key in sorted(self.whitelist):
+                print(indent2 + "- " + key + ": " + self.whitelist[key].description, file=_file)
 
     def format_bash(self, code):
         cond = SC.int_var_equals_value(self.var_position, self.position)

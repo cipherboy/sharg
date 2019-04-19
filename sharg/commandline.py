@@ -12,8 +12,9 @@ from .option import Option
 class CommandLine:
     options = []
     arguments = []
+    grammar = []
 
-    program_name = None
+    program_name: str = ""
     usage = None
     description = None
     example = None
@@ -33,10 +34,10 @@ class CommandLine:
 
     help_indent_increment = 2
 
-    def __init__(self, prog=None, usage=None, description=None, example=None,
+    def __init__(self, prog="", usage=None, description=None, example=None,
                  epilog=None, equals=None, unix=None, add_help=True,
-                 catch_remainder=False):
-        assert prog is None or isinstance(prog, str)
+                 catch_remainder=False, grammar=[]):
+        assert isinstance(prog, str)
         assert usage is None or isinstance(usage, str)
         assert description is None or isinstance(description, str)
         assert example is None or isinstance(example, str)
@@ -45,6 +46,11 @@ class CommandLine:
         assert unix is None or isinstance(unix, bool)
         assert isinstance(add_help, bool)
         assert isinstance(catch_remainder, bool)
+        assert isinstance(grammar, list)
+
+        self.options = []
+        self.arguments = []
+        self.grammar = []
 
         self.program_name = prog
         self.usage = usage
@@ -65,6 +71,7 @@ class CommandLine:
             help_option.var_name = 'parse_args_print_help'
 
         self.catch_remainder = catch_remainder
+        self.grammar = grammar
 
         self.__generate_usage__()
 
@@ -75,10 +82,19 @@ class CommandLine:
         if not self.usage:
             self.usage = "Usage: %s"
 
-            if self.options:
-                self.usage += " [options]"
-            if self.arguments:
-                self.usage += " [arguments]"
+            #if self.options:
+            #    self.usage += " [options]"
+            #if self.arguments:
+            #    self.usage += " [arguments]"
+            g_len = len(self.grammar)
+            for item in self.grammar:
+                self.usage += " "
+                if item.startswith("arguments."):
+                    self.usage += "<" + item[10:] + ">"
+                elif item == "...":
+                    self.usage += "[...]"
+                else:
+                    self.usage += item
 
     def add_argument(self, name, help_text=None, argument_type=Value.String,
                      whitelist=None):

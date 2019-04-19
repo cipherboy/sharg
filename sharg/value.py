@@ -8,7 +8,7 @@ class Value(Enum):
     Directory = 3
     File = 4
     String = 5
-    WhitelistedString = 6
+    Whitelist = 6
     Substring = 7
     Subparser = 8
     Array = 9
@@ -51,5 +51,7 @@ class Value(Enum):
             code.set_var(var_name, source)
             if do_shift:
                 code.add_line('shift')
-        elif self == Value.WhitelistedString:
+        elif self == Value.Whitelist:
+            assert whitelist
+        elif self == Value.Subparser:
             assert whitelist
