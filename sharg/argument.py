@@ -27,9 +27,33 @@ class Argument:
         self.value_type = argument_type
         self.whitelist = whitelist
 
+    def __groups__(self):
+        all_groups = set()
+        has_none = False
+
+        for key in self.whitelist:
+            group = self.whitelist[key].group
+            if group:
+                all_groups.add(group)
+            else:
+                has_none = True
+
+        return sorted(all_groups), has_none
+
+    def __by_group__(self, group):
+        all_keys = set()
+
+        for key in self.whitelist:
+            subcmd = self.whitelist[key]
+            if subcmd.group == group:
+                all_keys.add(key)
+
+        return sorted(all_keys)
+
     def format_help(self, _file=sys.stdout, _indent=0, _increment=2):
         indent = " " * _indent
         indent2 = " " * (_indent+_increment)
+        indent3 = " " * (_indent+_increment+_increment)
 
         print(indent + self.name, end='', file=_file)
         if self.help_text:
@@ -37,8 +61,19 @@ class Argument:
         print("", file=_file)
 
         if self.value_type == Value.Subparser:
-            for key in sorted(self.whitelist):
-                print(indent2 + "- " + key + ": " + self.whitelist[key].description, file=_file)
+            groups, has_none = self.__groups__()
+
+            if groups:
+                for group in sorted(groups):
+                    print(indent2 + group + ":", file=_file)
+                    for key in self.__by_group__(group):
+                        print(indent3 + "- " + key + ": " + self.whitelist[key].description, file=_file)
+                    print("", file=_file)
+
+                print(indent2 + "Other commands:", file=_file)
+                for key in self.__by_group__(None):
+                    print(indent3 + "- " + key + ": " + self.whitelist[key].description, file=_file)
+
 
     def format_bash(self, code):
         cond = SC.int_var_equals_value(self.var_position, self.position)

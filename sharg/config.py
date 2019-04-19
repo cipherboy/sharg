@@ -180,6 +180,7 @@ def parse_dict(obj: dict) -> CommandLine:
     _prog = obj.get("name", None)
     _usage = obj.get("usage", None)
     _description = obj.get("description", None)
+    _group = obj.get("group", None)
     _example = obj.get("example", None)
     _epilog = obj.get("epilog", None)
     _equals = obj.get("equals", None)
@@ -187,7 +188,7 @@ def parse_dict(obj: dict) -> CommandLine:
     _grammar = obj.get("grammar", None)
 
     result: CommandLine = CommandLine(prog=_prog, usage=_usage,
-                                      description=_description,
+                                      description=_description, group=_group,
                                       example=_example, epilog=_epilog,
                                       equals=_equals, unix=_unix,
                                       grammar=_grammar)

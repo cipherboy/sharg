@@ -17,6 +17,7 @@ class CommandLine:
     program_name: str = ""
     usage = None
     description = None
+    group = None
     example = None
     epilog = None
 
@@ -34,12 +35,13 @@ class CommandLine:
 
     help_indent_increment = 2
 
-    def __init__(self, prog="", usage=None, description=None, example=None,
-                 epilog=None, equals=None, unix=None, add_help=True,
-                 catch_remainder=False, grammar=[]):
+    def __init__(self, prog="", usage=None, description=None, group=None,
+                 example=None, epilog=None, equals=None, unix=None,
+                 add_help=True, catch_remainder=False, grammar=[]):
         assert isinstance(prog, str)
         assert usage is None or isinstance(usage, str)
         assert description is None or isinstance(description, str)
+        assert group is None or isinstance(group, str)
         assert example is None or isinstance(example, str)
         assert epilog is None or isinstance(epilog, str)
         assert equals is None or isinstance(equals, bool)
@@ -55,6 +57,7 @@ class CommandLine:
         self.program_name = prog
         self.usage = usage
         self.description = description
+        self.group = group
         self.example = example
         self.epilog = epilog
 
