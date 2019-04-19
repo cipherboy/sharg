@@ -2,6 +2,8 @@ import io
 import os
 import yaml
 
+from typing import Dict
+
 from .commandline import CommandLine
 from .value import Value
 
@@ -147,12 +149,26 @@ def parse_option(option: dict, result: CommandLine):
     result.add_option(_o_name, short_name=_o_short, help_text=_o_help,
                       option_type=_o_value)
 
+def parse_whitelist(obj: dict) -> Dict[str, CommandLine]:
+    whitelist: Dict[str, CommandLine] = {}
+
+    if obj is None:
+        return whitelist
+
+    for item in obj:
+        subparser = parse_dict(item)
+        key = item["name"]
+        whitelist[key] = subparser
+
+    return whitelist
+
 def parse_argument(argument: dict, result: CommandLine):
     _a_name = argument.get("name", None)
     _a_help = argument.get("description", None)
     _a_type = argument.get("type", None)
     _a_value = Value[_a_type]
-    _a_whitelist = argument.get("whitelist", None)
+    _a_dict = argument.get("whitelist", None)
+    _a_whitelist = parse_whitelist(_a_dict)
 
     result.add_argument(_a_name, help_text=_a_help, argument_type=_a_value,
                         whitelist=_a_whitelist)
@@ -168,10 +184,13 @@ def parse_dict(obj: dict) -> CommandLine:
     _epilog = obj.get("epilog", None)
     _equals = obj.get("equals", None)
     _unix = obj.get("unix", None)
+    _grammar = obj.get("grammar", None)
 
     result: CommandLine = CommandLine(prog=_prog, usage=_usage,
-                          description=_description, example=_example,
-                          epilog=_epilog, equals=_equals, unix=_unix)
+                                      description=_description,
+                                      example=_example, epilog=_epilog,
+                                      equals=_equals, unix=_unix,
+                                      grammar=_grammar)
 
     for option in obj["options"]:
         parse_option(option, result)
