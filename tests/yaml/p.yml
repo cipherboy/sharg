@@ -1,0 +1,245 @@
+name: p
+description: a concise, opinionated interface over pass
+options:
+  - name: password-store-dir
+    short: P
+    description: path to the password storage directory
+    type: Directory
+    scope: global
+  - name: gnupg-home-dir
+    short: G
+    description: path to the GnuPG home directory
+    type: Directory
+    scope: global
+arguments:
+  - name: cmd
+    description: p command to run
+    type: Subparser
+    whitelist:
+        - name: clone
+          description: create a password store from a git repository
+          group: Setup
+          function: ___p_clone
+          arguments:
+              - name: uri
+                description: URI that the git repository resides at
+          grammar:
+            - "[options]"
+            - "arguments.uri"
+        - name: create
+          description: create a password store from scratch
+          group: Setup
+          function: ___p_create
+          options:
+              - name: without-git
+                short: n
+                description: don't create the password store with git
+                type: TrueFalse
+                aliases:
+                    - without-git
+                    - no-git
+                antonyms:
+                    - with-git
+                    - git
+          arguments:
+              - name: gpg_id
+                description: GPG Key ID to initialize password store with
+                when: cmd == 'create'
+          grammar:
+            - "[options]"
+            - "arguments.gpg_id"
+        - name: keys
+          description: manage keys used to encrypt passwords
+          group: Setup
+          function: ___p_keys
+          arguments:
+              - name: key_cmd
+                description: key management action
+                type: Subparser
+                whitelist:
+                  - name: init
+                    description: initialize the key manager
+                    function: ___p_key_init
+                    arguments:
+                      - name: key_id
+                        description: default key to use for key management
+                    grammar:
+                      - "arguments.key_id"
+                  - name: import
+                    description: import a key from gpg's database
+                    function: ___p_key_import
+                    arguments:
+                      - name: key_nickname
+                        description: nickname of the key to import
+                      - name: key_id
+                        description: GPG Key ID to import
+                    grammar:
+                        - arguments.key_nickname
+                        - arguments.key_id
+                  - name: export
+                    description: export a key into GnuPG's database and sign it
+                    function: ___p_key_export
+                    arguments:
+                      - name: key_nickname
+                        description: nickname of the key to export
+                    grammar:
+                        - arguments.key_nickname
+                  - name: list
+                    description: list all keys in the key manager
+                    function: ___p_keys_list
+                  - name: regen
+                    description: recreate all .gpg-id files and re-encrypt passwords
+                    function: ___p_keys_regen
+                  - name: delete
+                    description: delete a key from the key manager
+                    function: ___p_key_delete
+                    arguments:
+                      - name: key_nickname
+                        description: nickname of the key to delete
+                    grammar:
+                        - arguments.key_nickname
+                  - name: rename
+                    description: change the nickname of a key
+                    function: ___p_key_rename
+                    arguments:
+                      - name: key_old
+                        description: nickname of the key to rename
+                      - name: key_new
+                        description: new name for the key
+                    grammar:
+                        - arguments.key_old
+                        - arguments.key_new
+                  - name: update
+                    description: update a key in the database
+                    function: ___p_key_update
+                    arguments:
+                      - name: key_nickname
+                        description: nickname of the key to update
+                    grammar:
+                        - arguments.key_nickname
+          grammar:
+            - "[options]"
+            - "arguments.key_cmd"
+        - name: groups
+          description: manage groups of keys used to encrypt passwords
+          group: Setup
+          function: ___p_groups
+          arguments:
+              - name: group_cmd
+                description: group management action
+                type: Subparser
+                whitelist:
+                  - name: create
+                    description: create a new group
+                    function: ___p_group_create
+                    arguments:
+                      - name: group_name
+                        description: nickname of the group to create
+                      - name: group_keys
+                        description: nickname of the keys to add to the group
+                        type: Array
+                    grammar:
+                        - arguments.group_name
+                        - arguments.group_keys
+                        - ...
+                  - name: add
+                    description: add keys to a group
+                    function: ___p_group_add
+                    arguments:
+                      - name: group_name
+                        description: group to extend with new keys
+                      - name: group_keys
+                        description: nickname of the keys to add to the group
+                        type: Array
+                    grammar:
+                        - arguments.group_name
+                        - arguments.group_keys
+                        - ...
+                  - name: remove
+                    description: remove keys from a group
+                    function: ___p_group_remove
+                    arguments:
+                      - name: group_name
+                        description: group to remove keys from
+                      - name: group_keys
+                        description: nickname of the keys to remove from the group
+                        type: Array
+                    grammar:
+                        - arguments.group_name
+                        - arguments.group_keys
+                        - ...
+                  - name: delete
+                    description: delete a group
+                    function: ___p_group_delete
+                    arguments:
+                      - name: group_name
+                        description: group to extend with new keys
+                    grammar:
+                        - arguments.group_name
+                  - name: list
+                    description: list all groups
+                    function: ___p_group_list
+          grammar:
+            - "[options]"
+            - "arguments.group_cmd"
+        - name: dirs
+          description: manage keys associated with directories
+          group: Setup
+        - name: gpg
+          description: manage keys in GnuPG's database
+          group: Setup
+        - name: cd
+          description: change directories
+          group: Basic navigation
+        - name: cp
+          description: copy the contents of one file to another location
+          group: Basic navigation
+        - name: ls
+          description: list files and directories
+          group: Basic navigation
+        - name: mkdir
+          description: make a new directory
+          group: Basic navigation
+        - name: mv
+          description: move a file to another location
+          group: Basic navigation
+        - name: rm
+          description: remove the specified path from the password store
+          group: Basic navigation
+        - name: cat
+          description: show the contents of a file
+          group: Managing passwords
+        - name: edit
+          description: edit the contents of a file
+          group: Managing passwords
+        - name: generate
+          description: generate a new password
+          group: Managing passwords
+        - name: json
+          description: manipulate a JSON-encoded password file
+          group: Managing passwords
+        - name: find
+          description: list all files in the password store
+          group: Search commands
+        - name: locate
+          description: locate files and directories matching a pattern
+          group: Search commands
+        - name: search
+          description: search the contents of files for a match
+          group: Search commands
+        - name: decrypt
+          description: extract a file in the password store
+          group: Storing files
+        - name: encrypt
+          description: store a file into the password store
+          group: Storing files
+        - name: open
+          description: run a command to view a file in the password store
+          group: Storing files
+        - name: git
+          description: run git commands in the password store
+        - name: pass
+          description: pass a command through to pass (for accessing extensions)
+grammar:
+  - "[options]"
+  - "arguments.cmd"

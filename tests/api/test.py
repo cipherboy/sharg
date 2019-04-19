@@ -15,7 +15,7 @@ o2 = c.add_option("gnupg-home-dir", "G",
 _whitelist = ["ls"]
 a = c.add_argument('cmd',
                    'p command to run.',
-                   argument_type=sharg.Value.WhitelistedString,
+                   argument_type=sharg.Value.Whitelist,
                    whitelist=_whitelist)
 
 if len(sys.argv) > 1 and sys.argv[1] == 'help':
