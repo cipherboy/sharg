@@ -123,6 +123,8 @@ def type_validate(obj, parse_path=""):
         assert_empty(obj, "arguments", parse_path, reason="To specify arguments in a parser, you must specify a grammar.")
 
         obj["grammar"] = []
+    if not assert_if_in(obj, "aliases", list, parse_path):
+        obj["aliases"] = []
 
     for num, option in enumerate(obj["options"]):
         option_parse_path = parse_path + ".options[" + str(num) + "]"
@@ -185,13 +187,24 @@ def parse_dict(obj: dict) -> CommandLine:
     _epilog = obj.get("epilog", None)
     _equals = obj.get("equals", None)
     _unix = obj.get("unix", None)
-    _grammar = obj.get("grammar", None)
+    _add_help = obj.get("add_help", True)
+    _catch_remainder = obj.get("catch_remainder", False)
+    _aliases = obj.get("aliases", [])
+    _grammar = obj.get("grammar", [])
+    _function_name = obj.get("function", None)
 
     result: CommandLine = CommandLine(prog=_prog, usage=_usage,
                                       description=_description, group=_group,
                                       example=_example, epilog=_epilog,
                                       equals=_equals, unix=_unix,
-                                      grammar=_grammar)
+                                      add_help=_add_help,
+                                      catch_remainder=_catch_remainder,
+                                      aliases=_aliases, grammar=_grammar,
+                                      function_name=_function_name)
+
+    _remainder = obj.get("remainder", None)
+    if _remainder:
+        result.bash_var_remainder = _remainder
 
     for option in obj["options"]:
         parse_option(option, result)
