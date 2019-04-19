@@ -51,7 +51,27 @@ class Value(Enum):
             code.set_var(var_name, source)
             if do_shift:
                 code.add_line('shift')
-        elif self == Value.Whitelist:
-            assert whitelist
-        elif self == Value.Subparser:
-            assert whitelist
+        elif self == Value.Whitelist or self == Value.Subparser:
+            code.define_var(tmp_var, source)
+            if do_shift:
+                code.add_line('shift')
+            code.add_line('')
+
+            conds = []
+            for item in sorted(whitelist):
+                cond = SC.str_var_equals_value(tmp_var, item)
+                if self == Value.Subparser:
+                    for alias in whitelist[item].aliases:
+                        cond = SC.c_or(cond, SC.str_var_equals_value(tmp_var, alias))
+                conds.append((item, cond))
+
+            value, cond = conds[0]
+            code.begin_if(cond)
+            code.set_var(var_name, value)
+            for value, cond in conds[1:]:
+                code.begin_elif(cond)
+                code.set_var(var_name, value)
+            code.begin_else()
+            code.add_line('_handle_parse_error "' + long_name + '" ' +
+                          '"$' + tmp_var + '"')
+            code.end_if()
