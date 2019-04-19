@@ -73,6 +73,9 @@ class Argument:
                 print(indent2 + "Other commands:", file=_file)
                 for key in self.__by_group__(None):
                     print(indent3 + "- " + key + ": " + self.whitelist[key].description, file=_file)
+            else:
+                for key in self.whitelist:
+                    print(indent2 + "- " + key + ": " + self.whitelist[key].description, file=_file)
 
 
     def format_bash(self, code):
