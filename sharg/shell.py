@@ -1,19 +1,21 @@
 import sys
+from typing import Optional, List
+
 
 class ShellCodeGen:
-    code = []
-    stack = []
+    code: List[str] = []
+    stack: List[str] = []
 
-    bash_function_style = True
-    function_error = False
+    bash_function_style: bool = True
+    function_error: bool = False
 
-    indent_char = " "
-    indent = 0
-    increment = 0
+    indent_char: str = " "
+    indent: int = 0
+    increment: int = 0
 
-    write_buffer = ""
+    write_buffer: str = ""
 
-    def add_line(self, line, indent=None):
+    def add_line(self, line: str, indent: Optional[int] = None):
         if indent is None:
             indent = self.indent
 
@@ -29,7 +31,7 @@ class ShellCodeGen:
     def end_block(self):
         self.indent -= self.increment
 
-    def begin_function(self, name):
+    def begin_function(self, name: str):
         line = ""
         if self.bash_function_style:
             line += "function "
@@ -56,7 +58,7 @@ class ShellCodeGen:
 
         self.add_line(line)
 
-    def begin_while(self, conditional):
+    def begin_while(self, conditional: str):
         self.add_line("while " + str(conditional) + "; do")
         self.begin_block()
         self.stack.append('while')
@@ -67,7 +69,7 @@ class ShellCodeGen:
         self.end_block()
         self.add_line("done")
 
-    def begin_for(self, conditional):
+    def begin_for(self, conditional: 'ShellConditional'):
         self.add_line("for " + str(conditional) + "; do")
         self.begin_block()
         self.stack.append('for')
@@ -78,12 +80,12 @@ class ShellCodeGen:
         self.end_block()
         self.add_line("done")
 
-    def begin_if(self, conditional):
+    def begin_if(self, conditional: 'ShellConditional'):
         self.add_line("if " + str(conditional) + "; then")
         self.begin_block()
         self.stack.append('if')
 
-    def begin_elif(self, conditional):
+    def begin_elif(self, conditional: 'ShellConditional'):
         assert self.stack and self.stack.pop() == 'if'
         self.end_block()
 
@@ -99,8 +101,8 @@ class ShellCodeGen:
         self.begin_block()
         self.stack.append('if')
 
-    def begin_if_elif(self, conditional):
-        if self.stack[-1] == "while":
+    def begin_if_elif(self, conditional: 'ShellConditional'):
+        if self.stack[-1] != "if":
             return self.begin_if(conditional)
         return self.begin_elif(conditional)
 
@@ -109,22 +111,22 @@ class ShellCodeGen:
         self.end_block()
         self.add_line("fi")
 
-    def set_var(self, var_name, value):
+    def set_var(self, var_name: str, value):
         self.add_line(var_name + '="' + str(value) + '"')
 
-    def define_var(self, var_name, value):
+    def define_var(self, var_name: str, value):
         self.add_line('local ' + var_name + '="' + str(value) + '"')
 
-    def export_var(self, var_name, value):
+    def export_var(self, var_name: str, value):
         self.add_line('export ' + var_name + '="' + str(value) + '"')
 
-    def increment_var(self, var_name, amount=1):
+    def increment_var(self, var_name: str, amount: int = 1):
         self.add_line(var_name + '=$((' + var_name + ' + ' + str(amount) + '))')
 
-    def append_array(self, var_name, value):
+    def append_array(self, var_name: str, value):
         self.add_line(var_name + '+=("' + str(value) + '")')
 
-    def write(self, line):
+    def write(self, line: str):
         self.write_buffer += line
         if line.endswith("\n"):
             parts = self.write_buffer.split('\n')
@@ -155,7 +157,7 @@ class ShellConditional:
         self.parts = []
 
     @classmethod
-    def str_var_equals_value(cls, var_name, value):
+    def str_var_equals_value(cls, var_name: str, value: str):
         obj = cls()
         obj.lhs = 'x$' + var_name
         obj.operator = '=='
@@ -164,7 +166,7 @@ class ShellConditional:
         return obj
 
     @classmethod
-    def substr_var_equals_value(cls, var_name, value):
+    def substr_var_equals_value(cls, var_name: str, value: str):
         obj = cls()
         obj.lhs = 'x${' + var_name + ':0:' + str(len(value)) + '}'
         obj.operator = '=='
