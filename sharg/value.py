@@ -10,6 +10,7 @@ class Value(Enum):
     String = 5
     WhitelistedString = 6
     Substring = 7
+    Subparser = 8
 
     def format_bash(self, code, long_name, var_name, source, do_shift=False,
                     whitelist=None):
@@ -51,4 +52,3 @@ class Value(Enum):
                 code.add_line('shift')
         elif self == Value.WhitelistedString:
             assert whitelist
-
