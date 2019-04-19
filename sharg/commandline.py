@@ -15,11 +15,15 @@ class CommandLine:
     grammar = []
 
     program_name: str = ""
+    aliases = []
+
     usage = None
     description = None
     group = None
     example = None
     epilog = None
+
+    function_name = None
 
     positional_arguments = 0
     bash_var_position = "_parse_args_positional_index"
@@ -37,7 +41,8 @@ class CommandLine:
 
     def __init__(self, prog="", usage=None, description=None, group=None,
                  example=None, epilog=None, equals=None, unix=None,
-                 add_help=True, catch_remainder=False, grammar=[]):
+                 add_help=True, catch_remainder=False, aliases=[],
+                 grammar=[], function_name=None):
         assert isinstance(prog, str)
         assert usage is None or isinstance(usage, str)
         assert description is None or isinstance(description, str)
@@ -48,13 +53,17 @@ class CommandLine:
         assert unix is None or isinstance(unix, bool)
         assert isinstance(add_help, bool)
         assert isinstance(catch_remainder, bool)
+        assert isinstance(aliases, list)
         assert isinstance(grammar, list)
+        assert function_name is None or isinstance(function_name, str)
 
         self.options = []
         self.arguments = []
         self.grammar = []
 
         self.program_name = prog
+        self.aliases = aliases
+
         self.usage = usage
         self.description = description
         self.group = group
@@ -75,6 +84,7 @@ class CommandLine:
 
         self.catch_remainder = catch_remainder
         self.grammar = grammar
+        self.function_name = function_name
 
         self.__generate_usage__()
 
@@ -171,7 +181,15 @@ class CommandLine:
         code.indent = _indent
         code.increment = _increment
 
-        code.begin_function("parse_args")
+        parse_function = "parse_args"
+        help_function = "print_help"
+        dispatch_function = "dispatch_subparser"
+        if self.function_name:
+            parse_function = self.function_name + "_" + parse_function
+            help_function = self.function_name + "_" + help_function
+            dispatch_function = self.function_name + "_" + dispatch_function
+
+        code.begin_function(parse_function)
         code.define_var('parse_args_print_help', 'false')
         code.define_var(self.bash_var_position, 0)
         cond = SC.int_var_greater_value('#', 0)
@@ -184,8 +202,11 @@ class CommandLine:
             for option in self.options:
                 option.format_bash(code)
 
+        subparser = False
         if self.arguments:
             for argument in self.arguments:
+                if argument.value_type == Value.Subparser:
+                    subparser = argument
                 argument.format_bash(code)
 
         if self.catch_remainder:
@@ -199,17 +220,37 @@ class CommandLine:
         code.add_line('')
         cond = SC.str_var_equals_value('parse_args_print_help', 'true')
         code.begin_if(cond)
-        code.add_line('print_help')
+        code.add_line(help_function)
         code.add_line('return 1')
         code.end_if()
         code.add_line('return 0')
         code.end_function()
 
-        code.begin_function("print_help")
-        code.add_line('cat - << _print_help_EOF')
+        code.begin_function(help_function)
+        code.add_line('cat - << ' + help_function + '_EOF')
         self.format_help(_file=code, _indent=0, _increment=None)
-        code.add_line('_print_help_EOF', indent=0)
+        code.add_line(help_function + '_EOF', indent=0)
         code.end_function()
+
+        if subparser:
+            code.begin_function(dispatch_function)
+
+            for item in sorted(subparser.whitelist):
+                cond = SC.str_var_equals_value(subparser.var_name, item)
+                code.begin_if_elif(cond)
+
+                if not subparser.whitelist[item].function_name:
+                    raise Exception("Expected subparser " + item + " of " + self.program_name + " to have function specified")
+
+                function_call = subparser.whitelist[item].function_name
+                if self.catch_remainder:
+                    function_call += ' "${' + self.bash_var_remainder + '[@]}"'
+                code.add_line(function_call)
+            code.begin_else()
+            code.add_line('_handle_dispatch_error "$' + subparser.var_name + '"')
+            code.end_if()
+
+            code.end_function()
 
         code.to_file(_file=_file)
 
