@@ -11,6 +11,7 @@ class Value(Enum):
     WhitelistedString = 6
     Substring = 7
     Subparser = 8
+    Array = 9
 
     def format_bash(self, code, long_name, var_name, source, do_shift=False,
                     whitelist=None):
