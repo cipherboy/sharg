@@ -61,13 +61,14 @@ class Argument:
         print("", file=_file)
 
         if self.value_type == Value.Subparser:
-            groups, has_none = self.__groups__()
+            groups, _ = self.__groups__()
 
             if groups:
                 for group in sorted(groups):
                     print(indent2 + group + ":", file=_file)
                     for key in self.__by_group__(group):
-                        print(indent3 + "- " + key + ": " + self.whitelist[key].description, file=_file)
+                        print(indent3 + "- " + key + ": " +
+                              self.whitelist[key].description, file=_file)
                     print("", file=_file)
 
                 print(indent2 + "Other commands:", file=_file)

@@ -62,7 +62,9 @@ class Option:
                 conditionals.append(SC.substr_var_equals_value('arg', '-' + self.long_name + '='))
 
             code.begin_if_elif(SC.c_or(*conditionals))
-            self.value_type.format_bash(code, self.long_name, self.var_name, '${arg#*=}', do_shift=False, whitelist=self.whitelist)
+            self.value_type.format_bash(code, self.long_name, self.var_name,
+                                        '${arg#*=}', do_shift=False,
+                                        whitelist=self.whitelist)
             conditionals = []
 
         conditionals.append(SC.str_var_equals_value('arg', '--' + self.long_name))
@@ -72,4 +74,6 @@ class Option:
             conditionals.append(SC.str_var_equals_value('arg', '-' + self.short_name))
 
         code.begin_if_elif(SC.c_or(*conditionals))
-        self.value_type.format_bash(code, self.long_name, self.var_name, '$1', do_shift=True, whitelist=self.whitelist)
+        self.value_type.format_bash(code, self.long_name, self.var_name,
+                                    '$1', do_shift=True,
+                                    whitelist=self.whitelist)

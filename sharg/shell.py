@@ -274,7 +274,7 @@ class ShellConditional:
         obj.parts = []
 
         for arg in args:
-            if isinstance(arg, str) or isinstance(arg, ShellConditional):
+            if isinstance(arg, (str, ShellConditional)):
                 obj.parts.append(str(arg))
             else:
                 for arg_part in arg:
@@ -290,7 +290,7 @@ class ShellConditional:
         obj.parts = []
 
         for arg in args:
-            if isinstance(arg, str) or isinstance(arg, ShellConditional):
+            if isinstance(arg, (str, ShellConditional)):
                 obj.parts.append(str(arg))
             else:
                 for arg_part in arg:

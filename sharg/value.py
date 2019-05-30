@@ -51,7 +51,7 @@ class Value(Enum):
             code.set_var(var_name, source)
             if do_shift:
                 code.add_line('shift')
-        elif self == Value.Whitelist or self == Value.Subparser:
+        elif self in (Value.Whitelist, Value.Subparser):
             code.define_var(tmp_var, source)
             if do_shift:
                 code.add_line('shift')

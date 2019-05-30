@@ -119,8 +119,10 @@ def type_validate(obj, parse_path=""):
     if not assert_if_in(obj, "arguments", list, parse_path):
         obj["arguments"] = []
     if not assert_if_in(obj, "grammar", list, parse_path):
-        assert_empty(obj, "options", parse_path, reason="To specify options in a parser, you must specify a grammar.")
-        assert_empty(obj, "arguments", parse_path, reason="To specify arguments in a parser, you must specify a grammar.")
+        assert_empty(obj, "options", parse_path,
+                     reason="To specify options in a parser, you must specify a grammar.")
+        assert_empty(obj, "arguments", parse_path,
+                     reason="To specify arguments in a parser, you must specify a grammar.")
 
         obj["grammar"] = []
     if not assert_if_in(obj, "aliases", list, parse_path):

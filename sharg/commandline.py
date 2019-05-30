@@ -1,7 +1,5 @@
 import sys
 
-from enum import Enum
-
 from .shell import ShellCodeGen as SCG
 from .shell import ShellConditional as SC
 
@@ -99,7 +97,6 @@ class CommandLine:
             #    self.usage += " [options]"
             #if self.arguments:
             #    self.usage += " [arguments]"
-            g_len = len(self.grammar)
             for item in self.grammar:
                 self.usage += " "
                 if item.startswith("arguments."):
@@ -240,7 +237,9 @@ class CommandLine:
                 code.begin_if_elif(cond)
 
                 if not subparser.whitelist[item].function_name:
-                    raise Exception("Expected subparser " + item + " of " + self.program_name + " to have function specified")
+                    raise Exception("Expected subparser " + item + " of " +
+                                    self.program_name +
+                                    " to have function specified")
 
                 function_call = subparser.whitelist[item].function_name
                 if self.catch_remainder:
