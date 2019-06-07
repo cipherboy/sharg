@@ -468,6 +468,7 @@ arguments:
         - name: sync
           description: sync a remote branch with a remote one
           function: ___p_sync
+mixed_options_arguments: False
 catch_remainder: True
 remainder: cmd_args
 function: _p

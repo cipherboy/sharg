@@ -7,7 +7,7 @@ function _p_parse_args() {
 
         if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
             parse_args_print_help="true"
-        elif [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif [ "x${arg:0:21}" == "x--password-store-dir=" ] || [ "x${arg:0:20}" == "x-password-store-dir=" ]; then
             local __tmp_password_store_dir="${arg#*=}"
@@ -17,7 +17,7 @@ function _p_parse_args() {
             else
                 password_store_dir="$__tmp_password_store_dir"
             fi
-        elif [ "x$arg" == "x--password-store-dir" ] || [ "x$arg" == "x-password-store-dir" ] || [ "x$arg" == "x-P" ]; then
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--password-store-dir" ] || [ "x$arg" == "x-password-store-dir" ] || [ "x$arg" == "x-P" ]; then
             local __tmp_password_store_dir="$1"
             shift
 
@@ -34,7 +34,7 @@ function _p_parse_args() {
             else
                 gnupg_home_dir="$__tmp_gnupg_home_dir"
             fi
-        elif [ "x$arg" == "x--gnupg-home-dir" ] || [ "x$arg" == "x-gnupg-home-dir" ] || [ "x$arg" == "x-G" ]; then
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--gnupg-home-dir" ] || [ "x$arg" == "x-gnupg-home-dir" ] || [ "x$arg" == "x-G" ]; then
             local __tmp_gnupg_home_dir="$1"
             shift
 
@@ -212,7 +212,9 @@ function _p_dispatch_subparser() {
         ___p_search "${cmd_args[@]}"
     elif [ "x$cmd" == "xsync" ]; then
         ___p_sync "${cmd_args[@]}"
-    else
+    elif [ ! -z "$cmd" ]; then
         _handle_dispatch_error "$cmd"
+    else
+        _p_print_help
     fi
 }
