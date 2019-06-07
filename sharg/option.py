@@ -53,7 +53,11 @@ class Option:
             joined_aliases = ", ".join(self.aliases)
             print(indent2 + "Aliases: " + joined_aliases, end='', file=_file)
 
-    def format_bash(self, code):
+    def format_bash(self, code, positional=False, var_position=None, position=None):
+        if positional:
+            assert var_position is not None
+            assert position is not None
+
         conditionals = []
 
         if self.parse_equals_value:
@@ -73,7 +77,12 @@ class Option:
         if self.short_name:
             conditionals.append(SC.str_var_equals_value('arg', '-' + self.short_name))
 
-        code.begin_if_elif(SC.c_or(*conditionals))
+        cond = SC.c_or(*conditionals)
+        if positional:
+            position_cond = SC.int_var_equals_value(var_position, position)
+            cond = SC.c_and(position_cond, cond)
+
+        code.begin_if_elif(cond)
         self.value_type.format_bash(code, self.long_name, self.var_name,
                                     '$1', do_shift=True,
                                     whitelist=self.whitelist)

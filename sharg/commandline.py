@@ -29,6 +29,8 @@ class CommandLine:
     catch_remainder = False
     bash_var_remainder = "_parse_args_remainder"
 
+    mixed_options_arguments = True
+
     parse_unix_style = True
     parse_equals_value = True
 
@@ -171,6 +173,13 @@ class CommandLine:
             print("", file=_file)
             print(indent + self.epilog, file=_file)
 
+    def find_argument(self, name):
+        for argument in self.arguments:
+            if argument.name == name:
+                return argument
+
+        return None
+
     def format_bash(self, _file=sys.stdout, _indent=0, _increment=None):
         code = SCG()
         if _increment is None:
@@ -195,22 +204,42 @@ class CommandLine:
         code.add_line('shift')
         code.add_line('')
 
-        if self.options:
-            for option in self.options:
-                option.format_bash(code)
-
         subparser = False
-        if self.arguments:
-            for argument in self.arguments:
+        need_endif = False
+        position = 0
+        for index, item in enumerate(self.grammar):
+            if item == '[options]':
+                assert self.options
+                for option in self.options:
+                    if self.mixed_options_arguments:
+                        option.format_bash(code)
+                    else:
+                        option.format_bash(code, positional=True,
+                                           var_position=self.bash_var_position,
+                                           position=position)
+                    need_endif = True
+            elif item.startswith("arguments."):
+                arg_name = item[len("arguments."):]
+                argument = self.find_argument(arg_name)
+                assert argument != None
+
+                argument.position = position
+                position += 1
+
                 if argument.value_type == Value.Subparser:
                     subparser = argument
+
                 argument.format_bash(code)
+                need_endif = True
+            elif self.catch_remainder and item.startswith("[vars.") and item.endswith("...]"):
+                assert item[len("[vars."):-1*len("...]")] == self.bash_var_remainder
+                assert index == len(self.grammar) - 1
+                assert need_endif
 
-        if self.catch_remainder:
-            code.begin_else()
-            code.append_array(self.bash_var_remainder, "$arg")
+                code.begin_else()
+                code.append_array(self.bash_var_remainder, "$arg")
 
-        if self.options or self.arguments:
+        if need_endif:
             code.end_if()
 
         code.end_while()
@@ -245,8 +274,12 @@ class CommandLine:
                 if self.catch_remainder:
                     function_call += ' "${' + self.bash_var_remainder + '[@]}"'
                 code.add_line(function_call)
-            code.begin_else()
+
+            cond = SC.str_var_not_empty(subparser.var_name)
+            code.begin_if_elif(cond)
             code.add_line('_handle_dispatch_error "$' + subparser.var_name + '"')
+            code.begin_else()
+            code.add_line(help_function)
             code.end_if()
 
             code.end_function()
