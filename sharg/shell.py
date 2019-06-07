@@ -202,6 +202,22 @@ class ShellConditional:
         return obj
 
     @classmethod
+    def str_var_empty(cls, var_name):
+        obj = cls()
+        obj.c_type = 'check'
+        obj.operator = '-z'
+        obj.rhs = '$' + var_name
+        return obj
+
+    @classmethod
+    def str_var_not_empty(cls, var_name):
+        obj = cls()
+        obj.c_type = 'check'
+        obj.operator = '! -z'
+        obj.rhs = '$' + var_name
+        return obj
+
+    @classmethod
     def int_var_greater_value(cls, var_name, value):
         assert isinstance(value, int)
 
