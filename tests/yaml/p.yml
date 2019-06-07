@@ -187,32 +187,209 @@ arguments:
           aliases:
             - dir
           function: ___p_dirs
+          arguments:
+              - name: dir_cmd
+                description: directory management action
+                type: Subparser
+                whitelist:
+                  - name: create
+                    description: track a new directory
+                    function: ___p_dir_create
+                    arguments:
+                      - name: dir_path
+                        description: path of the directory to manage
+                      - name: dir_keys
+                        description: nickname of the keys or groups to encrypt the directory with
+                        type: Array
+                    grammar:
+                        - arguments.dir_path
+                        - arguments.dir_keys...
+                  - name: add
+                    description: add keys to a directory
+                    function: ___p_dir_add
+                    arguments:
+                      - name: dir_path
+                        description: directory to extend with new keys
+                      - name: dir_keys
+                        description: nickname of the keys to add to the directory
+                        type: Array
+                    grammar:
+                        - arguments.dir_path
+                        - arguments.dir_keys...
+                  - name: remove
+                    description: remove keys from a directory
+                    function: ___p_dir_remove
+                    arguments:
+                      - name: dir_path
+                        description: directory to remove keys from
+                      - name: dir_keys
+                        description: nickname of the keys to remove from the directory
+                        type: Array
+                    grammar:
+                        - arguments.dir_path
+                        - arguments.dir_keys...
+                  - name: delete
+                    description: delete keys for a directory
+                    function: ___p_dir_delete
+                    arguments:
+                      - name: dir_path
+                        description: directory to quit tracking keys for
+                    grammar:
+                        - arguments.dir_path
+                  - name: list
+                    description: list all directories
+                    function: ___p_dir_list
+          grammar:
+            - "[options]"
+            - "arguments.dir_cmd"
         - name: gpg
           description: manage keys in GnuPG's database
           group: Setup
           function: ___p_gpg
+          arguments:
+              - name: gpg_cmd
+                description: gpg management action
+                type: Subparser
+                whitelist:
+                  - name: generate
+                    description: generae a new GPG key
+                    function: ___p_gpg_generate
+                    arguments:
+                      - name: gpg_name
+                        description: name of the GPG key's owner
+                      - name: gpg_email
+                        description: email address for the GPG key
+                    grammar:
+                        - arguments.gpg_name
+                        - arguments.gpg_email
+                  - name: import
+                    description: import a GPG key from a file
+                    function: ___p_gpg_import
+                    arguments:
+                      - name: gpg_path
+                        description: path to the GPG key to import
+                    grammar:
+                        - arguments.gpg_path
+                  - name: export
+                    description: export a GPG key to a file
+                    function: ___p_gpg_export
+                    arguments:
+                      - name: gpg_id
+                        description: identifier of the key to export
+                      - name: gpg_path
+                        description: path to write the key to
+                    grammar:
+                        - arguments.gpg_id
+                        - arguments.gpg_path
+                  - name: list
+                    description: list all keys tracked by GPG
+                    function: ___p_gpg_list
+                    arguments:
+                      - name: gpg_id
+                        description: optionally list only keys matching id
+                    grammar:
+                      - "[arguments.gpg_id]"
+                  - name: password
+                    description: change the password on a key
+                    function: ___p_gpg_password
+                    arguments:
+                      - name: gpg_id
+                        description: unique identifier for the GPG key
+                    grammar:
+                        - arguments.gpg_id
+                  - name: trust
+                    description: trust and sign the specified GPG key
+                    function: ___p_gpg_trust
+                    arguments:
+                      - name: gpg_id
+                        description: unique identifier for the GPG key
+                    grammar:
+                        - arguments.gpg_id
+          grammar:
+            - "[options]"
+            - "arguments.gpg_cmd"
         - name: cd
           description: change directories
           group: Basic navigation
           function: ___p_cd
+          options:
+              - name: absolute
+                short: a
+                description: treat as an absolute path
+                type: FalseTrue
+              - name: relative
+                short: r
+                description: treat as a relative path
+                type: FalseTrue
+          arguments:
+              - name: cd_path
+                description: path to change into; absolute if prefixed with '/' or --absolute is specified, else relative
+          grammar:
+            - "[options]"
+            - arguments.cd_path
         - name: cp
           description: copy the contents of one file to another location
           group: Basic navigation
           aliases:
             - copy
           function: ___p_cp
+          options:
+              - name: force
+                short: f
+                description: silently overwrites destination if it exists
+          arguments:
+              - name: old_path
+                description: existing path to copy from
+              - name: new_path
+                description: destination path to copy to
+          mixed_options_arguments: true
+          grammar:
+            - "[options]"
+            - arguments.old_path
+            - arguments.new_path
         - name: ls
           description: list files and directories
           group: Basic navigation
           aliases:
             - list
           function: ___p_ls
+          options:
+              - name: directory
+                short: d
+                description: list directories themselves, not their contents
+              - name: all
+                short: a
+                description: list contents as they appear in the file system, not hiding extensions
+          arguments:
+              - name: ls_paths
+                description: paths to inspect
+          mixed_options_arguments: true
+          grammar:
+            - "[options]"
+            - arguments.ls_paths...
         - name: mkdir
           description: make a new directory
           group: Basic navigation
           aliases:
             - m
           function: ___p_mkdir
+          options:
+              - name: recursive
+                short: r
+                alises:
+                    - parents
+                    - p
+                description: recrusively create the specified path
+              - name: absolute
+                short: a
+                description: treat the specified path as an relative to /, even if not prefixed by /
+          arguments:
+              - name: mkdir_paths
+                description: paths to create as directories
+          mixed_options_arguments: true
+          grammar:
+            - "[options]"
+            - arguments.mkdir_paths...
         - name: mv
           description: move a file to another location
           group: Basic navigation
