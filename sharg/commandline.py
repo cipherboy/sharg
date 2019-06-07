@@ -180,8 +180,11 @@ class CommandLine:
 
         return None
 
-    def format_bash(self, _file=sys.stdout, _indent=0, _increment=None):
-        code = SCG()
+    def format_bash(self, _code=None, _file=sys.stdout, _indent=0, _increment=None):
+        code = _code
+        if code is None:
+            code = SCG()
+
         if _increment is None:
             _increment = self.bash_indent_increment
         code.indent = _indent
@@ -218,7 +221,7 @@ class CommandLine:
                                            var_position=self.bash_var_position,
                                            position=position)
                     need_endif = True
-            elif item.startswith("arguments."):
+            elif item.startswith("arguments.") and not item.endswith("..."):
                 arg_name = item[len("arguments."):]
                 argument = self.find_argument(arg_name)
                 assert argument != None
@@ -284,7 +287,15 @@ class CommandLine:
 
             code.end_function()
 
-        code.to_file(_file=_file)
+            for cmd_name in subparser.whitelist:
+                sub_cmd = subparser.whitelist[cmd_name]
+
+                if self.program_name:
+                    sub_cmd.program_name = self.program_name + " " + sub_cmd.program_name
+                sub_cmd.format_bash(_code=code, _file=_file, _indent=_indent, _increment=_increment)
+
+        if _code == None:
+            code.to_file(_file=_file)
 
     def format_man(self, _file=sys.stdout, _indent=0):
         pass
