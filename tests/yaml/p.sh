@@ -34,40 +34,42 @@ function ___p_generate() { echo ___p_generate "$@" ; }
 function ___p_git() { echo ___p_git "$@" ; }
 function ___p_help() { echo ___p_help "$@" ; }
 function ___p_json() { echo ___p_json "$@" ; }
-function ___p_keys() { echo ___p_keys "$@" ; }
-function ___p_keys_delete() { echo ___p_keys_delete "$@" ; }
-function ___p_keys_dir_add() { echo ___p_keys_dir_add "$@" ; }
-function ___p_keys_dir_create() { echo ___p_keys_dir_create "$@" ; }
-function ___p_keys_dir_delete() { echo ___p_keys_dir_delete "$@" ; }
-function ___p_keys_dir_list() { echo ___p_keys_dir_list "$@" ; }
-function ___p_keys_dir_regen() { echo ___p_keys_dir_regen "$@" ; }
-function ___p_keys_dir_remove() { echo ___p_keys_dir_remove "$@" ; }
-function ___p_keys_export() { echo ___p_keys_export "$@" ; }
-function ___p_keys_gpg_generate() { echo ___p_keys_gpg_generate "$@" ; }
-function ___p_keys_gpg_import() { echo ___p_keys_gpg_import "$@" ; }
-function ___p_keys_gpg_list() { echo ___p_keys_gpg_list "$@" ; }
-function ___p_keys_gpg_password() { echo ___p_keys_gpg_password "$@" ; }
-function ___p_keys_gpg_trust() { echo ___p_keys_gpg_trust "$@" ; }
-function ___p_keys_group_add() { echo ___p_keys_group_add "$@" ; }
-function ___p_keys_group_create() { echo ___p_keys_group_create "$@" ; }
-function ___p_keys_group_delete() { echo ___p_keys_group_delete "$@" ; }
-function ___p_keys_group_list() { echo ___p_keys_group_list "$@" ; }
-function ___p_keys_group_remove() { echo ___p_keys_group_remove "$@" ; }
-function ___p_keys_import() { echo ___p_keys_import "$@" ; }
-function ___p_keys_init() { echo ___p_keys_init "$@" ; }
-function ___p_keys_list() { echo ___p_keys_list "$@" ; }
-function ___p_keys_regen() { echo ___p_keys_regen "$@" ; }
-function ___p_keys_rename() { echo ___p_keys_rename "$@" ; }
-function ___p_keys_update() { echo ___p_keys_update "$@" ; }
-function ___p_locate() { echo ___p_locate "$@" ; }
-function ___p_ls() { echo ___p_ls "$@" ; }
-function ___p_mkdir() { echo ___p_mkdir "$@" ; }
-function ___p_mv() { echo ___p_mv "$@" ; }
-function ___p_open() { echo ___p_open "$@" ; }
-function ___p_rm() { echo ___p_rm "$@" ; }
-function ___p_search() { echo ___p_search "$@" ; }
-function ___p_sync() { echo ___p_sync "$@" ; }
-function ___p_through() { echo ___p_through "$@" ; }
+function ___p_dir() { echo ___p_dir "$@" ; }
+function ___p_dir_add() { echo ___p_dir_add "$@" ; }
+function ___p_dir_create() { echo ___p_dir_create "$@" ; }
+function ___p_dir_delete() { echo ___p_dir_delete "$@" ; }
+function ___p_dir_list() { echo ___p_dir_list "$@" ; }
+function ___p_dir_regen() { echo ___p_dir_regen "$@" ; }
+function ___p_dir_remove() { echo ___p_dir_remove "$@" ; }
+function ___p_gpg() { echo ___p_gpg "$@" ; }
+function ___p_gpg_generate() { echo ___p_gpg_generate "$@" ; }
+function ___p_gpg_import() { echo ___p_gpg_import "$@" ; }
+function ___p_gpg_list() { echo ___p_gpg_list "$@" ; }
+function ___p_gpg_password() { echo ___p_gpg_password "$@" ; }
+function ___p_gpg_trust() { echo ___p_gpg_trust "$@" ; }
+function ___p_group() { echo ___p_group "$@" ; }
+function ___p_group_add() { echo ___p_group_add "$@" ; }
+function ___p_group_create() { echo ___p_group_create "$@" ; }
+function ___p_group_delete() { echo ___p_group_delete "$@" ; }
+function ___p_group_list() { echo ___p_group_list "$@" ; }
+function ___p_group_remove() { echo ___p_group_remove "$@" ; }
+function ___p_keys() { echo ___p_keys "$@" ; ___p_keys_parse_args "$@" ; ret=$? ; if (( ret == 0 )); then ___p_keys_dispatch_subparser; fi ; }
+function ___p_key_import() { echo ___p_key_import "$@" ; ___p_key_import_parse_args "$@" ; ret=$? ; if (( ret == 0 )); then ___p_key_import_dispatch_subparser; fi ; }
+function ___p_key_init() { echo ___p_key_init "$@" ; }
+function ___p_key_list() { echo ___p_key_list "$@" ; }
+function ___p_key_regen() { echo ___p_key_regen "$@" ; }
+function ___p_key_rename() { echo ___p_key_rename "$@" ; }
+function ___p_key_update() { echo ___p_key_update "$@" ; }
+function ___p_key_export() { echo ___p_key_export "$@" ; }
+function ___p_locate() { echo ___p_locate "$@" ; ___p_locate_parse_args "$@" ; }
+function ___p_ls() { echo ___p_ls "$@" ; ___p_ls_parse_args "$@" ; }
+function ___p_mkdir() { echo ___p_mkdir "$@" ; ___p_mkdir_parse_args "$@" ; }
+function ___p_mv() { echo ___p_mv "$@" ; ___p_mv_parse_args "$@" ; }
+function ___p_open() { echo ___p_open "$@" ; ___p_open_parse_args "$@" ; }
+function ___p_rm() { echo ___p_rm "$@" ; __p_rm_parse_args "$@" ; }
+function ___p_search() { echo ___p_search "$@" ; ___p_search_parse_args "$@" ; }
+function ___p_sync() { echo ___p_sync "$@" ; ___p_sync_parse_args "$@" ; }
+function ___p_through() { echo ___p_through "$@" ; ___p_through_parse_args "$@" ; }
 
 source args.sh
 
