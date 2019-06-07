@@ -153,33 +153,36 @@ def parse_option(option: dict, result: CommandLine):
     result.add_option(_o_name, short_name=_o_short, help_text=_o_help,
                       option_type=_o_value)
 
-def parse_whitelist(obj: dict) -> Dict[str, CommandLine]:
+def parse_whitelist(obj: dict, parse_path="") -> Dict[str, CommandLine]:
     whitelist: Dict[str, CommandLine] = {}
 
     if obj is None:
         return whitelist
 
     for item in obj:
-        subparser = parse_dict(item)
+        _i_name = item.get("name", "missing-name-field")
+        _i_parse_path = parse_path + "[name=" + _i_name + "]"
+        subparser = parse_dict(item, parse_path=_i_parse_path)
         key = item["name"]
         whitelist[key] = subparser
 
     return whitelist
 
-def parse_argument(argument: dict, result: CommandLine):
+def parse_argument(argument: dict, result: CommandLine, parse_path=""):
     _a_name = argument.get("name", None)
     _a_help = argument.get("description", None)
     _a_type = argument.get("type", None)
     _a_value = Value[_a_type]
     _a_dict = argument.get("whitelist", None)
-    _a_whitelist = parse_whitelist(_a_dict)
+    _wl_parse_path = parse_path + "[name=" + _a_name + "].whitelist"
+    _a_whitelist = parse_whitelist(_a_dict, parse_path=_wl_parse_path)
 
     result.add_argument(_a_name, help_text=_a_help, argument_type=_a_value,
                         whitelist=_a_whitelist)
 
-def parse_dict(obj: dict) -> CommandLine:
-    type_validate(obj, parse_path="")
-    constraint_validate(obj, parse_path="")
+def parse_dict(obj: dict, parse_path="") -> CommandLine:
+    type_validate(obj, parse_path)
+    constraint_validate(obj, parse_path)
 
     _prog = obj.get("name", None)
     _usage = obj.get("usage", None)
@@ -212,6 +215,7 @@ def parse_dict(obj: dict) -> CommandLine:
         parse_option(option, result)
 
     for argument in obj["arguments"]:
-        parse_argument(argument, result)
+        _a_parse_path = parse_path + ".arguments"
+        parse_argument(argument, result, parse_path=_a_parse_path)
 
     return result
