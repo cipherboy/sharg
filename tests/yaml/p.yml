@@ -124,6 +124,7 @@ arguments:
                 grammar:
                   - "[options]"
                   - arguments.key_nickname
+        mixed_options_arguments: false
         catch_remainder: true
         remainder: key_cmd_args
         grammar:
@@ -192,9 +193,13 @@ arguments:
               - name: list
                 description: list all groups
                 function: ___p_group_list
+        mixed_options_arguments: false
+        catch_remainder: true
+        remainder: group_cmd_args
         grammar:
           - "[options]"
           - "arguments.group_cmd"
+          - "[vars.group_cmd_args...]"
       - name: dirs
         description: manage keys associated with directories
         group: Setup
@@ -257,9 +262,13 @@ arguments:
               - name: list
                 description: list all directories
                 function: ___p_dir_list
+        mixed_options_arguments: false
+        catch_remainder: true
+        remainder: dir_cmd_args
         grammar:
           - "[options]"
           - "arguments.dir_cmd"
+          - "[vars.dir_cmd_args...]"
       - name: gpg
         description: manage keys in GnuPG's database
         group: Setup
@@ -329,9 +338,13 @@ arguments:
                 grammar:
                   - "[options]"
                   - arguments.gpg_id
+        mixed_options_arguments: false
+        catch_remainder: true
+        remainder: gpg_cmd_args
         grammar:
           - "[options]"
           - "arguments.gpg_cmd"
+          - "[vars.gpg_cmd_args...]"
       - name: cd
         description: change directories
         group: Basic navigation

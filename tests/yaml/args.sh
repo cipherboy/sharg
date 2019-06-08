@@ -388,7 +388,11 @@ function ___p_key_init_parse_args() {
         local arg="$1"
         shift
 
-        if (( $_parse_args_positional_index == 0 )); then
+        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             key_id="$arg"
         fi
@@ -402,7 +406,7 @@ function ___p_key_init_parse_args() {
 }
 function ___p_key_init_print_help() {
     cat - << ___p_key_init_print_help_EOF
-Usage: p keys init <key_id>
+Usage: p keys init [options] <key_id>
 initialize the key manager
 
 Arguments:
@@ -458,7 +462,11 @@ function ___p_key_export_parse_args() {
         local arg="$1"
         shift
 
-        if (( $_parse_args_positional_index == 0 )); then
+        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             key_nickname="$arg"
         fi
@@ -472,7 +480,7 @@ function ___p_key_export_parse_args() {
 }
 function ___p_key_export_print_help() {
     cat - << ___p_key_export_print_help_EOF
-Usage: p keys export <key_nickname>
+Usage: p keys export [options] <key_nickname>
 export a key into GnuPG's database and sign it
 
 Arguments:
@@ -537,7 +545,11 @@ function ___p_key_delete_parse_args() {
         local arg="$1"
         shift
 
-        if (( $_parse_args_positional_index == 0 )); then
+        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             key_nickname="$arg"
         fi
@@ -551,7 +563,7 @@ function ___p_key_delete_parse_args() {
 }
 function ___p_key_delete_print_help() {
     cat - << ___p_key_delete_print_help_EOF
-Usage: p keys delete <key_nickname>
+Usage: p keys delete [options] <key_nickname>
 delete a key from the key manager
 
 Arguments:
@@ -568,7 +580,11 @@ function ___p_key_rename_parse_args() {
         local arg="$1"
         shift
 
-        if (( $_parse_args_positional_index == 0 )); then
+        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             key_old="$arg"
         elif (( $_parse_args_positional_index == 1 )); then
@@ -585,7 +601,7 @@ function ___p_key_rename_parse_args() {
 }
 function ___p_key_rename_print_help() {
     cat - << ___p_key_rename_print_help_EOF
-Usage: p keys rename <key_old> <key_new>
+Usage: p keys rename [options] <key_old> <key_new>
 change the nickname of a key
 
 Arguments:
@@ -603,7 +619,11 @@ function ___p_key_update_parse_args() {
         local arg="$1"
         shift
 
-        if (( $_parse_args_positional_index == 0 )); then
+        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             key_nickname="$arg"
         fi
@@ -617,7 +637,7 @@ function ___p_key_update_parse_args() {
 }
 function ___p_key_update_print_help() {
     cat - << ___p_key_update_print_help_EOF
-Usage: p keys update <key_nickname>
+Usage: p keys update [options] <key_nickname>
 update a key in the database
 
 Arguments:
@@ -655,6 +675,8 @@ function ___p_groups_parse_args() {
             else
                 _handle_parse_error "group_cmd" "$__tmp_group_cmd"
             fi
+        else
+            group_cmd_args+=("$arg")
         fi
     done
 
@@ -666,7 +688,7 @@ function ___p_groups_parse_args() {
 }
 function ___p_groups_print_help() {
     cat - << ___p_groups_print_help_EOF
-Usage: p groups [options] <group_cmd>
+Usage: p groups [options] <group_cmd> [vars.group_cmd_args...]
 manage groups of keys used to encrypt passwords
 
 Arguments:
@@ -683,15 +705,15 @@ ___p_groups_print_help_EOF
 }
 function ___p_groups_dispatch_subparser() {
     if [ "x$group_cmd" == "xadd" ]; then
-        ___p_group_add
+        ___p_group_add "${group_cmd_args[@]}"
     elif [ "x$group_cmd" == "xcreate" ]; then
-        ___p_group_create
+        ___p_group_create "${group_cmd_args[@]}"
     elif [ "x$group_cmd" == "xdelete" ]; then
-        ___p_group_delete
+        ___p_group_delete "${group_cmd_args[@]}"
     elif [ "x$group_cmd" == "xlist" ]; then
-        ___p_group_list
+        ___p_group_list "${group_cmd_args[@]}"
     elif [ "x$group_cmd" == "xremove" ]; then
-        ___p_group_remove
+        ___p_group_remove "${group_cmd_args[@]}"
     elif [ ! -z "$group_cmd" ]; then
         _handle_dispatch_error "$group_cmd"
     else
@@ -705,7 +727,11 @@ function ___p_group_create_parse_args() {
         local arg="$1"
         shift
 
-        if (( $_parse_args_positional_index == 0 )); then
+        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             group_name="$arg"
         fi
@@ -719,7 +745,7 @@ function ___p_group_create_parse_args() {
 }
 function ___p_group_create_print_help() {
     cat - << ___p_group_create_print_help_EOF
-Usage: p groups create <group_name> <group_keys...>
+Usage: p groups create [options] <group_name> <group_keys...>
 create a new group
 
 Arguments:
@@ -737,7 +763,11 @@ function ___p_group_add_parse_args() {
         local arg="$1"
         shift
 
-        if (( $_parse_args_positional_index == 0 )); then
+        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             group_name="$arg"
         fi
@@ -751,7 +781,7 @@ function ___p_group_add_parse_args() {
 }
 function ___p_group_add_print_help() {
     cat - << ___p_group_add_print_help_EOF
-Usage: p groups add <group_name> <group_keys...>
+Usage: p groups add [options] <group_name> <group_keys...>
 add keys to a group
 
 Arguments:
@@ -769,7 +799,11 @@ function ___p_group_remove_parse_args() {
         local arg="$1"
         shift
 
-        if (( $_parse_args_positional_index == 0 )); then
+        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             group_name="$arg"
         fi
@@ -783,7 +817,7 @@ function ___p_group_remove_parse_args() {
 }
 function ___p_group_remove_print_help() {
     cat - << ___p_group_remove_print_help_EOF
-Usage: p groups remove <group_name> <group_keys...>
+Usage: p groups remove [options] <group_name> <group_keys...>
 remove keys from a group
 
 Arguments:
@@ -801,7 +835,11 @@ function ___p_group_delete_parse_args() {
         local arg="$1"
         shift
 
-        if (( $_parse_args_positional_index == 0 )); then
+        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             group_name="$arg"
         fi
@@ -815,7 +853,7 @@ function ___p_group_delete_parse_args() {
 }
 function ___p_group_delete_print_help() {
     cat - << ___p_group_delete_print_help_EOF
-Usage: p groups delete <group_name>
+Usage: p groups delete [options] <group_name>
 delete a group
 
 Arguments:
@@ -877,6 +915,8 @@ function ___p_dirs_parse_args() {
             else
                 _handle_parse_error "dir_cmd" "$__tmp_dir_cmd"
             fi
+        else
+            dir_cmd_args+=("$arg")
         fi
     done
 
@@ -888,7 +928,7 @@ function ___p_dirs_parse_args() {
 }
 function ___p_dirs_print_help() {
     cat - << ___p_dirs_print_help_EOF
-Usage: p dirs [options] <dir_cmd>
+Usage: p dirs [options] <dir_cmd> [vars.dir_cmd_args...]
 manage keys associated with directories
 
 Arguments:
@@ -905,15 +945,15 @@ ___p_dirs_print_help_EOF
 }
 function ___p_dirs_dispatch_subparser() {
     if [ "x$dir_cmd" == "xadd" ]; then
-        ___p_dir_add
+        ___p_dir_add "${dir_cmd_args[@]}"
     elif [ "x$dir_cmd" == "xcreate" ]; then
-        ___p_dir_create
+        ___p_dir_create "${dir_cmd_args[@]}"
     elif [ "x$dir_cmd" == "xdelete" ]; then
-        ___p_dir_delete
+        ___p_dir_delete "${dir_cmd_args[@]}"
     elif [ "x$dir_cmd" == "xlist" ]; then
-        ___p_dir_list
+        ___p_dir_list "${dir_cmd_args[@]}"
     elif [ "x$dir_cmd" == "xremove" ]; then
-        ___p_dir_remove
+        ___p_dir_remove "${dir_cmd_args[@]}"
     elif [ ! -z "$dir_cmd" ]; then
         _handle_dispatch_error "$dir_cmd"
     else
@@ -927,7 +967,11 @@ function ___p_dir_create_parse_args() {
         local arg="$1"
         shift
 
-        if (( $_parse_args_positional_index == 0 )); then
+        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             dir_path="$arg"
         fi
@@ -941,7 +985,7 @@ function ___p_dir_create_parse_args() {
 }
 function ___p_dir_create_print_help() {
     cat - << ___p_dir_create_print_help_EOF
-Usage: p dirs create <dir_path> <dir_keys...>
+Usage: p dirs create [options] <dir_path> <dir_keys...>
 track a new directory
 
 Arguments:
@@ -959,7 +1003,11 @@ function ___p_dir_add_parse_args() {
         local arg="$1"
         shift
 
-        if (( $_parse_args_positional_index == 0 )); then
+        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             dir_path="$arg"
         fi
@@ -973,7 +1021,7 @@ function ___p_dir_add_parse_args() {
 }
 function ___p_dir_add_print_help() {
     cat - << ___p_dir_add_print_help_EOF
-Usage: p dirs add <dir_path> <dir_keys...>
+Usage: p dirs add [options] <dir_path> <dir_keys...>
 add keys to a directory
 
 Arguments:
@@ -991,7 +1039,11 @@ function ___p_dir_remove_parse_args() {
         local arg="$1"
         shift
 
-        if (( $_parse_args_positional_index == 0 )); then
+        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             dir_path="$arg"
         fi
@@ -1005,7 +1057,7 @@ function ___p_dir_remove_parse_args() {
 }
 function ___p_dir_remove_print_help() {
     cat - << ___p_dir_remove_print_help_EOF
-Usage: p dirs remove <dir_path> <dir_keys...>
+Usage: p dirs remove [options] <dir_path> <dir_keys...>
 remove keys from a directory
 
 Arguments:
@@ -1023,7 +1075,11 @@ function ___p_dir_delete_parse_args() {
         local arg="$1"
         shift
 
-        if (( $_parse_args_positional_index == 0 )); then
+        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             dir_path="$arg"
         fi
@@ -1037,7 +1093,7 @@ function ___p_dir_delete_parse_args() {
 }
 function ___p_dir_delete_print_help() {
     cat - << ___p_dir_delete_print_help_EOF
-Usage: p dirs delete <dir_path>
+Usage: p dirs delete [options] <dir_path>
 delete keys for a directory
 
 Arguments:
@@ -1101,6 +1157,8 @@ function ___p_gpg_parse_args() {
             else
                 _handle_parse_error "gpg_cmd" "$__tmp_gpg_cmd"
             fi
+        else
+            gpg_cmd_args+=("$arg")
         fi
     done
 
@@ -1112,7 +1170,7 @@ function ___p_gpg_parse_args() {
 }
 function ___p_gpg_print_help() {
     cat - << ___p_gpg_print_help_EOF
-Usage: p gpg [options] <gpg_cmd>
+Usage: p gpg [options] <gpg_cmd> [vars.gpg_cmd_args...]
 manage keys in GnuPG's database
 
 Arguments:
@@ -1130,17 +1188,17 @@ ___p_gpg_print_help_EOF
 }
 function ___p_gpg_dispatch_subparser() {
     if [ "x$gpg_cmd" == "xexport" ]; then
-        ___p_gpg_export
+        ___p_gpg_export "${gpg_cmd_args[@]}"
     elif [ "x$gpg_cmd" == "xgenerate" ]; then
-        ___p_gpg_generate
+        ___p_gpg_generate "${gpg_cmd_args[@]}"
     elif [ "x$gpg_cmd" == "ximport" ]; then
-        ___p_gpg_import
+        ___p_gpg_import "${gpg_cmd_args[@]}"
     elif [ "x$gpg_cmd" == "xlist" ]; then
-        ___p_gpg_list
+        ___p_gpg_list "${gpg_cmd_args[@]}"
     elif [ "x$gpg_cmd" == "xpassword" ]; then
-        ___p_gpg_password
+        ___p_gpg_password "${gpg_cmd_args[@]}"
     elif [ "x$gpg_cmd" == "xtrust" ]; then
-        ___p_gpg_trust
+        ___p_gpg_trust "${gpg_cmd_args[@]}"
     elif [ ! -z "$gpg_cmd" ]; then
         _handle_dispatch_error "$gpg_cmd"
     else
@@ -1154,7 +1212,11 @@ function ___p_gpg_generate_parse_args() {
         local arg="$1"
         shift
 
-        if (( $_parse_args_positional_index == 0 )); then
+        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             gpg_name="$arg"
         elif (( $_parse_args_positional_index == 1 )); then
@@ -1171,7 +1233,7 @@ function ___p_gpg_generate_parse_args() {
 }
 function ___p_gpg_generate_print_help() {
     cat - << ___p_gpg_generate_print_help_EOF
-Usage: p gpg generate <gpg_name> <gpg_email>
+Usage: p gpg generate [options] <gpg_name> <gpg_email>
 generae a new GPG key
 
 Arguments:
@@ -1189,7 +1251,11 @@ function ___p_gpg_import_parse_args() {
         local arg="$1"
         shift
 
-        if (( $_parse_args_positional_index == 0 )); then
+        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             gpg_path="$arg"
         fi
@@ -1203,7 +1269,7 @@ function ___p_gpg_import_parse_args() {
 }
 function ___p_gpg_import_print_help() {
     cat - << ___p_gpg_import_print_help_EOF
-Usage: p gpg import <gpg_path>
+Usage: p gpg import [options] <gpg_path>
 import a GPG key from a file
 
 Arguments:
@@ -1220,7 +1286,11 @@ function ___p_gpg_export_parse_args() {
         local arg="$1"
         shift
 
-        if (( $_parse_args_positional_index == 0 )); then
+        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             gpg_id="$arg"
         elif (( $_parse_args_positional_index == 1 )); then
@@ -1237,7 +1307,7 @@ function ___p_gpg_export_parse_args() {
 }
 function ___p_gpg_export_print_help() {
     cat - << ___p_gpg_export_print_help_EOF
-Usage: p gpg export <gpg_id> <gpg_path>
+Usage: p gpg export [options] <gpg_id> <gpg_path>
 export a GPG key to a file
 
 Arguments:
@@ -1255,6 +1325,11 @@ function ___p_gpg_list_parse_args() {
         local arg="$1"
         shift
 
+        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        fi
     done
 
     if [ "x$parse_args_print_help" == "xtrue" ]; then
@@ -1265,7 +1340,7 @@ function ___p_gpg_list_parse_args() {
 }
 function ___p_gpg_list_print_help() {
     cat - << ___p_gpg_list_print_help_EOF
-Usage: p gpg list [arguments.gpg_id]
+Usage: p gpg list [options] [arguments.gpg_id]
 list all keys tracked by GPG
 
 Arguments:
@@ -1282,7 +1357,11 @@ function ___p_gpg_password_parse_args() {
         local arg="$1"
         shift
 
-        if (( $_parse_args_positional_index == 0 )); then
+        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             gpg_id="$arg"
         fi
@@ -1296,7 +1375,7 @@ function ___p_gpg_password_parse_args() {
 }
 function ___p_gpg_password_print_help() {
     cat - << ___p_gpg_password_print_help_EOF
-Usage: p gpg password <gpg_id>
+Usage: p gpg password [options] <gpg_id>
 change the password on a key
 
 Arguments:
@@ -1313,7 +1392,11 @@ function ___p_gpg_trust_parse_args() {
         local arg="$1"
         shift
 
-        if (( $_parse_args_positional_index == 0 )); then
+        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             gpg_id="$arg"
         fi
@@ -1327,7 +1410,7 @@ function ___p_gpg_trust_parse_args() {
 }
 function ___p_gpg_trust_print_help() {
     cat - << ___p_gpg_trust_print_help_EOF
-Usage: p gpg trust <gpg_id>
+Usage: p gpg trust [options] <gpg_id>
 trust and sign the specified GPG key
 
 Arguments:
