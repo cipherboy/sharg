@@ -180,6 +180,72 @@ def parse_argument(argument: dict, result: CommandLine, parse_path=""):
     result.add_argument(_a_name, help_text=_a_help, argument_type=_a_value,
                         whitelist=_a_whitelist)
 
+
+def validate_grammar(cli, parse_path=""):
+    grammar = cli.grammar
+    options = cli.options
+    arguments = cli.arguments
+
+    all_options = set(map(lambda x: x.long_name, options))
+    all_arguments = set(map(lambda x: x.name, arguments))
+
+    seen_options = set()
+    seen_arguments = set()
+    only_help = False
+
+    for index, item in enumerate(grammar):
+        if item == "[options]":
+            assert options
+            seen_options.update(all_options)
+        elif item.startswith("arguments.") and not item.endswith("..."):
+            name = item[len("arguments."):]
+            assert name in all_arguments
+            seen_arguments.add(name)
+        elif item.startswith("arguments.") and item.endswith("..."):
+            name = item[len("arguments."):-1*len("...")]
+            assert name in all_arguments
+            seen_arguments.add(name)
+        elif item.startswith("[arguments.") and item.endswith("]"):
+            name = item[len("[arguments."):-1*len("]")]
+            assert name in all_arguments
+            seen_arguments.add(name)
+        elif item.startswith("[vars.") and item.endswith("...]"):
+            name = item[len("[vars."):-1*len("...]")]
+            assert name == cli.bash_var_remainder
+        else:
+            msg = "In command line grounded at %s, unknown grammar " % parse_path
+            msg += "item (indx %d): %s" % (index, item)
+            raise Exception(msg)
+
+    if len(options) == 1 and len(arguments) == 0 and options[0].long_name == "help":
+        only_help = True
+
+    if not only_help and len(seen_options) != len(options):
+        msg = "In command line grounded at %s, different number " % parse_path
+        msg += "of options (%d) than in grammar (%d).\n" % (len(all_options), len(seen_options))
+        msg += "\nSeen options:\n"
+        for option in sorted(seen_options):
+            msg += " - %s\n" % option
+        msg += "\nAll options:\n"
+        for option in sorted(all_options):
+            msg += " - %s\n" % option
+
+        raise Exception(msg)
+
+    if len(seen_arguments) != len(all_arguments):
+        msg = "In command line grounded at %s, different number " % parse_path
+        msg += "of arguments (%d) than in grammar (%d).\n" % (len(all_arguments), len(seen_arguments))
+        msg += "\nSeen arguments:\n"
+        for argument in sorted(seen_arguments):
+            msg += " - %s\n" % argument
+        msg += "\nAll arguments:\n"
+        for argument in sorted(all_arguments):
+            msg += " - %s\n" % argument
+
+        raise Exception(msg)
+
+
+
 def parse_dict(obj: dict, parse_path="") -> CommandLine:
     type_validate(obj, parse_path)
     constraint_validate(obj, parse_path)
@@ -220,5 +286,7 @@ def parse_dict(obj: dict, parse_path="") -> CommandLine:
     for argument in obj["arguments"]:
         _a_parse_path = parse_path + ".arguments"
         parse_argument(argument, result, parse_path=_a_parse_path)
+
+    validate_grammar(result, parse_path=parse_path)
 
     return result
