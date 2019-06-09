@@ -5,9 +5,7 @@ function _p_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
-            parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif [ "x${arg:0:21}" == "x--password-store-dir=" ] || [ "x${arg:0:20}" == "x-password-store-dir=" ]; then
             local __tmp_password_store_dir="${arg#*=}"
@@ -157,8 +155,8 @@ Arguments:
 
 Options:
   --help, -h: Print this help text.
-  --password-store-dir, -P: path to the password storage directory
-  --gnupg-home-dir, -G: path to the GnuPG home directory
+  --password-store-dir, -P <dir>: path to the password storage directory
+  --gnupg-home-dir, -G <dir>: path to the GnuPG home directory
 _p_print_help_EOF
 }
 function _p_dispatch_subparser() {
@@ -225,9 +223,7 @@ function ___p_clone_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
-            parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
@@ -260,12 +256,8 @@ function ___p_create_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
-            parse_args_print_help="true"
-        elif [ "x${arg:0:14}" == "x--without-git=" ] || [ "x${arg:0:13}" == "x-without-git=" ]; then
-            without_git="false"
         elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--without-git" ] || [ "x$arg" == "x-without-git" ] || [ "x$arg" == "x-n" ]; then
             without_git="false"
         elif (( $_parse_args_positional_index == 0 )); then
@@ -300,9 +292,7 @@ function ___p_keys_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
-            parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
@@ -388,9 +378,7 @@ function ___p_key_init_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
-            parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
@@ -423,9 +411,7 @@ function ___p_key_import_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
-            parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
@@ -462,9 +448,7 @@ function ___p_key_export_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
-            parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
@@ -545,9 +529,7 @@ function ___p_key_delete_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
-            parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
@@ -580,9 +562,7 @@ function ___p_key_rename_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
-            parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
@@ -619,9 +599,7 @@ function ___p_key_update_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
-            parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
@@ -654,9 +632,7 @@ function ___p_groups_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
-            parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
@@ -727,9 +703,7 @@ function ___p_group_create_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
-            parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
@@ -763,9 +737,7 @@ function ___p_group_add_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
-            parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
@@ -799,9 +771,7 @@ function ___p_group_remove_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
-            parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
@@ -835,9 +805,7 @@ function ___p_group_delete_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
-            parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
@@ -894,9 +862,7 @@ function ___p_dirs_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
-            parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
@@ -967,9 +933,7 @@ function ___p_dir_create_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
-            parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
@@ -1003,9 +967,7 @@ function ___p_dir_add_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
-            parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
@@ -1039,9 +1001,7 @@ function ___p_dir_remove_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
-            parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
@@ -1075,9 +1035,7 @@ function ___p_dir_delete_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
-            parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
@@ -1134,9 +1092,7 @@ function ___p_gpg_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
-            parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
@@ -1212,9 +1168,7 @@ function ___p_gpg_generate_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
-            parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
@@ -1251,9 +1205,7 @@ function ___p_gpg_import_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
-            parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
@@ -1286,9 +1238,7 @@ function ___p_gpg_export_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
-            parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
@@ -1325,9 +1275,7 @@ function ___p_gpg_list_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
-            parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         fi
     done
@@ -1357,9 +1305,7 @@ function ___p_gpg_password_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
-            parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
@@ -1392,9 +1338,7 @@ function ___p_gpg_trust_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
-            parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
@@ -1427,16 +1371,10 @@ function ___p_cd_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
-            parse_args_print_help="true"
-        elif [ "x${arg:0:11}" == "x--absolute=" ] || [ "x${arg:0:10}" == "x-absolute=" ]; then
-            absolute="true"
         elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--absolute" ] || [ "x$arg" == "x-absolute" ] || [ "x$arg" == "x-a" ]; then
             absolute="true"
-        elif [ "x${arg:0:11}" == "x--relative=" ] || [ "x${arg:0:10}" == "x-relative=" ]; then
-            relative="true"
         elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--relative" ] || [ "x$arg" == "x-relative" ] || [ "x$arg" == "x-r" ]; then
             relative="true"
         elif (( $_parse_args_positional_index == 0 )); then
@@ -1472,15 +1410,10 @@ function ___p_cp_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+        if [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
-        elif [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
-            parse_args_print_help="true"
-        elif [ "x${arg:0:8}" == "x--force=" ] || [ "x${arg:0:7}" == "x-force=" ]; then
-            force="${arg#*=}"
         elif [ "x$arg" == "x--force" ] || [ "x$arg" == "x-force" ] || [ "x$arg" == "x-f" ]; then
-            force="$1"
-            shift
+            force="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             old_path="$arg"
@@ -1517,20 +1450,12 @@ function ___p_ls_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+        if [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
-        elif [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
-            parse_args_print_help="true"
-        elif [ "x${arg:0:12}" == "x--directory=" ] || [ "x${arg:0:11}" == "x-directory=" ]; then
-            directory="${arg#*=}"
         elif [ "x$arg" == "x--directory" ] || [ "x$arg" == "x-directory" ] || [ "x$arg" == "x-d" ]; then
-            directory="$1"
-            shift
-        elif [ "x${arg:0:6}" == "x--all=" ] || [ "x${arg:0:5}" == "x-all=" ]; then
-            all="${arg#*=}"
+            directory="true"
         elif [ "x$arg" == "x--all" ] || [ "x$arg" == "x-all" ] || [ "x$arg" == "x-a" ]; then
-            all="$1"
-            shift
+            all="true"
         fi
     done
 
@@ -1561,20 +1486,12 @@ function ___p_mkdir_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+        if [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
-        elif [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
-            parse_args_print_help="true"
-        elif [ "x${arg:0:12}" == "x--recursive=" ] || [ "x${arg:0:11}" == "x-recursive=" ]; then
-            recursive="${arg#*=}"
         elif [ "x$arg" == "x--recursive" ] || [ "x$arg" == "x-recursive" ] || [ "x$arg" == "x-r" ]; then
-            recursive="$1"
-            shift
-        elif [ "x${arg:0:11}" == "x--absolute=" ] || [ "x${arg:0:10}" == "x-absolute=" ]; then
-            absolute="${arg#*=}"
+            recursive="true"
         elif [ "x$arg" == "x--absolute" ] || [ "x$arg" == "x-absolute" ] || [ "x$arg" == "x-a" ]; then
-            absolute="$1"
-            shift
+            absolute="true"
         fi
     done
 
@@ -1605,9 +1522,7 @@ function ___p_mv_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
-            parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
@@ -1641,15 +1556,10 @@ function ___p_rm_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+        if [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
-        elif [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
-            parse_args_print_help="true"
-        elif [ "x${arg:0:12}" == "x--recursive=" ] || [ "x${arg:0:11}" == "x-recursive=" ]; then
-            recursive="${arg#*=}"
         elif [ "x$arg" == "x--recursive" ] || [ "x$arg" == "x-recursive" ] || [ "x$arg" == "x-r" ]; then
-            recursive="$1"
-            shift
+            recursive="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             rm_paths="$arg"
@@ -1682,20 +1592,16 @@ function ___p_cat_parse_args() {
         local arg="$1"
         shift
 
-        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+        if [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
-            parse_args_print_help="true"
-        elif [ "x${arg:0:6}" == "x--raw=" ] || [ "x${arg:0:5}" == "x-raw=" ]; then
-            raw="${arg#*=}"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--raw" ] || [ "x$arg" == "x-raw" ] || [ "x$arg" == "x-r" ]; then
-            raw="$1"
-            shift
-        elif [ "x${arg:0:12}" == "x--json-only=" ] || [ "x${arg:0:11}" == "x-json-only=" ]; then
-            json_only="${arg#*=}"
-        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--json-only" ] || [ "x$arg" == "x-json-only" ] || [ "x$arg" == "x-j" ]; then
-            json_only="$1"
-            shift
+        elif [ "x$arg" == "x--raw" ] || [ "x$arg" == "x-raw" ] || [ "x$arg" == "x-r" ]; then
+            raw="true"
+        elif [ "x$arg" == "x--json-only" ] || [ "x$arg" == "x-json-only" ] || [ "x$arg" == "x-j" ]; then
+            json_only="true"
+        elif [ "x$arg" == "x--password-only" ] || [ "x$arg" == "x-password-only" ] || [ "x$arg" == "x-p" ]; then
+            password_only="true"
+        elif [ "x$arg" == "x--no-color" ] || [ "x$arg" == "x-no-color" ] || [ "x$arg" == "x-n" ]; then
+            color="false"
         fi
     done
 
@@ -1707,13 +1613,18 @@ function ___p_cat_parse_args() {
 }
 function ___p_cat_print_help() {
     cat - << ___p_cat_print_help_EOF
-Usage: p cat [options]
+Usage: p cat [options] <cat_paths...>
 show the contents of a file
+
+Arguments:
+  cat_paths: paths of password entries to display
 
 Options:
   --help, -h: Print this help text.
   --raw, -r: raw, uncolorized, machine-readable output
   --json-only, -j: only output the json portion of these password entries, if present
+  --password-only, -p: only output the first line of the password entry
+  --no-color, -n: don't colorize the output
 ___p_cat_print_help_EOF
 }
 function ___p_edit_parse_args() {
@@ -1723,6 +1634,12 @@ function ___p_edit_parse_args() {
         local arg="$1"
         shift
 
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+            edit_path="$arg"
+        fi
     done
 
     if [ "x$parse_args_print_help" == "xtrue" ]; then
@@ -1733,8 +1650,11 @@ function ___p_edit_parse_args() {
 }
 function ___p_edit_print_help() {
     cat - << ___p_edit_print_help_EOF
-Usage: p edit
+Usage: p edit [options] <edit_path>
 edit the contents of a file
+
+Arguments:
+  edit_path: path to the entry to open in an editor
 
 Options:
   --help, -h: Print this help text.
@@ -1747,6 +1667,23 @@ function ___p_generate_parse_args() {
         local arg="$1"
         shift
 
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif [ "x${arg:0:9}" == "x--format=" ] || [ "x${arg:0:8}" == "x-format=" ]; then
+            format="${arg#*=}"
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--format" ] || [ "x$arg" == "x-format" ] || [ "x$arg" == "x-f" ]; then
+            format="$1"
+            shift
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--random" ] || [ "x$arg" == "x-random" ] || [ "x$arg" == "x-r" ]; then
+            random="true"
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--phrase" ] || [ "x$arg" == "x-phrase" ] || [ "x$arg" == "x-p" ]; then
+            phrase="true"
+        elif [ "x${arg:0:7}" == "x--save=" ] || [ "x${arg:0:6}" == "x-save=" ]; then
+            save="${arg#*=}"
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--save" ] || [ "x$arg" == "x-save" ] || [ "x$arg" == "x-s" ]; then
+            save="$1"
+            shift
+        fi
     done
 
     if [ "x$parse_args_print_help" == "xtrue" ]; then
@@ -1757,11 +1694,15 @@ function ___p_generate_parse_args() {
 }
 function ___p_generate_print_help() {
     cat - << ___p_generate_print_help_EOF
-Usage: p generate
+Usage: p generate [options]
 generate a new password
 
 Options:
   --help, -h: Print this help text.
+  --format, -f <str>: format string for generated password
+  --random, -r: generate a 30 alphanumeric character password
+  --phrase, -p: generate a 3 word, 12 number phrase password
+  --save, -s <str>: save generated password to the specified password entry
 ___p_generate_print_help_EOF
 }
 function ___p_json_parse_args() {
@@ -1795,6 +1736,7 @@ function ___p_find_parse_args() {
         local arg="$1"
         shift
 
+        find_args+=("$arg")
     done
 
     if [ "x$parse_args_print_help" == "xtrue" ]; then
@@ -1805,11 +1747,8 @@ function ___p_find_parse_args() {
 }
 function ___p_find_print_help() {
     cat - << ___p_find_print_help_EOF
-Usage: p find
+Usage: p find [vars.find_args...]
 list all files in the password store
-
-Options:
-  --help, -h: Print this help text.
 ___p_find_print_help_EOF
 }
 function ___p_locate_parse_args() {
@@ -1939,6 +1878,7 @@ function ___p_git_parse_args() {
         local arg="$1"
         shift
 
+        git_args+=("$arg")
     done
 
     if [ "x$parse_args_print_help" == "xtrue" ]; then
@@ -1949,11 +1889,8 @@ function ___p_git_parse_args() {
 }
 function ___p_git_print_help() {
     cat - << ___p_git_print_help_EOF
-Usage: p git
+Usage: p git [vars.git_args...]
 run git commands in the password store
-
-Options:
-  --help, -h: Print this help text.
 ___p_git_print_help_EOF
 }
 function ___p_through_parse_args() {
@@ -1963,6 +1900,7 @@ function ___p_through_parse_args() {
         local arg="$1"
         shift
 
+        pass_args+=("$arg")
     done
 
     if [ "x$parse_args_print_help" == "xtrue" ]; then
@@ -1973,11 +1911,8 @@ function ___p_through_parse_args() {
 }
 function ___p_through_print_help() {
     cat - << ___p_through_print_help_EOF
-Usage: p pass
+Usage: p pass [vars.pass_args...]
 pass a command through to pass (for accessing extensions)
-
-Options:
-  --help, -h: Print this help text.
 ___p_through_print_help_EOF
 }
 function ___p_sync_parse_args() {

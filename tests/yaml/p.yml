@@ -373,6 +373,7 @@ arguments:
         options:
           - name: force
             short: f
+            type: FalseTrue
             description: silently overwrites destination if it exists
         arguments:
           - name: old_path
@@ -393,9 +394,11 @@ arguments:
         options:
           - name: directory
             short: d
+            type: FalseTrue
             description: list directories themselves, not their contents
           - name: all
             short: a
+            type: FalseTrue
             description: list contents as they appear in the file system, not hiding extensions
         arguments:
           - name: ls_paths
@@ -413,12 +416,14 @@ arguments:
         options:
           - name: recursive
             short: r
+            type: FalseTrue
             alises:
               - parents
               - p
             description: recrusively create the specified path
           - name: absolute
             short: a
+            type: FalseTrue
             description: treat the specified path as an relative to /, even if not prefixed by /
         arguments:
           - name: mkdir_paths
@@ -451,6 +456,7 @@ arguments:
         options:
           - name: recursive
             short: r
+            type: FalseTrue
             description: recursively remove the specified paths
         arguments:
           - name: rm_paths
@@ -469,26 +475,73 @@ arguments:
         options:
           - name: raw
             short: r
+            type: FalseTrue
             description: raw, uncolorized, machine-readable output
           - name: json-only
             short: j
+            type: FalseTrue
             aliases:
               - json
             description: only output the json portion of these password entries, if present
+          - name: password-only
+            short: p
+            type: FalseTrue
+            aliases:
+              - password
+            description: only output the first line of the password entry
+          - name: no-color
+            short: n
+            antonyms:
+              - with-color
+              - colorize
+              - color
+            var: color
+            type: TrueFalse
+            description: don't colorize the output
+        arguments:
+          - name: cat_paths
+            description: paths of password entries to display
+        mixed_options_arguments: true
         grammar:
           - "[options]"
+          - arguments.cat_paths...
       - name: edit
         description: edit the contents of a file
         group: Managing passwords
         aliases:
           - e
         function: ___p_edit
+        arguments:
+          - name: edit_path
+            description: path to the entry to open in an editor
+        grammar:
+          - "[options]"
+          - arguments.edit_path
       - name: generate
         description: generate a new password
         group: Managing passwords
         aliases:
           - gen
         function: ___p_generate
+        options:
+          - name: format
+            short: f
+            description: format string for generated password
+          - name: random
+            short: r
+            aliases:
+              - rand
+            type: FalseTrue
+            description: generate a 30 alphanumeric character password
+          - name: phrase
+            short: p
+            type: FalseTrue
+            description: generate a 3 word, 12 number phrase password
+          - name: save
+            short: s
+            description: save generated password to the specified password entry
+        grammar:
+          - "[options]"
       - name: json
         description: manipulate a JSON-encoded password file
         group: Managing passwords
@@ -499,6 +552,11 @@ arguments:
         description: list all files in the password store
         group: Search commands
         function: ___p_find
+        add_help: false
+        catch_remainder: true
+        remainder: find_args
+        grammar:
+          - "[vars.find_args...]"
       - name: locate
         description: locate files and directories matching a pattern
         group: Search commands
@@ -526,6 +584,11 @@ arguments:
         aliases:
           - gt
         function: ___p_git
+        add_help: false
+        catch_remainder: true
+        remainder: git_args
+        grammar:
+          - "[vars.git_args...]"
       - name: pass
         description: pass a command through to pass (for accessing extensions)
         aliases:
@@ -533,6 +596,11 @@ arguments:
           - thru
           - t
         function: ___p_through
+        add_help: false
+        catch_remainder: true
+        remainder: pass_args
+        grammar:
+          - "[vars.pass_args...]"
       - name: sync
         description: sync a remote branch with a remote one
         function: ___p_sync
