@@ -433,12 +433,32 @@ arguments:
         aliases:
           - move
         function: ___p_mv
+        arguments:
+          - name: mv_srcs
+            description: paths to items to move
+          - name: mv_dest
+            description: path to new location for the specified objects
+        grammar:
+          - "[options]"
+          - arguments.mv_srcs...
+          - arguments.mv_dest
       - name: rm
         description: remove the specified path from the password store
         group: Basic navigation
         aliases:
           - remove
         function: ___p_rm
+        options:
+          - name: recursive
+            short: r
+            description: recursively remove the specified paths
+        arguments:
+          - name: rm_paths
+            description: paths to remove
+        mixed_options_arguments: true
+        grammar:
+          - "[options]"
+          - arguments.rm_paths
       - name: cat
         description: show the contents of a file
         group: Managing passwords
@@ -446,6 +466,17 @@ arguments:
           - show
           - c
         function: ___p_cat
+        options:
+          - name: raw
+            short: r
+            description: raw, uncolorized, machine-readable output
+          - name: json-only
+            short: j
+            aliases:
+              - json
+            description: only output the json portion of these password entries, if present
+        grammar:
+          - "[options]"
       - name: edit
         description: edit the contents of a file
         group: Managing passwords

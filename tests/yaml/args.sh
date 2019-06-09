@@ -1605,6 +1605,14 @@ function ___p_mv_parse_args() {
         local arg="$1"
         shift
 
+        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+            mv_dest="$arg"
+        fi
     done
 
     if [ "x$parse_args_print_help" == "xtrue" ]; then
@@ -1615,8 +1623,12 @@ function ___p_mv_parse_args() {
 }
 function ___p_mv_print_help() {
     cat - << ___p_mv_print_help_EOF
-Usage: p mv
+Usage: p mv [options] <mv_srcs...> <mv_dest>
 move a file to another location
+
+Arguments:
+  mv_srcs: paths to items to move
+  mv_dest: path to new location for the specified objects
 
 Options:
   --help, -h: Print this help text.
@@ -1629,6 +1641,19 @@ function ___p_rm_parse_args() {
         local arg="$1"
         shift
 
+        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+            parse_args_print_help="true"
+        elif [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif [ "x${arg:0:12}" == "x--recursive=" ] || [ "x${arg:0:11}" == "x-recursive=" ]; then
+            recursive="${arg#*=}"
+        elif [ "x$arg" == "x--recursive" ] || [ "x$arg" == "x-recursive" ] || [ "x$arg" == "x-r" ]; then
+            recursive="$1"
+            shift
+        elif (( $_parse_args_positional_index == 0 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+            rm_paths="$arg"
+        fi
     done
 
     if [ "x$parse_args_print_help" == "xtrue" ]; then
@@ -1639,11 +1664,15 @@ function ___p_rm_parse_args() {
 }
 function ___p_rm_print_help() {
     cat - << ___p_rm_print_help_EOF
-Usage: p rm
+Usage: p rm [options] <rm_paths>
 remove the specified path from the password store
+
+Arguments:
+  rm_paths: paths to remove
 
 Options:
   --help, -h: Print this help text.
+  --recursive, -r: recursively remove the specified paths
 ___p_rm_print_help_EOF
 }
 function ___p_cat_parse_args() {
@@ -1653,6 +1682,21 @@ function ___p_cat_parse_args() {
         local arg="$1"
         shift
 
+        if [ "x${arg:0:7}" == "x--help=" ] || [ "x${arg:0:6}" == "x-help=" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif [ "x${arg:0:6}" == "x--raw=" ] || [ "x${arg:0:5}" == "x-raw=" ]; then
+            raw="${arg#*=}"
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--raw" ] || [ "x$arg" == "x-raw" ] || [ "x$arg" == "x-r" ]; then
+            raw="$1"
+            shift
+        elif [ "x${arg:0:12}" == "x--json-only=" ] || [ "x${arg:0:11}" == "x-json-only=" ]; then
+            json_only="${arg#*=}"
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--json-only" ] || [ "x$arg" == "x-json-only" ] || [ "x$arg" == "x-j" ]; then
+            json_only="$1"
+            shift
+        fi
     done
 
     if [ "x$parse_args_print_help" == "xtrue" ]; then
@@ -1663,11 +1707,13 @@ function ___p_cat_parse_args() {
 }
 function ___p_cat_print_help() {
     cat - << ___p_cat_print_help_EOF
-Usage: p cat
+Usage: p cat [options]
 show the contents of a file
 
 Options:
   --help, -h: Print this help text.
+  --raw, -r: raw, uncolorized, machine-readable output
+  --json-only, -j: only output the json portion of these password entries, if present
 ___p_cat_print_help_EOF
 }
 function ___p_edit_parse_args() {
