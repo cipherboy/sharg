@@ -150,8 +150,12 @@ def parse_option(option: dict, result: CommandLine):
     _o_type = option.get("type", None)
     _o_value = Value[_o_type]
 
-    result.add_option(_o_name, short_name=_o_short, help_text=_o_help,
-                      option_type=_o_value)
+    opt = result.add_option(_o_name, short_name=_o_short, help_text=_o_help,
+                            option_type=_o_value)
+
+    _var_name = option.get("var", None)
+    if _var_name:
+        opt.var_name = _var_name.replace("-", "_")
 
 def parse_whitelist(obj: dict, parse_path="") -> Dict[str, CommandLine]:
     whitelist: Dict[str, CommandLine] = {}
