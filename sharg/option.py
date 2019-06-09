@@ -1,5 +1,6 @@
 import sys
 
+from .value import Value
 from .shell import ShellConditional as SC
 
 
@@ -42,6 +43,12 @@ class Option:
                 space = False
             print("-" + self.short_name, end='', file=_file)
             space = True
+        if self.value_type == Value.Directory:
+            print(" <dir>", end='', file=_file)
+        elif self.value_type == Value.File:
+            print(" <file>", end='', file=_file)
+        elif self.value_type == Value.String:
+            print(" <str>", end='', file=_file)
         if self.help_text:
             if space:
                 print(": ", end='', file=_file)
@@ -60,7 +67,9 @@ class Option:
 
         conditionals = []
 
-        if self.parse_equals_value:
+        exclude_equals = (Value.FalseTrue, Value.TrueFalse, Value.Whitelist, Value.Array)
+
+        if self.parse_equals_value and self.value_type not in exclude_equals:
             conditionals.append(SC.substr_var_equals_value('arg', '--' + self.long_name + '='))
             if self.parse_unix_style:
                 conditionals.append(SC.substr_var_equals_value('arg', '-' + self.long_name + '='))
