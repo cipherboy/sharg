@@ -237,9 +237,9 @@ class CommandLine:
             elif self.catch_remainder and item.startswith("[vars.") and item.endswith("...]"):
                 assert item[len("[vars."):-1*len("...]")] == self.bash_var_remainder
                 assert index == len(self.grammar) - 1
-                assert need_endif
 
-                code.begin_else()
+                if need_endif:
+                    code.begin_else()
                 code.append_array(self.bash_var_remainder, "$arg")
 
         if need_endif:
