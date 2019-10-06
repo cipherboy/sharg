@@ -75,3 +75,7 @@ class Value(Enum):
             code.add_line('_handle_parse_error "' + long_name + '" ' +
                           '"$' + tmp_var + '"')
             code.end_if()
+        elif self == Value.Array:
+            code.append_array(var_name, source)
+            if do_shift:
+                code.add_line('shift')

@@ -264,7 +264,8 @@ class CommandLine:
 
                 assert argument.value_type == Value.Array
 
-                argument.format_bash(code)
+                additional = self.num_remaining(index+1)
+                argument.format_bash(code, optional=False, remaining=additional)
                 need_endif = True
             elif item.startswith("[arguments.") and item.endswith("...]"):
                 arg_name = item[len("[arguments."):-len("...]")]

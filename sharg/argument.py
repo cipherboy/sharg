@@ -83,9 +83,21 @@ class Argument:
         if not optional or remaining == 0:
             cond = SC.int_var_equals_value(self.var_position, self.position)
             code.begin_if_elif(cond)
-            code.increment_var(self.var_position)
-            self.value_type.format_bash(code, self.name, self.var_name, '$arg',
-                                        do_shift=False, whitelist=self.whitelist)
+            if self.value_type == Value.Array:
+                # $# contains this argument we just grabbed, so we need to
+                # check for remaining+1 here.
+                if remaining > 0:
+                    cond = SC.int_var_greater_value('#', remaining+1)
+                    code.begin_if(cond)
+                    code.increment_var(self.var_position)
+                    code.end_if()
+                self.value_type.format_bash(code, self.name, self.var_name, '$arg',
+                                            do_shift=False, whitelist=self.whitelist)
+            else:
+                # We can only hold one value anyways, increment the variable.
+                code.increment_var(self.var_position)
+                self.value_type.format_bash(code, self.name, self.var_name, '$arg',
+                                            do_shift=False, whitelist=self.whitelist)
         else:
             # Assume we have an unambiguous grammar; otherwise, we'll be in
             # trouble. We should've already bailed out if we haven't...
@@ -108,7 +120,7 @@ class Argument:
             if self.value_type == Value.Array:
                 # $# contains this argument we just grabbed, so we need to
                 # check for remaining+1 here.
-                cond = SC.int_var_greater_value('#', remaining+1)
+                cond = SC.int_var_less_equals_value('#', remaining+1)
                 code.begin_if(cond)
                 code.increment_var(self.var_position)
                 code.end_if()
