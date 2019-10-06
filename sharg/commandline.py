@@ -180,6 +180,13 @@ class CommandLine:
 
         return None
 
+    def num_remaining(self, index=0):
+        count = 0
+        for item in self.grammar[index:]:
+            if item.startswith("arguments."):
+                count += 1
+        return count
+
     def format_bash(self, _code=None, _file=sys.stdout, _indent=0, _increment=None):
         code = _code
         if code is None:
@@ -201,10 +208,23 @@ class CommandLine:
         code.begin_function(parse_function)
         code.define_var('parse_args_print_help', 'false')
         code.define_var(self.bash_var_position, 0)
+
+        num_positional_args = self.num_remaining(0)
+        if num_positional_args > 0:
+            # Before we begin parsing arguments in bash, check if we have zero
+            # arguments and set help = True if we do. This is because we
+            # expected to have at least one required positional argument, but
+            # we didn't, so we have to manually handle it.
+            cond = SC.int_var_less_value('#', num_positional_args)
+            code.begin_if(cond)
+            code.set_var('parse_args_print_help', 'true')
+            code.end_if()
+            code.add_line('')
+
         cond = SC.int_var_greater_value('#', 0)
         code.begin_while(cond)
         code.define_var('arg', '$1')
-        code.add_line('shift')
+        code.define_var('do_shift', 'true')
         code.add_line('')
 
         subparser = False
@@ -234,6 +254,44 @@ class CommandLine:
 
                 argument.format_bash(code)
                 need_endif = True
+            elif item.startswith("arguments.") and item.endswith("..."):
+                arg_name = item[len("arguments."):-len("...")]
+                argument = self.find_argument(arg_name)
+                assert argument != None
+
+                argument.position = position
+                position += 1
+
+                assert argument.value_type == Value.Array
+
+                argument.format_bash(code)
+                need_endif = True
+            elif item.startswith("[arguments.") and item.endswith("...]"):
+                arg_name = item[len("[arguments."):-len("...]")]
+                argument = self.find_argument(arg_name)
+                assert argument != None
+
+                argument.position = position
+                position += 1
+
+                assert argument.value_type == Value.Array
+
+                additional = self.num_remaining(index+1)
+                argument.format_bash(code, optional=True, remaining=additional)
+                need_endif = True
+            elif item.startswith("[arguments.") and item.endswith("]"):
+                arg_name = item[len("[arguments."):-len("]")]
+                argument = self.find_argument(arg_name)
+                assert argument != None
+
+                argument.position = position
+                position += 1
+
+                assert argument.value_type != Value.Array
+
+                additional = self.num_remaining(index+1)
+                argument.format_bash(code, optional=True, remaining=additional)
+                need_endif = True
             elif self.catch_remainder and item.startswith("[vars.") and item.endswith("...]"):
                 assert item[len("[vars."):-1*len("...]")] == self.bash_var_remainder
                 assert index == len(self.grammar) - 1
@@ -241,12 +299,20 @@ class CommandLine:
                 if need_endif:
                     code.begin_else()
                 code.append_array(self.bash_var_remainder, "$arg")
+            else:
+                raise ValueError(f"Can't handle grammar item {item}")
 
         if need_endif:
             code.end_if()
 
+        code.add_line('')
+        cond = SC.str_var_equals_value('do_shift', 'true')
+        code.begin_if(cond)
+        code.add_line('shift')
+        code.end_if()
         code.end_while()
         code.add_line('')
+
         cond = SC.str_var_equals_value('parse_args_print_help', 'true')
         code.begin_if(cond)
         code.add_line(help_function)

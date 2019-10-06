@@ -209,6 +209,10 @@ def validate_grammar(cli, parse_path=""):
             name = item[len("arguments."):-1*len("...")]
             assert name in all_arguments
             seen_arguments.add(name)
+        elif item.startswith("[arguments.") and item.endswith("...]"):
+            name = item[len("[arguments."):-1*len("...]")]
+            assert name in all_arguments
+            seen_arguments.add(name)
         elif item.startswith("[arguments.") and item.endswith("]"):
             name = item[len("[arguments."):-1*len("]")]
             assert name in all_arguments
