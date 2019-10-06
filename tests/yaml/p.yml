@@ -393,6 +393,8 @@ arguments:
         function: ___p_ls
         options:
           - name: directory
+            aliases:
+              - dir
             short: d
             type: FalseTrue
             description: list directories themselves, not their contents
@@ -469,7 +471,7 @@ arguments:
           - "[options]"
           - arguments.rm_paths
       - name: cat
-        description: show the contents of a file
+        description: show the contents of a password entry
         group: Managing passwords
         aliases:
           - show
@@ -647,6 +649,8 @@ arguments:
       - name: search
         description: search the contents of files for a match
         group: Search commands
+        aliases:
+          - grep
         function: ___p_search
         arguments:
           - name: grep_options
