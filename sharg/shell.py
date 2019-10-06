@@ -229,12 +229,34 @@ class ShellConditional:
         return obj
 
     @classmethod
+    def int_var_greater_equals_value(cls, var_name, value):
+        assert isinstance(value, int)
+
+        obj = cls()
+        obj.lhs = '$' + var_name
+        obj.operator = '>='
+        obj.rhs = str(value)
+        obj.c_type = 'numeric'
+        return obj
+
+    @classmethod
     def int_var_equals_value(cls, var_name, value):
         assert isinstance(value, int)
 
         obj = cls()
         obj.lhs = '$' + var_name
         obj.operator = '=='
+        obj.rhs = str(value)
+        obj.c_type = 'numeric'
+        return obj
+
+    @classmethod
+    def int_var_less_equals_value(cls, var_name, value):
+        assert isinstance(value, int)
+
+        obj = cls()
+        obj.lhs = '$' + var_name
+        obj.operator = '<='
         obj.rhs = str(value)
         obj.c_type = 'numeric'
         return obj
