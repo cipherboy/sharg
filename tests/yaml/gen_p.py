@@ -16,6 +16,7 @@ def main():
         "cp",
         "create",
         "decrypt",
+        "edit",
         "encrypt",
         "find",
         "generate",

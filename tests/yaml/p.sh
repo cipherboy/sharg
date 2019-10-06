@@ -27,6 +27,7 @@ function ___p_clone() { echo ___p_clone "$@" ; ___p_clone_parse_args "$@" ; }
 function ___p_cp() { echo ___p_cp "$@" ; ___p_cp_parse_args "$@" ; }
 function ___p_create() { echo ___p_create "$@" ; ___p_create_parse_args "$@" ; }
 function ___p_decrypt() { echo ___p_decrypt "$@" ; ___p_decrypt_parse_args "$@" ; }
+function ___p_edit() { echo ___p_edit "$@" ; ___p_edit_parse_args "$@" ; }
 function ___p_encrypt() { echo ___p_encrypt "$@" ; ___p_encrypt_parse_args "$@" ; }
 function ___p_find() { echo ___p_find "$@" ; ___p_find_parse_args "$@" ; }
 function ___p_generate() { echo ___p_generate "$@" ; ___p_generate_parse_args "$@" ; }
