@@ -113,18 +113,21 @@ class ShellCodeGen:
 
     def set_var(self, var_name: str, value):
         self.add_line(var_name + '="' + str(value) + '"')
+        self.log_if_verbose(var_name)
 
     def define_var(self, var_name: str, value):
         self.add_line('local ' + var_name + '="' + str(value) + '"')
 
     def export_var(self, var_name: str, value):
         self.add_line('export ' + var_name + '="' + str(value) + '"')
+        self.log_if_verbose(var_name)
 
     def increment_var(self, var_name: str, amount: int = 1):
         self.add_line(var_name + '=$((' + var_name + ' + ' + str(amount) + '))')
 
     def append_array(self, var_name: str, value):
         self.add_line(var_name + '+=("' + str(value) + '")')
+        self.log_if_verbose(var_name + "[@]")
 
     def write(self, line: str):
         self.write_buffer += line
@@ -140,6 +143,12 @@ class ShellCodeGen:
 
         for line in self.code:
             print(line, file=_file)
+
+    def log_if_verbose(self, var_name):
+        cond = ShellConditional.str_var_not_empty("SHARG_VERBOSE")
+        self.begin_if(cond)
+        self.add_line('echo "' + var_name + '=${' + var_name + '}"')
+        self.end_if()
 
 
 class ShellConditional:
