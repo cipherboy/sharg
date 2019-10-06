@@ -115,19 +115,60 @@ class ShellCodeGen:
         self.add_line(var_name + '="' + str(value) + '"')
         self.log_if_verbose(var_name)
 
-    def define_var(self, var_name: str, value):
-        self.add_line('local ' + var_name + '="' + str(value) + '"')
+    def define_var(self, var_name: str, value=None):
+        if value is None:
+            self.add_line('local ' + var_name)
+        else:
+            self.add_line('local ' + var_name + '="' + str(value) + '"')
 
-    def export_var(self, var_name: str, value):
-        self.add_line('export ' + var_name + '="' + str(value) + '"')
+    def export_var(self, var_name: str, value=None):
+        if value is None:
+            self.add_line('export ' + var_name)
+        else:
+            self.add_line('export ' + var_name + '="' + str(value) + '"')
         self.log_if_verbose(var_name)
+
+    def define_array(self, array_name: str, value=None):
+        if value is None:
+            self.add_line('local ' + array_name + '=()')
+        elif isinstance(value, (tuple, list)):
+            line = 'local ' + array_name + '=('
+            line += " ".join(map(lambda x: '"' + str(x) + '"', value))
+            line += ')'
+            self.add_line(line)
+        else:
+            self.add_line('local ' + array_name + '=("' + str(value) + '")')
+        self.log_if_verbose(array_name + "[@]")
 
     def increment_var(self, var_name: str, amount: int = 1):
         self.add_line(var_name + '=$((' + var_name + ' + ' + str(amount) + '))')
 
     def append_array(self, var_name: str, value):
-        self.add_line(var_name + '+=("' + str(value) + '")')
+        if isinstance(value, (tuple, list)):
+            line = array_name + '+=('
+            line += " ".join(map(lambda x: '"' + str(x) + '"', value))
+            line += ')'
+            self.add_line(line)
+        else:
+            self.add_line(var_name + '+=("' + str(value) + '")')
         self.log_if_verbose(var_name + "[@]")
+
+    def prepend_array(self, var_name: str, value):
+        line = var_name + '=('
+        if isinstance(value, (tuple, list)):
+            line += " ".join(map(lambda x: '"' + str(x) + '"', values))
+        else:
+            line += '"' + str(value) + '"'
+
+        line += ' "${' + var_name + '[@]}")'
+        self.add_line(line)
+        self.log_if_verbose(var_name + "[@]")
+
+    def shift_array(self, var_name: str):
+        self.add_line(var_name + '=( "${' + var_name + '[@]:1}" )')
+
+    def get_array(self, var_name: str, index : int = 0):
+        return '${' + var_name + '[' + str(index) + ']}'
 
     def write(self, line: str):
         self.write_buffer += line
@@ -147,8 +188,12 @@ class ShellCodeGen:
     def log_if_verbose(self, var_name):
         cond = ShellConditional.str_var_not_empty("SHARG_VERBOSE")
         self.begin_if(cond)
-        self.add_line('echo "' + var_name + '=${' + var_name + '}"')
+        if var_name.endswith('[@]'):
+            self.add_line('echo "' + var_name[:-len("[@]")] + '=${' + var_name + '} | len=${#' + var_name + '}"')
+        else:
+            self.add_line('echo "' + var_name + '=${' + var_name + '}"')
         self.end_if()
+        self.add_line('')
 
 
 class ShellConditional:
