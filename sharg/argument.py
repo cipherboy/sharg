@@ -79,9 +79,46 @@ class Argument:
                     print(indent2 + "- " + key + ": " + self.whitelist[key].description, file=_file)
 
 
-    def format_bash(self, code):
-        cond = SC.int_var_equals_value(self.var_position, self.position)
-        code.begin_if_elif(cond)
-        code.increment_var(self.var_position)
-        self.value_type.format_bash(code, self.name, self.var_name, '$arg',
-                                    do_shift=False, whitelist=self.whitelist)
+    def format_bash(self, code, optional=False, remaining=0):
+        if not optional or remaining == 0:
+            cond = SC.int_var_equals_value(self.var_position, self.position)
+            code.begin_if_elif(cond)
+            code.increment_var(self.var_position)
+            self.value_type.format_bash(code, self.name, self.var_name, '$arg',
+                                        do_shift=False, whitelist=self.whitelist)
+        else:
+            # Assume we have an unambiguous grammar; otherwise, we'll be in
+            # trouble. We should've already bailed out if we haven't...
+            #
+            # In this case, we have additional required arguments afterwards.
+            # If, when we're done parsing this argument (its an array), and
+            # we still have room to finish parsing other arguments, don't
+            # increment position. Otherwise, increment it.
+            cond = SC.int_var_equals_value(self.var_position, self.position)
+            code.begin_if_elif(cond)
+
+            # Decide whether to skip processing this variable as the argument
+            # in this position.
+            cond = SC.int_var_less_equals_value('#', remaining)
+            code.begin_if(cond)
+            code.set_var('do_shift', 'false')
+            code.increment_var(self.var_position)
+            code.begin_else()
+
+            if self.value_type == Value.Array:
+                # $# contains this argument we just grabbed, so we need to
+                # check for remaining+1 here.
+                cond = SC.int_var_greater_value('#', remaining+1)
+                code.begin_if(cond)
+                code.increment_var(self.var_position)
+                code.end_if()
+                self.value_type.format_bash(code, self.name, self.var_name, '$arg',
+                                            do_shift=False, whitelist=self.whitelist)
+
+            else:
+                # We can only hold one value anyways, increment the variable.
+                code.increment_var(self.var_position)
+                self.value_type.format_bash(code, self.name, self.var_name, '$arg',
+                                            do_shift=False, whitelist=self.whitelist)
+
+            code.end_if()
