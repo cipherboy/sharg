@@ -403,6 +403,7 @@ arguments:
         arguments:
           - name: ls_paths
             description: paths to inspect
+            type: Array
         mixed_options_arguments: true
         grammar:
           - "[options]"
@@ -428,6 +429,7 @@ arguments:
         arguments:
           - name: mkdir_paths
             description: paths to create as directories
+            type: Array
         mixed_options_arguments: true
         grammar:
           - "[options]"
@@ -441,6 +443,7 @@ arguments:
         arguments:
           - name: mv_srcs
             description: paths to items to move
+            type: Array
           - name: mv_dest
             description: path to new location for the specified objects
         grammar:
@@ -501,6 +504,7 @@ arguments:
         arguments:
           - name: cat_paths
             description: paths of password entries to display
+            type: Array
         mixed_options_arguments: true
         grammar:
           - "[options]"
@@ -548,6 +552,76 @@ arguments:
         aliases:
           - j
         function: ___p_json
+        arguments:
+          - name: json_cmd
+            description: json manipulation action
+            type: Subparser
+            whitelist:
+              - name: get
+                description: get a key's value from a file's JSON data
+                aliases:
+                  - g
+                function: ___p_json_get
+                arguments:
+                  - name: file
+                    description: file to read
+                  - name: key
+                    description: key to read out of the file; defaults to password
+                grammar:
+                  - "[options]"
+                  - "arguments.file"
+                  - "arguments.key"
+              - name: set
+                description: set a key's value in a file's JSON data
+                aliases:
+                  - s
+                function: ___p_json_set
+                arguments:
+                  - name: file
+                    description: file to write
+                  - name: key
+                    description: key to set in the file
+                  - name: value
+                    description: value of the key
+                grammar:
+                  - "[options]"
+                  - "arguments.file"
+                  - "arguments.key"
+                  - "arguments.value"
+              - name: retype
+                description: type the key's value from a file's JSON data
+                aliases:
+                  - r
+                  - type
+                  - t
+                function: ___p_json_retype
+                arguments:
+                  - name: file
+                    description: file to read
+                  - name: key
+                    description: key to read out of the file; defaults to password
+                grammar:
+                  - "[options]"
+                  - "arguments.file"
+                  - "arguments.key"
+              - name: kinit
+                description: obtain a Kerberos ticket from information in the specified file's JSON data
+                aliases:
+                  - k
+                function: ___p_json_kinit
+                arguments:
+                  - name: file
+                    description: file to read
+                grammar:
+                  - "[options]"
+                  - "arguments.file"
+        mixed_options_arguments: false
+        catch_remainder: true
+        remainder: json_cmd_args
+        grammar:
+          - "[options]"
+          - "arguments.json_cmd"
+          - "[vars.json_cmd_args...]"
       - name: find
         description: list all files in the password store
         group: Search commands
@@ -563,22 +637,77 @@ arguments:
         aliases:
           - lt
         function: ___p_locate
+        arguments:
+          - name: substr
+            description: substring to match in the path
+            type: Array
+        grammar:
+          - "[options]"
+          - "arguments.substr..."
       - name: search
         description: search the contents of files for a match
         group: Search commands
         function: ___p_search
+        arguments:
+          - name: grep_options
+            description: additional arguments to pass to grep
+            type: Array
+          - name: search_regex
+            description: regex to pass to grep
+        grammar:
+          - "[options]"
+          - "[arguments.grep_options...]"
+          - arguments.search_regex
       - name: decrypt
-        description: extract a file in the password store
+        description: extract (decrypt) a file in the password store
         group: Storing files
         function: ___p_decrypt
+        arguments:
+          - name: entry
+            description: vault entry to decrypt
+          - name: result_path
+            description: filesystem path to store the decrypted file at
+        grammar:
+          - "[options]"
+          - arguments.entry
+          - arguments.result_path
       - name: encrypt
         description: store a file into the password store
         group: Storing files
         function: ___p_encrypt
+        arguments:
+          - name: file_path
+            description: filesystem path to read
+          - name: entry
+            description: vault entry to encrypt to
+        grammar:
+          - "[options]"
+          - arguments.file_path
+          - arguments.entry
       - name: open
         description: run a command to view a file in the password store
         group: Storing files
         function: ___p_open
+        options:
+          - name: read-only
+            short: r
+            description: do not save changes made to the file
+            type: FalseTrue
+          - name: no-lock
+            short: l
+            description: do not try to acquire a lock before opening the file
+            type: FalseTrue
+        arguments:
+          - name: open_entry
+            description: password entry to open
+          - name: open_command
+            description: command
+            type: Array
+        mixed_options_arguments: false
+        grammar:
+          - "[options]"
+          - "arguments.open_entry"
+          - "arguments.open_command..."
       - name: git
         description: run git commands in the password store
         aliases:
@@ -602,8 +731,20 @@ arguments:
         grammar:
           - "[vars.pass_args...]"
       - name: sync
-        description: sync a remote branch with a remote one
+        description: sync a local branch with a remote one
         function: ___p_sync
+        arguments:
+          - name: branch
+            description: local branch to sync from; defaults to the current branch
+          - name: origin
+            description: remote origin to sync to; defaults to origin
+          - name: remote
+            description: remote branch to sync to; defaults to master
+        grammar:
+          - "[options]"
+          - "[arguments.branch]"
+          - "[arguments.origin]"
+          - "[arguments.remote]"
 mixed_options_arguments: false
 catch_remainder: true
 remainder: cmd_args

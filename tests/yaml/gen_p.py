@@ -22,6 +22,10 @@ def main():
         "git",
         "help",
         "json",
+        "json_get",
+        "json_set",
+        "json_retype",
+        "json_kinit",
         "dirs",
         "dir_add",
         "dir_create",
@@ -63,7 +67,8 @@ def main():
         "dirs",
         "gpg",
         "groups",
-        "keys"
+        "keys",
+        "json"
     ])
     for name in functions:
         print_func(name, name in have_subcommand)

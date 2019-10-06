@@ -20,6 +20,7 @@ function _handle_dispatch_error() {
     echo "Dispatch error: $1"
     exit 1
 }
+
 function ___p_cat() { echo ___p_cat "$@" ; ___p_cat_parse_args "$@" ; }
 function ___p_cd() { echo ___p_cd "$@" ; ___p_cd_parse_args "$@" ; }
 function ___p_clone() { echo ___p_clone "$@" ; ___p_clone_parse_args "$@" ; }
@@ -31,7 +32,11 @@ function ___p_find() { echo ___p_find "$@" ; ___p_find_parse_args "$@" ; }
 function ___p_generate() { echo ___p_generate "$@" ; ___p_generate_parse_args "$@" ; }
 function ___p_git() { echo ___p_git "$@" ; ___p_git_parse_args "$@" ; }
 function ___p_help() { echo ___p_help "$@" ; ___p_help_parse_args "$@" ; }
-function ___p_json() { echo ___p_json "$@" ; ___p_json_parse_args "$@" ; }
+function ___p_json() { echo ___p_json "$@" ; ___p_json_parse_args "$@" ; ret=$? ; if (( ret == 0 )); then ___p_json_dispatch_subparser; fi ; }
+function ___p_json_get() { echo ___p_json_get "$@" ; ___p_json_get_parse_args "$@" ; }
+function ___p_json_set() { echo ___p_json_set "$@" ; ___p_json_set_parse_args "$@" ; }
+function ___p_json_retype() { echo ___p_json_retype "$@" ; ___p_json_retype_parse_args "$@" ; }
+function ___p_json_kinit() { echo ___p_json_kinit "$@" ; ___p_json_kinit_parse_args "$@" ; }
 function ___p_dirs() { echo ___p_dirs "$@" ; ___p_dirs_parse_args "$@" ; ret=$? ; if (( ret == 0 )); then ___p_dirs_dispatch_subparser; fi ; }
 function ___p_dir_add() { echo ___p_dir_add "$@" ; ___p_dir_add_parse_args "$@" ; }
 function ___p_dir_create() { echo ___p_dir_create "$@" ; ___p_dir_create_parse_args "$@" ; }

@@ -1,9 +1,13 @@
 function _p_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 1 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
@@ -101,6 +105,10 @@ function _p_parse_args() {
         else
             cmd_args+=("$arg")
         fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
+        fi
     done
 
     if [ "x$parse_args_print_help" == "xtrue" ]; then
@@ -144,14 +152,14 @@ Arguments:
       - keys: manage keys used to encrypt passwords
 
     Storing files:
-      - decrypt: extract a file in the password store
+      - decrypt: extract (decrypt) a file in the password store
       - encrypt: store a file into the password store
       - open: run a command to view a file in the password store
 
     Other commands:
       - git: run git commands in the password store
       - pass: pass a command through to pass (for accessing extensions)
-      - sync: sync a remote branch with a remote one
+      - sync: sync a local branch with a remote one
 
 Options:
   --help, -h: Print this help text.
@@ -219,15 +227,23 @@ function _p_dispatch_subparser() {
 function ___p_clone_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 1 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             uri="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -252,9 +268,13 @@ ___p_clone_print_help_EOF
 function ___p_create_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 1 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
@@ -263,6 +283,10 @@ function ___p_create_parse_args() {
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             gpg_id="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -288,9 +312,13 @@ ___p_create_print_help_EOF
 function ___p_keys_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 1 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
@@ -319,6 +347,10 @@ function ___p_keys_parse_args() {
             fi
         else
             key_cmd_args+=("$arg")
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -374,15 +406,23 @@ function ___p_keys_dispatch_subparser() {
 function ___p_key_init_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 1 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             key_id="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -407,9 +447,13 @@ ___p_key_init_print_help_EOF
 function ___p_key_import_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 2 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
@@ -419,6 +463,10 @@ function ___p_key_import_parse_args() {
         elif (( $_parse_args_positional_index == 1 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             key_id="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -444,15 +492,23 @@ ___p_key_import_print_help_EOF
 function ___p_key_export_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 1 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             key_nickname="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -479,8 +535,12 @@ function ___p_keys_list_parse_args() {
     local _parse_args_positional_index="0"
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
+        fi
     done
 
     if [ "x$parse_args_print_help" == "xtrue" ]; then
@@ -503,8 +563,12 @@ function ___p_keys_regen_parse_args() {
     local _parse_args_positional_index="0"
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
+        fi
     done
 
     if [ "x$parse_args_print_help" == "xtrue" ]; then
@@ -525,15 +589,23 @@ ___p_keys_regen_print_help_EOF
 function ___p_key_delete_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 1 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             key_nickname="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -558,9 +630,13 @@ ___p_key_delete_print_help_EOF
 function ___p_key_rename_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 2 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
@@ -570,6 +646,10 @@ function ___p_key_rename_parse_args() {
         elif (( $_parse_args_positional_index == 1 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             key_new="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -595,15 +675,23 @@ ___p_key_rename_print_help_EOF
 function ___p_key_update_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 1 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             key_nickname="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -628,9 +716,13 @@ ___p_key_update_print_help_EOF
 function ___p_groups_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 1 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
@@ -653,6 +745,10 @@ function ___p_groups_parse_args() {
             fi
         else
             group_cmd_args+=("$arg")
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -699,15 +795,25 @@ function ___p_groups_dispatch_subparser() {
 function ___p_group_create_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 2 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             group_name="$arg"
+        elif (( $_parse_args_positional_index == 1 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -733,15 +839,25 @@ ___p_group_create_print_help_EOF
 function ___p_group_add_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 2 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             group_name="$arg"
+        elif (( $_parse_args_positional_index == 1 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -767,15 +883,25 @@ ___p_group_add_print_help_EOF
 function ___p_group_remove_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 2 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             group_name="$arg"
+        elif (( $_parse_args_positional_index == 1 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -801,15 +927,23 @@ ___p_group_remove_print_help_EOF
 function ___p_group_delete_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 1 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             group_name="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -836,8 +970,12 @@ function ___p_group_list_parse_args() {
     local _parse_args_positional_index="0"
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
+        fi
     done
 
     if [ "x$parse_args_print_help" == "xtrue" ]; then
@@ -858,9 +996,13 @@ ___p_group_list_print_help_EOF
 function ___p_dirs_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 1 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
@@ -883,6 +1025,10 @@ function ___p_dirs_parse_args() {
             fi
         else
             dir_cmd_args+=("$arg")
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -929,15 +1075,25 @@ function ___p_dirs_dispatch_subparser() {
 function ___p_dir_create_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 2 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             dir_path="$arg"
+        elif (( $_parse_args_positional_index == 1 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -963,15 +1119,25 @@ ___p_dir_create_print_help_EOF
 function ___p_dir_add_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 2 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             dir_path="$arg"
+        elif (( $_parse_args_positional_index == 1 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -997,15 +1163,25 @@ ___p_dir_add_print_help_EOF
 function ___p_dir_remove_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 2 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             dir_path="$arg"
+        elif (( $_parse_args_positional_index == 1 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -1031,15 +1207,23 @@ ___p_dir_remove_print_help_EOF
 function ___p_dir_delete_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 1 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             dir_path="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -1066,8 +1250,12 @@ function ___p_dir_list_parse_args() {
     local _parse_args_positional_index="0"
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
+        fi
     done
 
     if [ "x$parse_args_print_help" == "xtrue" ]; then
@@ -1088,9 +1276,13 @@ ___p_dir_list_print_help_EOF
 function ___p_gpg_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 1 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
@@ -1115,6 +1307,10 @@ function ___p_gpg_parse_args() {
             fi
         else
             gpg_cmd_args+=("$arg")
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -1164,9 +1360,13 @@ function ___p_gpg_dispatch_subparser() {
 function ___p_gpg_generate_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 2 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
@@ -1176,6 +1376,10 @@ function ___p_gpg_generate_parse_args() {
         elif (( $_parse_args_positional_index == 1 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             gpg_email="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -1201,15 +1405,23 @@ ___p_gpg_generate_print_help_EOF
 function ___p_gpg_import_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 1 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             gpg_path="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -1234,9 +1446,13 @@ ___p_gpg_import_print_help_EOF
 function ___p_gpg_export_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 2 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
@@ -1246,6 +1462,10 @@ function ___p_gpg_export_parse_args() {
         elif (( $_parse_args_positional_index == 1 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             gpg_path="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -1273,10 +1493,17 @@ function ___p_gpg_list_parse_args() {
     local _parse_args_positional_index="0"
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+            gpg_id="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -1301,15 +1528,23 @@ ___p_gpg_list_print_help_EOF
 function ___p_gpg_password_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 1 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             gpg_id="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -1334,15 +1569,23 @@ ___p_gpg_password_print_help_EOF
 function ___p_gpg_trust_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 1 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             gpg_id="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -1367,9 +1610,13 @@ ___p_gpg_trust_print_help_EOF
 function ___p_cd_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 1 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
@@ -1380,6 +1627,10 @@ function ___p_cd_parse_args() {
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             cd_path="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -1406,9 +1657,13 @@ ___p_cd_print_help_EOF
 function ___p_cp_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 2 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
@@ -1420,6 +1675,10 @@ function ___p_cp_parse_args() {
         elif (( $_parse_args_positional_index == 1 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             new_path="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -1446,9 +1705,13 @@ ___p_cp_print_help_EOF
 function ___p_ls_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 1 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
@@ -1456,6 +1719,12 @@ function ___p_ls_parse_args() {
             directory="true"
         elif [ "x$arg" == "x--all" ] || [ "x$arg" == "x-all" ] || [ "x$arg" == "x-a" ]; then
             all="true"
+        elif (( $_parse_args_positional_index == 0 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -1482,9 +1751,13 @@ ___p_ls_print_help_EOF
 function ___p_mkdir_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 1 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
@@ -1492,6 +1765,12 @@ function ___p_mkdir_parse_args() {
             recursive="true"
         elif [ "x$arg" == "x--absolute" ] || [ "x$arg" == "x-absolute" ] || [ "x$arg" == "x-a" ]; then
             absolute="true"
+        elif (( $_parse_args_positional_index == 0 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -1518,15 +1797,25 @@ ___p_mkdir_print_help_EOF
 function ___p_mv_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 2 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
+        elif (( $_parse_args_positional_index == 1 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
             mv_dest="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -1552,9 +1841,13 @@ ___p_mv_print_help_EOF
 function ___p_rm_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 1 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
@@ -1563,6 +1856,10 @@ function ___p_rm_parse_args() {
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             rm_paths="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -1588,9 +1885,13 @@ ___p_rm_print_help_EOF
 function ___p_cat_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 1 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
@@ -1602,6 +1903,12 @@ function ___p_cat_parse_args() {
             password_only="true"
         elif [ "x$arg" == "x--no-color" ] || [ "x$arg" == "x-no-color" ] || [ "x$arg" == "x-n" ]; then
             color="false"
+        elif (( $_parse_args_positional_index == 0 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -1630,15 +1937,23 @@ ___p_cat_print_help_EOF
 function ___p_edit_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 1 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
         elif (( $_parse_args_positional_index == 0 )); then
             _parse_args_positional_index=$((_parse_args_positional_index + 1))
             edit_path="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
         fi
     done
 
@@ -1665,7 +1980,7 @@ function ___p_generate_parse_args() {
     local _parse_args_positional_index="0"
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
             parse_args_print_help="true"
@@ -1682,6 +1997,10 @@ function ___p_generate_parse_args() {
             save="${arg#*=}"
         elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--save" ] || [ "x$arg" == "x-save" ] || [ "x$arg" == "x-s" ]; then
             save="$1"
+            shift
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
             shift
         fi
     done
@@ -1708,10 +2027,38 @@ ___p_generate_print_help_EOF
 function ___p_json_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 1 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+            local __tmp_json_cmd="$arg"
+
+            if [ "x$__tmp_json_cmd" == "xget" ] || [ "x$__tmp_json_cmd" == "xg" ]; then
+                json_cmd="get"
+            elif [ "x$__tmp_json_cmd" == "xkinit" ] || [ "x$__tmp_json_cmd" == "xk" ]; then
+                json_cmd="kinit"
+            elif [ "x$__tmp_json_cmd" == "xretype" ] || [ "x$__tmp_json_cmd" == "xr" ] || [ "x$__tmp_json_cmd" == "xtype" ] || [ "x$__tmp_json_cmd" == "xt" ]; then
+                json_cmd="retype"
+            elif [ "x$__tmp_json_cmd" == "xset" ] || [ "x$__tmp_json_cmd" == "xs" ]; then
+                json_cmd="set"
+            else
+                _handle_parse_error "json_cmd" "$__tmp_json_cmd"
+            fi
+        else
+            json_cmd_args+=("$arg")
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
+        fi
     done
 
     if [ "x$parse_args_print_help" == "xtrue" ]; then
@@ -1722,21 +2069,227 @@ function ___p_json_parse_args() {
 }
 function ___p_json_print_help() {
     cat - << ___p_json_print_help_EOF
-Usage: p json
+Usage: p json [options] <json_cmd> [vars.json_cmd_args...]
 manipulate a JSON-encoded password file
+
+Arguments:
+  json_cmd: json manipulation action
+    - get: get a key's value from a file's JSON data
+    - set: set a key's value in a file's JSON data
+    - retype: type the key's value from a file's JSON data
+    - kinit: obtain a Kerberos ticket from information in the specified file's JSON data
 
 Options:
   --help, -h: Print this help text.
 ___p_json_print_help_EOF
+}
+function ___p_json_dispatch_subparser() {
+    if [ "x$json_cmd" == "xget" ]; then
+        ___p_json_get "${json_cmd_args[@]}"
+    elif [ "x$json_cmd" == "xkinit" ]; then
+        ___p_json_kinit "${json_cmd_args[@]}"
+    elif [ "x$json_cmd" == "xretype" ]; then
+        ___p_json_retype "${json_cmd_args[@]}"
+    elif [ "x$json_cmd" == "xset" ]; then
+        ___p_json_set "${json_cmd_args[@]}"
+    elif [ ! -z "$json_cmd" ]; then
+        _handle_dispatch_error "$json_cmd"
+    else
+        ___p_json_print_help
+    fi
+}
+function ___p_json_get_parse_args() {
+    local parse_args_print_help="false"
+    local _parse_args_positional_index="0"
+    if (( $# < 2 )); then
+        parse_args_print_help="true"
+    fi
+
+    while (( $# > 0 )); do
+        local arg="$1"
+        local do_shift="true"
+
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+            file="$arg"
+        elif (( $_parse_args_positional_index == 1 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+            key="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
+        fi
+    done
+
+    if [ "x$parse_args_print_help" == "xtrue" ]; then
+        ___p_json_get_print_help
+        return 1
+    fi
+    return 0
+}
+function ___p_json_get_print_help() {
+    cat - << ___p_json_get_print_help_EOF
+Usage: p json get [options] <file> <key>
+get a key's value from a file's JSON data
+
+Arguments:
+  file: file to read
+  key: key to read out of the file; defaults to password
+
+Options:
+  --help, -h: Print this help text.
+___p_json_get_print_help_EOF
+}
+function ___p_json_set_parse_args() {
+    local parse_args_print_help="false"
+    local _parse_args_positional_index="0"
+    if (( $# < 3 )); then
+        parse_args_print_help="true"
+    fi
+
+    while (( $# > 0 )); do
+        local arg="$1"
+        local do_shift="true"
+
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+            file="$arg"
+        elif (( $_parse_args_positional_index == 1 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+            key="$arg"
+        elif (( $_parse_args_positional_index == 2 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+            value="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
+        fi
+    done
+
+    if [ "x$parse_args_print_help" == "xtrue" ]; then
+        ___p_json_set_print_help
+        return 1
+    fi
+    return 0
+}
+function ___p_json_set_print_help() {
+    cat - << ___p_json_set_print_help_EOF
+Usage: p json set [options] <file> <key> <value>
+set a key's value in a file's JSON data
+
+Arguments:
+  file: file to write
+  key: key to set in the file
+  value: value of the key
+
+Options:
+  --help, -h: Print this help text.
+___p_json_set_print_help_EOF
+}
+function ___p_json_retype_parse_args() {
+    local parse_args_print_help="false"
+    local _parse_args_positional_index="0"
+    if (( $# < 2 )); then
+        parse_args_print_help="true"
+    fi
+
+    while (( $# > 0 )); do
+        local arg="$1"
+        local do_shift="true"
+
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+            file="$arg"
+        elif (( $_parse_args_positional_index == 1 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+            key="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
+        fi
+    done
+
+    if [ "x$parse_args_print_help" == "xtrue" ]; then
+        ___p_json_retype_print_help
+        return 1
+    fi
+    return 0
+}
+function ___p_json_retype_print_help() {
+    cat - << ___p_json_retype_print_help_EOF
+Usage: p json retype [options] <file> <key>
+type the key's value from a file's JSON data
+
+Arguments:
+  file: file to read
+  key: key to read out of the file; defaults to password
+
+Options:
+  --help, -h: Print this help text.
+___p_json_retype_print_help_EOF
+}
+function ___p_json_kinit_parse_args() {
+    local parse_args_print_help="false"
+    local _parse_args_positional_index="0"
+    if (( $# < 1 )); then
+        parse_args_print_help="true"
+    fi
+
+    while (( $# > 0 )); do
+        local arg="$1"
+        local do_shift="true"
+
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+            file="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
+        fi
+    done
+
+    if [ "x$parse_args_print_help" == "xtrue" ]; then
+        ___p_json_kinit_print_help
+        return 1
+    fi
+    return 0
+}
+function ___p_json_kinit_print_help() {
+    cat - << ___p_json_kinit_print_help_EOF
+Usage: p json kinit [options] <file>
+obtain a Kerberos ticket from information in the specified file's JSON data
+
+Arguments:
+  file: file to read
+
+Options:
+  --help, -h: Print this help text.
+___p_json_kinit_print_help_EOF
 }
 function ___p_find_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         find_args+=("$arg")
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
+        fi
     done
 
     if [ "x$parse_args_print_help" == "xtrue" ]; then
@@ -1754,10 +2307,23 @@ ___p_find_print_help_EOF
 function ___p_locate_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 1 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
+        fi
     done
 
     if [ "x$parse_args_print_help" == "xtrue" ]; then
@@ -1768,8 +2334,11 @@ function ___p_locate_parse_args() {
 }
 function ___p_locate_print_help() {
     cat - << ___p_locate_print_help_EOF
-Usage: p locate
+Usage: p locate [options] <substr...>
 locate files and directories matching a pattern
+
+Arguments:
+  substr: substring to match in the path
 
 Options:
   --help, -h: Print this help text.
@@ -1778,10 +2347,33 @@ ___p_locate_print_help_EOF
 function ___p_search_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 1 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
+            if (( $# <= 1 )); then
+                do_shift="false"
+                _parse_args_positional_index=$((_parse_args_positional_index + 1))
+            else
+                if (( $# > 2 )); then
+                    _parse_args_positional_index=$((_parse_args_positional_index + 1))
+                fi
+            fi
+        elif (( $_parse_args_positional_index == 1 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+            search_regex="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
+        fi
     done
 
     if [ "x$parse_args_print_help" == "xtrue" ]; then
@@ -1792,8 +2384,12 @@ function ___p_search_parse_args() {
 }
 function ___p_search_print_help() {
     cat - << ___p_search_print_help_EOF
-Usage: p search
+Usage: p search [options] [arguments.grep_options...] <search_regex>
 search the contents of files for a match
+
+Arguments:
+  grep_options: additional arguments to pass to grep
+  search_regex: regex to pass to grep
 
 Options:
   --help, -h: Print this help text.
@@ -1802,10 +2398,27 @@ ___p_search_print_help_EOF
 function ___p_decrypt_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 2 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+            entry="$arg"
+        elif (( $_parse_args_positional_index == 1 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+            result_path="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
+        fi
     done
 
     if [ "x$parse_args_print_help" == "xtrue" ]; then
@@ -1816,8 +2429,12 @@ function ___p_decrypt_parse_args() {
 }
 function ___p_decrypt_print_help() {
     cat - << ___p_decrypt_print_help_EOF
-Usage: p decrypt
-extract a file in the password store
+Usage: p decrypt [options] <entry> <result_path>
+extract (decrypt) a file in the password store
+
+Arguments:
+  entry: vault entry to decrypt
+  result_path: filesystem path to store the decrypted file at
 
 Options:
   --help, -h: Print this help text.
@@ -1826,10 +2443,27 @@ ___p_decrypt_print_help_EOF
 function ___p_encrypt_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 2 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+            file_path="$arg"
+        elif (( $_parse_args_positional_index == 1 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+            entry="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
+        fi
     done
 
     if [ "x$parse_args_print_help" == "xtrue" ]; then
@@ -1840,8 +2474,12 @@ function ___p_encrypt_parse_args() {
 }
 function ___p_encrypt_print_help() {
     cat - << ___p_encrypt_print_help_EOF
-Usage: p encrypt
+Usage: p encrypt [options] <file_path> <entry>
 store a file into the password store
+
+Arguments:
+  file_path: filesystem path to read
+  entry: vault entry to encrypt to
 
 Options:
   --help, -h: Print this help text.
@@ -1850,10 +2488,30 @@ ___p_encrypt_print_help_EOF
 function ___p_open_parse_args() {
     local parse_args_print_help="false"
     local _parse_args_positional_index="0"
+    if (( $# < 2 )); then
+        parse_args_print_help="true"
+    fi
+
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--read-only" ] || [ "x$arg" == "x-read-only" ] || [ "x$arg" == "x-r" ]; then
+            read_only="true"
+        elif (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--no-lock" ] || [ "x$arg" == "x-no-lock" ] || [ "x$arg" == "x-l" ]; then
+            no_lock="true"
+        elif (( $_parse_args_positional_index == 0 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+            open_entry="$arg"
+        elif (( $_parse_args_positional_index == 1 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
+        fi
     done
 
     if [ "x$parse_args_print_help" == "xtrue" ]; then
@@ -1864,11 +2522,17 @@ function ___p_open_parse_args() {
 }
 function ___p_open_print_help() {
     cat - << ___p_open_print_help_EOF
-Usage: p open
+Usage: p open [options] <open_entry> <open_command...>
 run a command to view a file in the password store
+
+Arguments:
+  open_entry: password entry to open
+  open_command: command
 
 Options:
   --help, -h: Print this help text.
+  --read-only, -r: do not save changes made to the file
+  --no-lock, -l: do not try to acquire a lock before opening the file
 ___p_open_print_help_EOF
 }
 function ___p_git_parse_args() {
@@ -1876,9 +2540,13 @@ function ___p_git_parse_args() {
     local _parse_args_positional_index="0"
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         git_args+=("$arg")
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
+        fi
     done
 
     if [ "x$parse_args_print_help" == "xtrue" ]; then
@@ -1898,9 +2566,13 @@ function ___p_through_parse_args() {
     local _parse_args_positional_index="0"
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
         pass_args+=("$arg")
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
+        fi
     done
 
     if [ "x$parse_args_print_help" == "xtrue" ]; then
@@ -1920,8 +2592,24 @@ function ___p_sync_parse_args() {
     local _parse_args_positional_index="0"
     while (( $# > 0 )); do
         local arg="$1"
-        shift
+        local do_shift="true"
 
+        if (( $_parse_args_positional_index == 0 )) && [ "x$arg" == "x--help" ] || [ "x$arg" == "x-help" ] || [ "x$arg" == "x-h" ]; then
+            parse_args_print_help="true"
+        elif (( $_parse_args_positional_index == 0 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+            branch="$arg"
+        elif (( $_parse_args_positional_index == 1 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+            origin="$arg"
+        elif (( $_parse_args_positional_index == 2 )); then
+            _parse_args_positional_index=$((_parse_args_positional_index + 1))
+            remote="$arg"
+        fi
+
+        if [ "x$do_shift" == "xtrue" ]; then
+            shift
+        fi
     done
 
     if [ "x$parse_args_print_help" == "xtrue" ]; then
@@ -1932,8 +2620,13 @@ function ___p_sync_parse_args() {
 }
 function ___p_sync_print_help() {
     cat - << ___p_sync_print_help_EOF
-Usage: p sync
-sync a remote branch with a remote one
+Usage: p sync [options] [arguments.branch] [arguments.origin] [arguments.remote]
+sync a local branch with a remote one
+
+Arguments:
+  branch: local branch to sync from; defaults to the current branch
+  origin: remote origin to sync to; defaults to origin
+  remote: remote branch to sync to; defaults to master
 
 Options:
   --help, -h: Print this help text.
