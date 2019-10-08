@@ -314,6 +314,18 @@ class CommandLine:
         code.end_while()
         code.add_line('')
 
+        for item in self.grammar:
+            if not item.startswith("arguments.") or not item.endswith("..."):
+                continue
+            arg_name = item[len("arguments."):-len("...")]
+            argument = self.find_argument(arg_name)
+
+            cond = SC.int_var_equals_value('{#' + argument.var_name + '}', 0)
+            code.begin_if(cond)
+            code.set_var('parse_args_print_help', 'true')
+            code.end_if()
+            code.add_line('')
+
         cond = SC.str_var_equals_value('parse_args_print_help', 'true')
         code.begin_if(cond)
         code.add_line(help_function)
