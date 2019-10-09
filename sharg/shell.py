@@ -390,6 +390,64 @@ class ShellConditional:
 
         return obj
 
+    @classmethod
+    def c_test_and(cls, *args):
+        obj = cls()
+        obj.c_type = 'fixed'
+        obj.operator = '-a'
+        obj.line = "[ "
+        obj.parts = []
+
+        for arg in args:
+            if isinstance(arg, (str, ShellConditional)):
+                part = str(arg)
+                if part.startswith("[ "):
+                    part = part[len("[ "):]
+                if part.endswith(" ]"):
+                    part = part[:-len(" ]")]
+                obj.parts.append(part)
+            else:
+                for arg_part in arg:
+                    part = str(arg_part)
+                    if part.startswith("[ "):
+                        part = part[len("[ "):]
+                    if part.endswith(" ]"):
+                        part = part[:-len(" ]")]
+                    obj.parts.append(part)
+
+        obj.line += " -a ".join(obj.parts)
+        obj.line += " ]"
+        return obj
+
+    @classmethod
+    def c_test_or(cls, *args):
+        obj = cls()
+        obj.c_type = 'fixed'
+        obj.operator = '-o'
+        obj.line = "[ "
+        obj.parts = []
+
+        for arg in args:
+            if isinstance(arg, (str, ShellConditional)):
+                part = str(arg)
+                if part.startswith("[ "):
+                    part = part[len("[ "):]
+                if part.endswith(" ]"):
+                    part = part[:-len(" ]")]
+                obj.parts.append(part)
+            else:
+                for arg_part in arg:
+                    part = str(arg_part)
+                    if part.startswith("[ "):
+                        part = part[len("[ "):]
+                    if part.endswith(" ]"):
+                        part = part[:-len(" ]")]
+                    obj.parts.append(part)
+
+        obj.line += " -o ".join(obj.parts)
+        obj.line += " ]"
+        return obj
+
     def __str__(self):
         line = ""
         if self.c_type == 'string':
@@ -403,6 +461,8 @@ class ShellConditional:
         elif self.c_type == 'joined':
             str_inner = map(str, self.parts)
             line = (' ' + self.operator + ' ').join(str_inner)
+        elif self.c_type == 'fixed':
+            return self.line
         else:
             raise Exception("Unknown conditional type: %s" % self.c_type)
 

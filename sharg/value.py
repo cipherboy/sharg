@@ -61,9 +61,14 @@ class Value(Enum):
             conds = []
             for item in sorted(whitelist):
                 cond = SC.str_var_equals_value(tmp_var, item)
+                full_cond = [cond]
                 if self == Value.Subparser:
                     for alias in whitelist[item].aliases:
-                        cond = SC.c_or(cond, SC.str_var_equals_value(tmp_var, alias))
+                        full_cond.append(SC.str_var_equals_value(tmp_var, alias))
+
+                if len(full_cond) > 1:
+                    cond = SC.c_test_or(full_cond)
+
                 conds.append((item, cond))
 
             value, cond = conds[0]
