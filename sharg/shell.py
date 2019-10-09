@@ -193,7 +193,6 @@ class ShellCodeGen:
         else:
             self.add_line('echo "' + var_name + '=${' + var_name + '}"')
         self.end_if()
-        self.add_line('')
 
 
 class ShellConditional:
