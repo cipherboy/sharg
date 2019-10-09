@@ -230,6 +230,7 @@ class CommandLine:
         code.add_line('')
 
         subparser = False
+        have_remainder = False
         need_endif = False
         position = 0
         for index, item in enumerate(self.grammar):
@@ -302,10 +303,18 @@ class CommandLine:
                 if need_endif:
                     code.begin_else()
                 code.append_array(self.bash_var_remainder, "$arg")
+                have_remainder = True
             else:
                 raise ValueError(f"Can't handle grammar item {item}")
 
         if need_endif:
+            # When at least one option or argument exists, and the command
+            # line argument doesn't fall into either, print the help text.
+            # But, we can only do it when we aren't catching the remainder
+            # elsewhere.
+            if not have_remainder:
+                code.begin_else()
+                code.set_var('parse_args_print_help', 'true')
             code.end_if()
 
         code.add_line('')
