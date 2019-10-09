@@ -233,6 +233,7 @@ class CommandLine:
         have_remainder = False
         need_endif = False
         position = 0
+        required_positional = 0
         for index, item in enumerate(self.grammar):
             if item == '[options]':
                 assert self.options
@@ -251,6 +252,7 @@ class CommandLine:
 
                 argument.position = position
                 position += 1
+                required_positional += 1
 
                 if argument.value_type == Value.Subparser:
                     subparser = argument
@@ -264,6 +266,7 @@ class CommandLine:
 
                 argument.position = position
                 position += 1
+                required_positional += 1
 
                 assert argument.value_type == Value.Array
 
@@ -326,6 +329,8 @@ class CommandLine:
         code.add_line('')
 
         for item in self.grammar:
+            if item.startswith("arguments."):
+                have_argument = True
             if not item.startswith("arguments.") or not item.endswith("..."):
                 continue
             arg_name = item[len("arguments."):-len("...")]
@@ -336,6 +341,14 @@ class CommandLine:
             code.set_var('parse_args_print_help', 'true')
             code.end_if()
             code.add_line('')
+
+        if required_positional > 0:
+            cond = SC.int_var_less_value(self.bash_var_position, required_positional)
+            code.begin_if(cond)
+            code.set_var('parse_args_print_help', 'true')
+            code.end_if()
+            code.add_line('')
+
 
         cond = SC.str_var_equals_value('parse_args_print_help', 'true')
         code.begin_if(cond)
