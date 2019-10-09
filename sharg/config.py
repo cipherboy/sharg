@@ -149,9 +149,10 @@ def parse_option(option: dict, result: CommandLine):
     _o_help = option.get("description", None)
     _o_type = option.get("type", None)
     _o_value = Value[_o_type]
+    _o_constant = option.get("constant", None)
 
     opt = result.add_option(_o_name, short_name=_o_short, help_text=_o_help,
-                            option_type=_o_value)
+                            option_type=_o_value, value=_o_constant)
 
     _var_name = option.get("var", None)
     if _var_name:
@@ -180,9 +181,10 @@ def parse_argument(argument: dict, result: CommandLine, parse_path=""):
     _a_dict = argument.get("whitelist", None)
     _wl_parse_path = parse_path + "[name=" + _a_name + "].whitelist"
     _a_whitelist = parse_whitelist(_a_dict, parse_path=_wl_parse_path)
+    _a_constant = argument.get("constant", None)
 
     result.add_argument(_a_name, help_text=_a_help, argument_type=_a_value,
-                        whitelist=_a_whitelist)
+                        whitelist=_a_whitelist, value=_a_constant)
 
 
 def validate_grammar(cli, parse_path=""):

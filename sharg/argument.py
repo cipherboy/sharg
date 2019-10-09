@@ -16,9 +16,11 @@ class Argument:
 
     whitelist = []
     aliases = {}
+    value = None
 
     def __init__(self, name=None, var_position=None, position=None,
-                 help_text=None, argument_type=None, whitelist=None):
+                 help_text=None, argument_type=None, whitelist=None,
+                 value=None):
         self.name = name
         self.var_position = var_position
         self.position = position
@@ -26,6 +28,7 @@ class Argument:
         self.var_name = name.replace('-', '_')
         self.value_type = argument_type
         self.whitelist = whitelist
+        self.value = value
 
     def __groups__(self):
         all_groups = set()
@@ -125,12 +128,14 @@ class Argument:
                 code.increment_var(self.var_position)
                 code.end_if()
                 self.value_type.format_bash(code, self.name, self.var_name, '$arg',
-                                            do_shift=False, whitelist=self.whitelist)
+                                            do_shift=False, whitelist=self.whitelist,
+                                            value=self.value)
 
             else:
                 # We can only hold one value anyways, increment the variable.
                 code.increment_var(self.var_position)
                 self.value_type.format_bash(code, self.name, self.var_name, '$arg',
-                                            do_shift=False, whitelist=self.whitelist)
+                                            do_shift=False, whitelist=self.whitelist,
+                                            value=self.value)
 
             code.end_if()

@@ -109,7 +109,7 @@ class CommandLine:
                     self.usage += item
 
     def add_argument(self, name, help_text=None, argument_type=Value.String,
-                     whitelist=None):
+                     whitelist=None, value=None):
         assert isinstance(name, str)
         assert help_text is None or isinstance(help_text, str)
         assert isinstance(argument_type, Value)
@@ -117,14 +117,15 @@ class CommandLine:
         arg = Argument(name=name, var_position=self.bash_var_position,
                        position=self.positional_arguments,
                        help_text=help_text, argument_type=argument_type,
-                       whitelist=whitelist)
+                       whitelist=whitelist, value=value)
 
         self.positional_arguments += 1
         self.arguments.append(arg)
 
         return arg
 
-    def add_option(self, long_name, short_name=None, help_text=None, option_type=Value.FalseTrue):
+    def add_option(self, long_name, short_name=None, help_text=None,
+                   option_type=Value.FalseTrue, value=None):
         assert isinstance(long_name, str)
         assert short_name is None or isinstance(short_name, str)
         assert help_text is None or isinstance(help_text, str)
@@ -136,7 +137,8 @@ class CommandLine:
             short_name = short_name[1:]
 
         opt = Option(long_name=long_name, short_name=short_name,
-                     help_text=help_text, option_type=option_type)
+                     help_text=help_text, option_type=option_type,
+                     value=value)
 
         opt.parse_equals_value = self.parse_equals_value
         opt.parse_unix_style = self.parse_unix_style

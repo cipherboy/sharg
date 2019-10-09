@@ -12,9 +12,10 @@ class Value(Enum):
     Substring = 7
     Subparser = 8
     Array = 9
+    Constant = 10
 
     def format_bash(self, code, long_name, var_name, source, do_shift=False,
-                    whitelist=None):
+                    whitelist=None, value=None):
         tmp_var = "__tmp_" + var_name
 
         if self == Value.FalseTrue:
@@ -79,3 +80,5 @@ class Value(Enum):
             code.append_array(var_name, source)
             if do_shift:
                 code.add_line('shift')
+        elif self == Value.Constant:
+            code.set_var(var_name, value)

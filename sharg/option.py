@@ -17,15 +17,17 @@ class Option:
 
     aliases = {}
     whitelist = None
+    value = None
 
     def __init__(self, long_name=None, short_name=None, help_text=None,
-                 option_type=None, whitelist=None):
+                 option_type=None, whitelist=None, value=None):
         self.long_name = long_name
         self.short_name = short_name
         self.help_text = help_text
         self.value_type = option_type
         self.var_name = long_name.replace('-', '_')
         self.whitelist = whitelist
+        self.value = value
 
     def format_help(self, _file=sys.stdout, _indent=0):
         indent = " " * _indent
@@ -77,7 +79,8 @@ class Option:
             code.begin_if_elif(SC.c_or(*conditionals))
             self.value_type.format_bash(code, self.long_name, self.var_name,
                                         '${arg#*=}', do_shift=False,
-                                        whitelist=self.whitelist)
+                                        whitelist=self.whitelist,
+                                        value=self.value)
             conditionals = []
 
         conditionals.append(SC.str_var_equals_value('arg', '--' + self.long_name))
@@ -94,4 +97,5 @@ class Option:
         code.begin_if_elif(cond)
         self.value_type.format_bash(code, self.long_name, self.var_name,
                                     '$1', do_shift=True,
-                                    whitelist=self.whitelist)
+                                    whitelist=self.whitelist,
+                                    value=self.value)
