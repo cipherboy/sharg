@@ -189,7 +189,9 @@ class ShellCodeGen:
         cond = ShellConditional.str_var_not_empty("SHARG_VERBOSE")
         self.begin_if(cond)
         if var_name.endswith('[@]'):
-            self.add_line('echo "' + var_name[:-len("[@]")] + '=${' + var_name + '} | len=${#' + var_name + '}"')
+            self.add_line('echo -n "' + var_name[:-len("[@]")] + '="')
+            self.add_line('echo -n "${' + var_name + '}"')
+            self.add_line('echo " | len=${#' + var_name + '}"')
         else:
             self.add_line('echo "' + var_name + '=${' + var_name + '}"')
         self.end_if()
@@ -266,7 +268,7 @@ class ShellConditional:
     def str_var_not_empty(cls, var_name):
         obj = cls()
         obj.c_type = 'check'
-        obj.operator = '! -z'
+        obj.operator = '-n'
         obj.rhs = '$' + var_name
         return obj
 
@@ -275,7 +277,9 @@ class ShellConditional:
         assert isinstance(value, int)
 
         obj = cls()
-        obj.lhs = '$' + var_name
+        obj.lhs = var_name
+        if var_name.startswith("{") or var_name == '#':
+            obj.lhs = '$' + obj.lhs
         obj.operator = '>'
         obj.rhs = str(value)
         obj.c_type = 'numeric'
@@ -286,7 +290,9 @@ class ShellConditional:
         assert isinstance(value, int)
 
         obj = cls()
-        obj.lhs = '$' + var_name
+        obj.lhs = var_name
+        if var_name.startswith("{") or var_name == '#':
+            obj.lhs = '$' + obj.lhs
         obj.operator = '>='
         obj.rhs = str(value)
         obj.c_type = 'numeric'
@@ -297,7 +303,9 @@ class ShellConditional:
         assert isinstance(value, int)
 
         obj = cls()
-        obj.lhs = '$' + var_name
+        obj.lhs = var_name
+        if var_name.startswith("{") or var_name == '#':
+            obj.lhs = '$' + obj.lhs
         obj.operator = '=='
         obj.rhs = str(value)
         obj.c_type = 'numeric'
@@ -308,7 +316,9 @@ class ShellConditional:
         assert isinstance(value, int)
 
         obj = cls()
-        obj.lhs = '$' + var_name
+        obj.lhs = var_name
+        if var_name.startswith("{") or var_name == '#':
+            obj.lhs = '$' + obj.lhs
         obj.operator = '<='
         obj.rhs = str(value)
         obj.c_type = 'numeric'
@@ -319,7 +329,9 @@ class ShellConditional:
         assert isinstance(value, int)
 
         obj = cls()
-        obj.lhs = '$' + var_name
+        obj.lhs = var_name
+        if var_name.startswith("{") or var_name == '#':
+            obj.lhs = '$' + obj.lhs
         obj.operator = '<'
         obj.rhs = str(value)
         obj.c_type = 'numeric'
@@ -389,64 +401,6 @@ class ShellConditional:
 
         return obj
 
-    @classmethod
-    def c_test_and(cls, *args):
-        obj = cls()
-        obj.c_type = 'fixed'
-        obj.operator = '-a'
-        obj.line = "[ "
-        obj.parts = []
-
-        for arg in args:
-            if isinstance(arg, (str, ShellConditional)):
-                part = str(arg)
-                if part.startswith("[ "):
-                    part = part[len("[ "):]
-                if part.endswith(" ]"):
-                    part = part[:-len(" ]")]
-                obj.parts.append(part)
-            else:
-                for arg_part in arg:
-                    part = str(arg_part)
-                    if part.startswith("[ "):
-                        part = part[len("[ "):]
-                    if part.endswith(" ]"):
-                        part = part[:-len(" ]")]
-                    obj.parts.append(part)
-
-        obj.line += " -a ".join(obj.parts)
-        obj.line += " ]"
-        return obj
-
-    @classmethod
-    def c_test_or(cls, *args):
-        obj = cls()
-        obj.c_type = 'fixed'
-        obj.operator = '-o'
-        obj.line = "[ "
-        obj.parts = []
-
-        for arg in args:
-            if isinstance(arg, (str, ShellConditional)):
-                part = str(arg)
-                if part.startswith("[ "):
-                    part = part[len("[ "):]
-                if part.endswith(" ]"):
-                    part = part[:-len(" ]")]
-                obj.parts.append(part)
-            else:
-                for arg_part in arg:
-                    part = str(arg_part)
-                    if part.startswith("[ "):
-                        part = part[len("[ "):]
-                    if part.endswith(" ]"):
-                        part = part[:-len(" ]")]
-                    obj.parts.append(part)
-
-        obj.line += " -o ".join(obj.parts)
-        obj.line += " ]"
-        return obj
-
     def __str__(self):
         line = ""
         if self.c_type == 'string':
@@ -460,6 +414,7 @@ class ShellConditional:
         elif self.c_type == 'joined':
             str_inner = map(str, self.parts)
             line = (' ' + self.operator + ' ').join(str_inner)
+            line = '{ ' + line + '; }'
         elif self.c_type == 'fixed':
             return self.line
         else:

@@ -76,7 +76,7 @@ class Option:
             if self.parse_unix_style:
                 conditionals.append(SC.substr_var_equals_value('arg', '-' + self.long_name + '='))
 
-            code.begin_if_elif(SC.c_test_or(*conditionals))
+            code.begin_if_elif(SC.c_or(*conditionals))
             self.value_type.format_bash(code, self.long_name, self.var_name,
                                         '${arg#*=}', do_shift=False,
                                         whitelist=self.whitelist,
@@ -89,7 +89,7 @@ class Option:
         if self.short_name:
             conditionals.append(SC.str_var_equals_value('arg', '-' + self.short_name))
 
-        cond = SC.c_test_or(*conditionals)
+        cond = SC.c_or(*conditionals)
         if positional:
             position_cond = SC.int_var_equals_value(var_position, position)
             cond = SC.c_and(position_cond, cond)

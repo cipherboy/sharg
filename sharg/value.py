@@ -67,7 +67,7 @@ class Value(Enum):
                         full_cond.append(SC.str_var_equals_value(tmp_var, alias))
 
                 if len(full_cond) > 1:
-                    cond = SC.c_test_or(full_cond)
+                    cond = SC.c_or(full_cond)
 
                 conds.append((item, cond))
 
