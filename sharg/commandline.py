@@ -328,11 +328,15 @@ class CommandLine:
         code.end_while()
         code.add_line('')
 
+        last_required_is_array = False
         for item in self.grammar:
             if item.startswith("arguments."):
-                have_argument = True
+                last_required_is_array = False
             if not item.startswith("arguments.") or not item.endswith("..."):
                 continue
+
+            last_required_is_array = True
+
             arg_name = item[len("arguments."):-len("...")]
             argument = self.find_argument(arg_name)
 
@@ -343,6 +347,8 @@ class CommandLine:
             code.add_line('')
 
         if required_positional > 0:
+            if last_required_is_array:
+                required_positional -= 1
             cond = SC.int_var_less_value(self.bash_var_position, required_positional)
             code.begin_if(cond)
             code.set_var('parse_args_print_help', 'true')

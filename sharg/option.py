@@ -96,6 +96,6 @@ class Option:
 
         code.begin_if_elif(cond)
         self.value_type.format_bash(code, self.long_name, self.var_name,
-                                    '$1', do_shift=True,
+                                    '$2', do_shift=True,
                                     whitelist=self.whitelist,
                                     value=self.value)

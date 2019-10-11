@@ -189,11 +189,11 @@ class ShellCodeGen:
         cond = ShellConditional.str_var_not_empty("SHARG_VERBOSE")
         self.begin_if(cond)
         if var_name.endswith('[@]'):
-            self.add_line('echo -n "' + var_name[:-len("[@]")] + '="')
-            self.add_line('echo -n "${' + var_name + '}"')
-            self.add_line('echo " | len=${#' + var_name + '}"')
+            self.add_line('echo -n "' + var_name[:-len("[@]")] + '=" 1>&2')
+            self.add_line('echo -n "${' + var_name + '}" 1>&2')
+            self.add_line('echo " | len=${#' + var_name + '}" 1>&2')
         else:
-            self.add_line('echo "' + var_name + '=${' + var_name + '}"')
+            self.add_line('echo "' + var_name + '=${' + var_name + '}" 1>&2')
         self.end_if()
 
 
