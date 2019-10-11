@@ -196,6 +196,11 @@ class ShellCodeGen:
             self.add_line('echo "' + var_name + '=${' + var_name + '}" 1>&2')
         self.end_if()
 
+    def log_message_if_verbose(self, line):
+        cond = ShellConditional.str_var_not_empty("SHARG_VERBOSE")
+        self.begin_if(cond)
+        self.add_line('echo "' + line + '"')
+        self.end_if()
 
 class ShellConditional:
     c_type = ""

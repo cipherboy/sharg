@@ -376,6 +376,7 @@ class CommandLine:
             for item in sorted(subparser.whitelist):
                 cond = SC.str_var_equals_value(subparser.var_name, item)
                 code.begin_if_elif(cond)
+                code.log_message_if_verbose("Dispatching: " + item + " | " + subparser.whitelist[item].function_name)
 
                 if not subparser.whitelist[item].function_name:
                     raise Exception("Expected subparser " + item + " of " +
