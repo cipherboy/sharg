@@ -178,13 +178,15 @@ def parse_argument(argument: dict, result: CommandLine, parse_path=""):
     _a_help = argument.get("description", None)
     _a_type = argument.get("type", None)
     _a_value = Value[_a_type]
+    _a_default = argument.get("default", None)
     _a_dict = argument.get("whitelist", None)
     _wl_parse_path = parse_path + "[name=" + _a_name + "].whitelist"
     _a_whitelist = parse_whitelist(_a_dict, parse_path=_wl_parse_path)
     _a_constant = argument.get("constant", None)
 
     arg = result.add_argument(_a_name, help_text=_a_help, argument_type=_a_value,
-                              whitelist=_a_whitelist, value=_a_constant)
+                              whitelist=_a_whitelist, value=_a_constant,
+                              default=_a_default)
 
     _var_name = argument.get("var", None)
     if _var_name:

@@ -109,7 +109,7 @@ class CommandLine:
                     self.usage += item
 
     def add_argument(self, name, help_text=None, argument_type=Value.String,
-                     whitelist=None, value=None):
+                     whitelist=None, value=None, default=None):
         assert isinstance(name, str)
         assert help_text is None or isinstance(help_text, str)
         assert isinstance(argument_type, Value)
@@ -117,7 +117,7 @@ class CommandLine:
         arg = Argument(name=name, var_position=self.bash_var_position,
                        position=self.positional_arguments,
                        help_text=help_text, argument_type=argument_type,
-                       whitelist=whitelist, value=value)
+                       whitelist=whitelist, value=value, default=default)
 
         self.positional_arguments += 1
         self.arguments.append(arg)
@@ -223,6 +223,10 @@ class CommandLine:
             code.end_if()
             code.add_line('')
 
+        # Set default argument values before parsing anything.
+        for argument in self.arguments:
+            argument.format_bash('prehook', code)
+
         cond = SC.int_var_greater_value('#', 0)
         code.begin_while(cond)
         code.define_var('arg', '$1')
@@ -257,7 +261,7 @@ class CommandLine:
                 if argument.value_type == Value.Subparser:
                     subparser = argument
 
-                argument.format_bash(code)
+                argument.format_bash('parser', code)
                 need_endif = True
             elif item.startswith("arguments.") and item.endswith("..."):
                 arg_name = item[len("arguments."):-len("...")]
@@ -271,7 +275,7 @@ class CommandLine:
                 assert argument.value_type == Value.Array
 
                 additional = self.num_remaining(index+1)
-                argument.format_bash(code, optional=False, remaining=additional)
+                argument.format_bash('parser', code, optional=False, remaining=additional)
                 need_endif = True
             elif item.startswith("[arguments.") and item.endswith("...]"):
                 arg_name = item[len("[arguments."):-len("...]")]
@@ -284,7 +288,7 @@ class CommandLine:
                 assert argument.value_type == Value.Array
 
                 additional = self.num_remaining(index+1)
-                argument.format_bash(code, optional=True, remaining=additional)
+                argument.format_bash('parser', code, optional=True, remaining=additional)
                 need_endif = True
             elif item.startswith("[arguments.") and item.endswith("]"):
                 arg_name = item[len("[arguments."):-len("]")]
@@ -297,7 +301,7 @@ class CommandLine:
                 assert argument.value_type != Value.Array
 
                 additional = self.num_remaining(index+1)
-                argument.format_bash(code, optional=True, remaining=additional)
+                argument.format_bash('parser', code, optional=True, remaining=additional)
                 need_endif = True
             elif self.catch_remainder and item.startswith("[vars.") and item.endswith("...]"):
                 assert item[len("[vars."):-1*len("...]")] == self.bash_var_remainder

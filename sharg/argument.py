@@ -1,6 +1,7 @@
 import sys
 
 from .shell import ShellConditional as SC
+from .shell import ShellCodeGen as SCG
 from .value import Value
 
 
@@ -18,9 +19,11 @@ class Argument:
     aliases = {}
     value = None
 
+    default_value = None
+
     def __init__(self, name=None, var_position=None, position=None,
                  help_text=None, argument_type=None, whitelist=None,
-                 value=None):
+                 value=None, default=None):
         self.name = name
         self.var_position = var_position
         self.position = position
@@ -29,6 +32,7 @@ class Argument:
         self.value_type = argument_type
         self.whitelist = whitelist
         self.value = value
+        self.default_value = default
 
     def __groups__(self):
         all_groups = set()
@@ -82,7 +86,19 @@ class Argument:
                     print(indent2 + "- " + key + ": " + self.whitelist[key].description, file=_file)
 
 
-    def format_bash(self, code, optional=False, remaining=0):
+    def format_bash(self, context, code: SCG, optional=False, remaining=0):
+        if context == 'prehook':
+            self.format_bash_prehook(code, optional, remaining)
+        elif context == 'parser':
+            self.format_bash_parser(code, optional, remaining)
+        else:
+            assert False
+
+    def format_bash_prehook(self, code: SCG, optional, remaining):
+        if self.default_value:
+            code.set_var(self.var_name, self.default_value)
+
+    def format_bash_parser(self, code: SCG, optional, remaining):
         if not optional or remaining == 0:
             cond = SC.int_var_equals_value(self.var_position, self.position)
             code.begin_if_elif(cond)
