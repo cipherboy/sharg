@@ -11,7 +11,7 @@ from .value import Value
 def parse_yaml(yaml_file):
     contents = yaml_file
 
-    if os.path.exists(yaml_file):
+    if isinstance(yaml_file, str) and os.path.exists(yaml_file):
         yaml_file = open(yaml_file, 'r')
     if isinstance(yaml_file, io.IOBase):
         contents = yaml_file.read()
