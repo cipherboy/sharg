@@ -1,0 +1,11 @@
+---
+name: Required Tests
+on: [push, pull_request]
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone the repository
+        uses: actions/checkout@v2
+      - name: Invoke make
+        run: make ci
