@@ -1,4 +1,5 @@
 import sys
+from typing import List
 
 from .shell import ShellCodeGen as SCG
 from .shell import ShellConditional as SC
@@ -9,12 +10,12 @@ from .option import Option
 
 
 class CommandLine:
-    options = []
-    arguments = []
-    grammar = []
+    options: List[Option] = []
+    arguments: List[Argument] = []
+    grammar: List[str] = []
 
     program_name: str = ""
-    aliases = []
+    aliases: List[str] = []
 
     usage = None
     description = None
@@ -498,6 +499,3 @@ class CommandLine:
 
         if _code is None:
             code.to_file(_file=_file)
-
-    def format_man(self, _file=sys.stdout, _indent=0):
-        pass
