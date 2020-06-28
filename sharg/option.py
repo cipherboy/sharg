@@ -1,6 +1,7 @@
 import sys
 from typing import Dict
 
+from .help import HelpText, HelpType
 from .value import Value
 from .shell import ShellConditional as SC
 
@@ -9,7 +10,7 @@ class Option:
     long_name = None
     var_name = None
     short_name = None
-    help_text = None
+    help_text: HelpText
 
     value_type = None
 
@@ -24,51 +25,20 @@ class Option:
         self,
         long_name=None,
         short_name=None,
-        help_text=None,
         option_type=None,
         whitelist=None,
         value=None,
     ):
         self.long_name = long_name
         self.short_name = short_name
-        self.help_text = help_text
+        self.help_text = HelpText(self, HelpType.Option)
         self.value_type = option_type
         self.var_name = long_name.replace("-", "_")
         self.whitelist = whitelist
         self.value = value
 
-    def format_help(self, _file=sys.stdout, _indent=0):
-        indent = " " * _indent
-        indent2 = " " * (_indent + 2)
-
-        space = False
-
-        print(indent, end="", file=_file)
-        if self.long_name:
-            print("--" + self.long_name, end="", file=_file)
-            space = True
-        if self.short_name:
-            if space:
-                print(", ", end="", file=_file)
-                space = False
-            print("-" + self.short_name, end="", file=_file)
-            space = True
-        if self.value_type == Value.Directory:
-            print(" <dir>", end="", file=_file)
-        elif self.value_type == Value.File:
-            print(" <file>", end="", file=_file)
-        elif self.value_type == Value.String:
-            print(" <str>", end="", file=_file)
-        if self.help_text:
-            if space:
-                print(": ", end="", file=_file)
-                space = False
-            print(self.help_text, end="", file=_file)
-            space = True
-        print("", file=_file)
-        if self.aliases:
-            joined_aliases = ", ".join(self.aliases)
-            print(indent2 + "Aliases: " + joined_aliases, end="", file=_file)
+    def format_help(self, _file=sys.stdout, _indent=0, _increment=2):
+        self.help_text.format_help(_file=_file, _indent=_indent, _increment=_increment)
 
     def format_bash(self, code, positional=False, var_position=None, position=None):
         if positional:

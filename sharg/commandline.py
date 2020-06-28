@@ -186,10 +186,11 @@ class CommandLine:
         opt = Option(
             long_name=long_name,
             short_name=short_name,
-            help_text=help_text,
             option_type=option_type,
             value=value,
         )
+
+        opt.help_text.short_desc = help_text
 
         opt.parse_equals_value = self.parse_equals_value
         opt.parse_unix_style = self.parse_unix_style

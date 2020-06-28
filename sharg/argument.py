@@ -31,10 +31,14 @@ class Argument:
     # Help text for this argument.
     help_text: Optional[HelpText] = None
 
-    position: Optional[int] = None
-    var_position: Optional[str] = None
+    # Position of this argument.
+    position: int
 
-    value_type = None
+    # Variable name which contains the current argument position.
+    var_position: str
+
+    # Type of this positional argument.
+    value_type: Value
 
     whitelist: List[str] = []
     aliases: Dict[str, str] = {}
@@ -63,19 +67,25 @@ class Argument:
         self.default_value = default
 
     def __groups__(self):
+        """
+        Get all of the groups in the whitelist of subcommands.
+        """
         all_groups = set()
-        has_none = False
 
         for key in self.whitelist:
             group = self.whitelist[key].group
+
+            # Some subcommands might not have a group; only add it to the
+            # set if there is a group.
             if group:
                 all_groups.add(group)
-            else:
-                has_none = True
 
-        return sorted(all_groups), has_none
+        return sorted(all_groups)
 
     def __by_group__(self, group):
+        """
+        Get all the subcommands within the specified group.
+        """
         all_keys = set()
 
         for key in self.whitelist:
@@ -86,13 +96,20 @@ class Argument:
         return sorted(all_keys)
 
     def format_help(self, _file=sys.stdout, _indent=0, _increment=2):
+        """
+        Format the help text for this positional argument. Usually this
+        is just a single help line, but when the argument dispatches
+        subcommands, we have to display additional information about what
+        values can be passed.
+        """
+
         indent2 = " " * (_indent + _increment)
         indent3 = " " * (_indent + _increment + _increment)
 
         self.help_text.format_help(_file=_file, _indent=_indent, _increment=_increment)
 
         if self.value_type == Value.Subparser:
-            groups, _ = self.__groups__()
+            groups = self.__groups__()
 
             if groups:
                 for group in sorted(groups):
@@ -134,9 +151,6 @@ class Argument:
             code.set_var(self.var_name, self.default_value)
 
     def format_bash_parser(self, code: SCG, optional, remaining):
-        assert isinstance(self.var_position, str)
-        assert isinstance(self.value_type, Value)
-
         if not optional or remaining == 0:
             cond = SC.int_var_equals_value(self.var_position, self.position)
             code.begin_if_elif(cond)
