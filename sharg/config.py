@@ -12,12 +12,13 @@ def parse_yaml(yaml_file):
     contents = yaml_file
 
     if isinstance(yaml_file, str) and os.path.exists(yaml_file):
-        yaml_file = open(yaml_file, 'r')
+        yaml_file = open(yaml_file, "r")
     if isinstance(yaml_file, io.IOBase):
         contents = yaml_file.read()
 
     obj = yaml.safe_load(contents)
     return parse_dict(obj)
+
 
 def __missing_key__(obj, value_key, value_type, parse_path="", reason=""):
     msg = "\n\nMissing key in the parsed config:\n"
@@ -30,6 +31,7 @@ def __missing_key__(obj, value_key, value_type, parse_path="", reason=""):
         msg += "\nConfig Context:\n"
         msg += str(obj)
     raise Exception(msg)
+
 
 def __wrong_type__(obj, value_key, actual_type, value_type, parse_path="", reason=""):
     msg = "\n\nWrong type in the parsed config:\n"
@@ -45,6 +47,7 @@ def __wrong_type__(obj, value_key, actual_type, value_type, parse_path="", reaso
 
     raise Exception(msg)
 
+
 def __not_empty__(obj, value_key, parse_path="", reason=""):
     msg = "\n\nExpected key to be empty but wasn't:\n"
     msg += "\tkey: %s of %s\n" % (value_key, str(type(obj[value_key])))
@@ -58,16 +61,19 @@ def __not_empty__(obj, value_key, parse_path="", reason=""):
 
     raise Exception(msg)
 
+
 def assert_type(obj, value_key, value_type, parse_path):
     if not isinstance(obj[value_key], value_type):
         __wrong_type__(obj, value_key, type(obj[value_key]), value_type, parse_path)
     return True
+
 
 def assert_in(obj, value_key, value_type, parse_path):
     if not value_key in obj:
         __missing_key__(obj, value_key, value_type, parse_path)
 
     assert_type(obj, value_key, value_type, parse_path)
+
 
 def assert_if_in(obj, value_key, value_type, parse_path):
     if not value_key in obj:
@@ -76,9 +82,11 @@ def assert_if_in(obj, value_key, value_type, parse_path):
     assert_type(obj, value_key, value_type, parse_path)
     return True
 
+
 def assert_empty(obj, key, parse_path, reason=""):
     if obj[key]:
         __not_empty__(obj, key, parse_path=parse_path, reason=reason)
+
 
 def type_validate_option(option, parse_path=""):
     assert_in(option, "name", str, parse_path)
@@ -95,12 +103,13 @@ def type_validate_option(option, parse_path=""):
             alias_parse_path = parse_path + ".aliases"
             assert_type(option["aliases"], num, str, alias_parse_path)
 
+
 def type_validate_argument(arg, parse_path=""):
     assert_in(arg, "name", str, parse_path)
     assert_in(arg, "description", str, parse_path)
 
     if not assert_if_in(arg, "type", str, parse_path):
-        arg['type'] = "String"
+        arg["type"] = "String"
 
     if arg["type"] == "subparser":
         assert_in(arg, "whitelist", list, parse_path)
@@ -109,6 +118,7 @@ def type_validate_argument(arg, parse_path=""):
             item_parse_path = parse_path + ".whitelist[" + str(num) + "]"
             assert_in(item, "name", str, item_parse_path)
             type_validate(item, item_parse_path)
+
 
 def type_validate(obj, parse_path=""):
     assert_in(obj, "name", str, parse_path)
@@ -119,10 +129,18 @@ def type_validate(obj, parse_path=""):
     if not assert_if_in(obj, "arguments", list, parse_path):
         obj["arguments"] = []
     if not assert_if_in(obj, "grammar", list, parse_path):
-        assert_empty(obj, "options", parse_path,
-                     reason="To specify options in a parser, you must specify a grammar.")
-        assert_empty(obj, "arguments", parse_path,
-                     reason="To specify arguments in a parser, you must specify a grammar.")
+        assert_empty(
+            obj,
+            "options",
+            parse_path,
+            reason="To specify options in a parser, you must specify a grammar.",
+        )
+        assert_empty(
+            obj,
+            "arguments",
+            parse_path,
+            reason="To specify arguments in a parser, you must specify a grammar.",
+        )
 
         obj["grammar"] = []
     if not assert_if_in(obj, "aliases", list, parse_path):
@@ -140,8 +158,10 @@ def type_validate(obj, parse_path=""):
         grammar_parse_path = parse_path + ".grammar[" + str(num) + "]"
         assert_type(obj["grammar"], num, str, grammar_parse_path)
 
+
 def constraint_validate(obj, parse_path=""):
     pass
+
 
 def parse_option(option: dict, result: CommandLine):
     _o_name = option.get("name", None)
@@ -151,12 +171,18 @@ def parse_option(option: dict, result: CommandLine):
     _o_value = Value[_o_type]
     _o_constant = option.get("constant", None)
 
-    opt = result.add_option(_o_name, short_name=_o_short, help_text=_o_help,
-                            option_type=_o_value, value=_o_constant)
+    opt = result.add_option(
+        _o_name,
+        short_name=_o_short,
+        help_text=_o_help,
+        option_type=_o_value,
+        value=_o_constant,
+    )
 
     _var_name = option.get("var", None)
     if _var_name:
         opt.var_name = _var_name.replace("-", "_")
+
 
 def parse_whitelist(obj: dict, parse_path="") -> Dict[str, CommandLine]:
     whitelist: Dict[str, CommandLine] = {}
@@ -173,6 +199,7 @@ def parse_whitelist(obj: dict, parse_path="") -> Dict[str, CommandLine]:
 
     return whitelist
 
+
 def parse_argument(argument: dict, result: CommandLine, parse_path=""):
     _a_name = argument.get("name", None)
     _a_help = argument.get("description", None)
@@ -184,9 +211,14 @@ def parse_argument(argument: dict, result: CommandLine, parse_path=""):
     _a_whitelist = parse_whitelist(_a_dict, parse_path=_wl_parse_path)
     _a_constant = argument.get("constant", None)
 
-    arg = result.add_argument(_a_name, help_text=_a_help, argument_type=_a_value,
-                              whitelist=_a_whitelist, value=_a_constant,
-                              default=_a_default)
+    arg = result.add_argument(
+        _a_name,
+        help_text=_a_help,
+        argument_type=_a_value,
+        whitelist=_a_whitelist,
+        value=_a_constant,
+        default=_a_default,
+    )
 
     _var_name = argument.get("var", None)
     if _var_name:
@@ -210,23 +242,23 @@ def validate_grammar(cli, parse_path=""):
             assert options
             seen_options.update(all_options)
         elif item.startswith("arguments.") and not item.endswith("..."):
-            name = item[len("arguments."):]
+            name = item[len("arguments.") :]
             assert name in all_arguments
             seen_arguments.add(name)
         elif item.startswith("arguments.") and item.endswith("..."):
-            name = item[len("arguments."):-1*len("...")]
+            name = item[len("arguments.") : -1 * len("...")]
             assert name in all_arguments
             seen_arguments.add(name)
         elif item.startswith("[arguments.") and item.endswith("...]"):
-            name = item[len("[arguments."):-1*len("...]")]
+            name = item[len("[arguments.") : -1 * len("...]")]
             assert name in all_arguments
             seen_arguments.add(name)
         elif item.startswith("[arguments.") and item.endswith("]"):
-            name = item[len("[arguments."):-1*len("]")]
+            name = item[len("[arguments.") : -1 * len("]")]
             assert name in all_arguments
             seen_arguments.add(name)
         elif item.startswith("[vars.") and item.endswith("...]"):
-            name = item[len("[vars."):-1*len("...]")]
+            name = item[len("[vars.") : -1 * len("...]")]
             assert name == cli.bash_var_remainder
         else:
             msg = "In command line grounded at %s, unknown grammar " % parse_path
@@ -238,7 +270,10 @@ def validate_grammar(cli, parse_path=""):
 
     if not only_help and len(seen_options) != len(options):
         msg = "In command line grounded at %s, different number " % parse_path
-        msg += "of options (%d) than in grammar (%d).\n" % (len(all_options), len(seen_options))
+        msg += "of options (%d) than in grammar (%d).\n" % (
+            len(all_options),
+            len(seen_options),
+        )
         msg += "\nSeen options:\n"
         for option in sorted(seen_options):
             msg += " - %s\n" % option
@@ -250,7 +285,10 @@ def validate_grammar(cli, parse_path=""):
 
     if len(seen_arguments) != len(all_arguments):
         msg = "In command line grounded at %s, different number " % parse_path
-        msg += "of arguments (%d) than in grammar (%d).\n" % (len(all_arguments), len(seen_arguments))
+        msg += "of arguments (%d) than in grammar (%d).\n" % (
+            len(all_arguments),
+            len(seen_arguments),
+        )
         msg += "\nSeen arguments:\n"
         for argument in sorted(seen_arguments):
             msg += " - %s\n" % argument
@@ -259,7 +297,6 @@ def validate_grammar(cli, parse_path=""):
             msg += " - %s\n" % argument
 
         raise Exception(msg)
-
 
 
 def parse_dict(obj: dict, parse_path="") -> CommandLine:
@@ -283,16 +320,23 @@ def parse_dict(obj: dict, parse_path="") -> CommandLine:
     _pre_dispatch_hook = obj.get("pre_dispatch_hook", None)
     _function_name = obj.get("function", None)
 
-    result: CommandLine = CommandLine(prog=_prog, usage=_usage,
-                                      description=_description, group=_group,
-                                      example=_example, epilog=_epilog,
-                                      equals=_equals, unix=_unix,
-                                      add_help=_add_help,
-                                      catch_remainder=_catch_remainder,
-                                      aliases=_aliases, grammar=_grammar,
-                                      pre_parse_hook=_pre_parse_hook,
-                                      pre_dispatch_hook=_pre_dispatch_hook,
-                                      function_name=_function_name)
+    result: CommandLine = CommandLine(
+        prog=_prog,
+        usage=_usage,
+        description=_description,
+        group=_group,
+        example=_example,
+        epilog=_epilog,
+        equals=_equals,
+        unix=_unix,
+        add_help=_add_help,
+        catch_remainder=_catch_remainder,
+        aliases=_aliases,
+        grammar=_grammar,
+        pre_parse_hook=_pre_parse_hook,
+        pre_dispatch_hook=_pre_dispatch_hook,
+        function_name=_function_name,
+    )
 
     result.mixed_options_arguments = _mixed_options_arguments
 

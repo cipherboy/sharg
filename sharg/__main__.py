@@ -1,12 +1,26 @@
 import argparse
 from .config import parse_yaml
 
+
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--bash", type=argparse.FileType('w'), help="Path to save bash code to", required=False)
-    parser.add_argument("--summary", action="store_true", help="Generate summary of the help text", required=False)
-    parser.add_argument("yaml", type=argparse.FileType('r'), help="Path to load sharg YAML from")
+    parser.add_argument(
+        "--bash",
+        type=argparse.FileType("w"),
+        help="Path to save bash code to",
+        required=False,
+    )
+    parser.add_argument(
+        "--summary",
+        action="store_true",
+        help="Generate summary of the help text",
+        required=False,
+    )
+    parser.add_argument(
+        "yaml", type=argparse.FileType("r"), help="Path to load sharg YAML from"
+    )
     return parser.parse_args()
+
 
 def main():
     args = parse_args()

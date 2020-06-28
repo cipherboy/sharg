@@ -7,6 +7,7 @@ from .value import Value
 from .argument import Argument
 from .option import Option
 
+
 class CommandLine:
     options = []
     arguments = []
@@ -42,11 +43,24 @@ class CommandLine:
     pre_parse_hook = None
     pre_dispatch_hook = None
 
-    def __init__(self, prog="", usage=None, description=None, group=None,
-                 example=None, epilog=None, equals=None, unix=None,
-                 add_help=True, catch_remainder=False, aliases=[],
-                 grammar=[], pre_parse_hook=None, pre_dispatch_hook=None,
-                 function_name=None):
+    def __init__(
+        self,
+        prog="",
+        usage=None,
+        description=None,
+        group=None,
+        example=None,
+        epilog=None,
+        equals=None,
+        unix=None,
+        add_help=True,
+        catch_remainder=False,
+        aliases=[],
+        grammar=[],
+        pre_parse_hook=None,
+        pre_dispatch_hook=None,
+        function_name=None,
+    ):
         assert isinstance(prog, str)
         assert usage is None or isinstance(usage, str)
         assert description is None or isinstance(description, str)
@@ -82,11 +96,13 @@ class CommandLine:
             self.parse_unix_style = unix
 
         if add_help:
-            help_option = self.add_option(long_name='help',
-                                          short_name='h',
-                                          help_text='Print this help text.',
-                                          option_type=Value.FalseTrue)
-            help_option.var_name = 'parse_args_print_help'
+            help_option = self.add_option(
+                long_name="help",
+                short_name="h",
+                help_text="Print this help text.",
+                option_type=Value.FalseTrue,
+            )
+            help_option.var_name = "parse_args_print_help"
 
         self.catch_remainder = catch_remainder
         self.grammar = grammar
@@ -105,9 +121,9 @@ class CommandLine:
         if not self.usage:
             self.usage = "Usage: %s"
 
-            #if self.options:
+            # if self.options:
             #    self.usage += " [options]"
-            #if self.arguments:
+            # if self.arguments:
             #    self.usage += " [arguments]"
             for item in self.grammar:
                 self.usage += " "
@@ -118,24 +134,43 @@ class CommandLine:
                 else:
                     self.usage += item
 
-    def add_argument(self, name, help_text=None, argument_type=Value.String,
-                     whitelist=None, value=None, default=None):
+    def add_argument(
+        self,
+        name,
+        help_text=None,
+        argument_type=Value.String,
+        whitelist=None,
+        value=None,
+        default=None,
+    ):
         assert isinstance(name, str)
         assert help_text is None or isinstance(help_text, str)
         assert isinstance(argument_type, Value)
 
-        arg = Argument(name=name, var_position=self.bash_var_position,
-                       position=self.positional_arguments,
-                       help_text=help_text, argument_type=argument_type,
-                       whitelist=whitelist, value=value, default=default)
+        arg = Argument(
+            name=name,
+            var_position=self.bash_var_position,
+            position=self.positional_arguments,
+            help_text=help_text,
+            argument_type=argument_type,
+            whitelist=whitelist,
+            value=value,
+            default=default,
+        )
 
         self.positional_arguments += 1
         self.arguments.append(arg)
 
         return arg
 
-    def add_option(self, long_name, short_name=None, help_text=None,
-                   option_type=Value.FalseTrue, value=None):
+    def add_option(
+        self,
+        long_name,
+        short_name=None,
+        help_text=None,
+        option_type=Value.FalseTrue,
+        value=None,
+    ):
         assert isinstance(long_name, str)
         assert short_name is None or isinstance(short_name, str)
         assert help_text is None or isinstance(help_text, str)
@@ -146,9 +181,13 @@ class CommandLine:
         if short_name and short_name.startswith("-"):
             short_name = short_name[1:]
 
-        opt = Option(long_name=long_name, short_name=short_name,
-                     help_text=help_text, option_type=option_type,
-                     value=value)
+        opt = Option(
+            long_name=long_name,
+            short_name=short_name,
+            help_text=help_text,
+            option_type=option_type,
+            value=value,
+        )
 
         opt.parse_equals_value = self.parse_equals_value
         opt.parse_unix_style = self.parse_unix_style
@@ -173,13 +212,15 @@ class CommandLine:
             print("", file=_file)
             print(indent + "Arguments:", file=_file)
             for arg in self.arguments:
-                arg.format_help(_file=_file, _indent=_indent+_increment, _increment=_increment)
+                arg.format_help(
+                    _file=_file, _indent=_indent + _increment, _increment=_increment
+                )
 
         if self.options:
             print("", file=_file)
             print(indent + "Options:", file=_file)
             for option in self.options:
-                option.format_help(_file=_file, _indent=_indent+2)
+                option.format_help(_file=_file, _indent=_indent + 2)
 
         if self.epilog:
             print("", file=_file)
@@ -222,7 +263,7 @@ class CommandLine:
             code.add_line(self.pre_parse_hook + ' "$@"')
             code.add_line(None)
 
-        code.define_var('parse_args_print_help', 'false')
+        code.define_var("parse_args_print_help", "false")
         code.define_var(self.bash_var_position, 0)
 
         num_positional_args = self.num_remaining(0)
@@ -231,21 +272,21 @@ class CommandLine:
             # arguments and set help = True if we do. This is because we
             # expected to have at least one required positional argument, but
             # we didn't, so we have to manually handle it.
-            cond = SC.int_var_less_value('#', num_positional_args)
+            cond = SC.int_var_less_value("#", num_positional_args)
             code.begin_if(cond)
-            code.set_var('parse_args_print_help', 'true')
+            code.set_var("parse_args_print_help", "true")
             code.end_if()
-            code.add_line('')
+            code.add_line("")
 
         # Set default argument values before parsing anything.
         for argument in self.arguments:
-            argument.format_bash('prehook', code)
+            argument.format_bash("prehook", code)
 
-        cond = SC.int_var_greater_value('#', 0)
+        cond = SC.int_var_greater_value("#", 0)
         code.begin_while(cond)
-        code.define_var('arg', '$1')
-        code.define_var('do_shift', 'true')
-        code.add_line('')
+        code.define_var("arg", "$1")
+        code.define_var("do_shift", "true")
+        code.add_line("")
 
         subparser = False
         have_remainder = False
@@ -253,18 +294,21 @@ class CommandLine:
         position = 0
         required_positional = 0
         for index, item in enumerate(self.grammar):
-            if item == '[options]':
+            if item == "[options]":
                 assert self.options
                 for option in self.options:
                     if self.mixed_options_arguments:
                         option.format_bash(code)
                     else:
-                        option.format_bash(code, positional=True,
-                                           var_position=self.bash_var_position,
-                                           position=position)
+                        option.format_bash(
+                            code,
+                            positional=True,
+                            var_position=self.bash_var_position,
+                            position=position,
+                        )
                     need_endif = True
             elif item.startswith("arguments.") and not item.endswith("..."):
-                arg_name = item[len("arguments."):]
+                arg_name = item[len("arguments.") :]
                 argument = self.find_argument(arg_name)
                 assert argument != None
 
@@ -275,10 +319,10 @@ class CommandLine:
                 if argument.value_type == Value.Subparser:
                     subparser = argument
 
-                argument.format_bash('parser', code)
+                argument.format_bash("parser", code)
                 need_endif = True
             elif item.startswith("arguments.") and item.endswith("..."):
-                arg_name = item[len("arguments."):-len("...")]
+                arg_name = item[len("arguments.") : -len("...")]
                 argument = self.find_argument(arg_name)
                 assert argument != None
 
@@ -288,11 +332,13 @@ class CommandLine:
 
                 assert argument.value_type == Value.Array
 
-                additional = self.num_remaining(index+1)
-                argument.format_bash('parser', code, optional=False, remaining=additional)
+                additional = self.num_remaining(index + 1)
+                argument.format_bash(
+                    "parser", code, optional=False, remaining=additional
+                )
                 need_endif = True
             elif item.startswith("[arguments.") and item.endswith("...]"):
-                arg_name = item[len("[arguments."):-len("...]")]
+                arg_name = item[len("[arguments.") : -len("...]")]
                 argument = self.find_argument(arg_name)
                 assert argument != None
 
@@ -301,11 +347,13 @@ class CommandLine:
 
                 assert argument.value_type == Value.Array
 
-                additional = self.num_remaining(index+1)
-                argument.format_bash('parser', code, optional=True, remaining=additional)
+                additional = self.num_remaining(index + 1)
+                argument.format_bash(
+                    "parser", code, optional=True, remaining=additional
+                )
                 need_endif = True
             elif item.startswith("[arguments.") and item.endswith("]"):
-                arg_name = item[len("[arguments."):-len("]")]
+                arg_name = item[len("[arguments.") : -len("]")]
                 argument = self.find_argument(arg_name)
                 assert argument != None
 
@@ -314,11 +362,17 @@ class CommandLine:
 
                 assert argument.value_type != Value.Array
 
-                additional = self.num_remaining(index+1)
-                argument.format_bash('parser', code, optional=True, remaining=additional)
+                additional = self.num_remaining(index + 1)
+                argument.format_bash(
+                    "parser", code, optional=True, remaining=additional
+                )
                 need_endif = True
-            elif self.catch_remainder and item.startswith("[vars.") and item.endswith("...]"):
-                assert item[len("[vars."):-1*len("...]")] == self.bash_var_remainder
+            elif (
+                self.catch_remainder
+                and item.startswith("[vars.")
+                and item.endswith("...]")
+            ):
+                assert item[len("[vars.") : -1 * len("...]")] == self.bash_var_remainder
                 assert index == len(self.grammar) - 1
 
                 if need_endif:
@@ -335,16 +389,16 @@ class CommandLine:
             # elsewhere.
             if not have_remainder:
                 code.begin_else()
-                code.set_var('parse_args_print_help', 'true')
+                code.set_var("parse_args_print_help", "true")
             code.end_if()
 
-        code.add_line('')
-        cond = SC.str_var_equals_value('do_shift', 'true')
+        code.add_line("")
+        cond = SC.str_var_equals_value("do_shift", "true")
         code.begin_if(cond)
-        code.add_line('shift')
+        code.add_line("shift")
         code.end_if()
         code.end_while()
-        code.add_line('')
+        code.add_line("")
 
         last_required_is_array = False
         for item in self.grammar:
@@ -355,59 +409,67 @@ class CommandLine:
 
             last_required_is_array = True
 
-            arg_name = item[len("arguments."):-len("...")]
+            arg_name = item[len("arguments.") : -len("...")]
             argument = self.find_argument(arg_name)
 
-            cond = SC.int_var_equals_value('{#' + argument.var_name + '}', 0)
+            cond = SC.int_var_equals_value("{#" + argument.var_name + "}", 0)
             code.begin_if(cond)
-            code.set_var('parse_args_print_help', 'true')
+            code.set_var("parse_args_print_help", "true")
             code.end_if()
-            code.add_line('')
+            code.add_line("")
 
         if required_positional > 0:
             if last_required_is_array:
                 required_positional -= 1
             cond = SC.int_var_less_value(self.bash_var_position, required_positional)
             code.begin_if(cond)
-            code.set_var('parse_args_print_help', 'true')
+            code.set_var("parse_args_print_help", "true")
             code.end_if()
-            code.add_line('')
+            code.add_line("")
 
-
-        cond = SC.str_var_equals_value('parse_args_print_help', 'true')
+        cond = SC.str_var_equals_value("parse_args_print_help", "true")
         code.begin_if(cond)
         code.add_line(help_function)
-        code.add_line('return 1')
+        code.add_line("return 1")
         code.end_if()
-        code.add_line('return 0')
+        code.add_line("return 0")
         code.end_function()
 
         code.begin_function(help_function)
-        code.add_line('cat - << ' + help_function + '_EOF')
+        code.add_line("cat - << " + help_function + "_EOF")
         self.format_help(_file=code, _indent=0, _increment=None)
-        code.add_line(help_function + '_EOF', indent=0)
+        code.add_line(help_function + "_EOF", indent=0)
         code.end_function()
 
         if subparser:
             code.begin_function(dispatch_function)
             if self.pre_dispatch_hook:
                 code.add_line(self.pre_dispatch_hook + ' "$@"')
-                code.define_var('pre_dispatch_hook_ret', '$?')
-                cond = SC.int_var_not_equals_value('pre_dispatch_hook_ret', 0)
+                code.define_var("pre_dispatch_hook_ret", "$?")
+                cond = SC.int_var_not_equals_value("pre_dispatch_hook_ret", 0)
                 code.begin_if(cond)
-                code.add_line('return $pre_dispatch_hook_ret')
+                code.add_line("return $pre_dispatch_hook_ret")
                 code.end_if
                 code.add_line(None)
 
             for item in sorted(subparser.whitelist):
                 cond = SC.str_var_equals_value(subparser.var_name, item)
                 code.begin_if_elif(cond)
-                code.log_message_if_verbose("Dispatching: " + item + " | " + subparser.whitelist[item].function_name)
+                code.log_message_if_verbose(
+                    "Dispatching: "
+                    + item
+                    + " | "
+                    + subparser.whitelist[item].function_name
+                )
 
                 if not subparser.whitelist[item].function_name:
-                    raise Exception("Expected subparser " + item + " of " +
-                                    self.program_name +
-                                    " to have function specified")
+                    raise Exception(
+                        "Expected subparser "
+                        + item
+                        + " of "
+                        + self.program_name
+                        + " to have function specified"
+                    )
 
                 function_call = subparser.whitelist[item].function_name
                 if self.catch_remainder:
@@ -427,8 +489,12 @@ class CommandLine:
                 sub_cmd = subparser.whitelist[cmd_name]
 
                 if self.program_name:
-                    sub_cmd.program_name = self.program_name + " " + sub_cmd.program_name
-                sub_cmd.format_bash(_code=code, _file=_file, _indent=_indent, _increment=_increment)
+                    sub_cmd.program_name = (
+                        self.program_name + " " + sub_cmd.program_name
+                    )
+                sub_cmd.format_bash(
+                    _code=code, _file=_file, _indent=_indent, _increment=_increment
+                )
 
         if _code == None:
             code.to_file(_file=_file)

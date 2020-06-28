@@ -41,13 +41,13 @@ class ShellCodeGen:
 
         self.add_line(line)
         self.begin_block()
-        self.stack.append('function')
+        self.stack.append("function")
 
         if self.function_error:
             self.add_line("set -e")
 
     def end_function(self):
-        assert self.stack and self.stack.pop() == 'function'
+        assert self.stack and self.stack.pop() == "function"
 
         self.end_block()
 
@@ -61,53 +61,53 @@ class ShellCodeGen:
     def begin_while(self, conditional: str):
         self.add_line("while " + str(conditional) + "; do")
         self.begin_block()
-        self.stack.append('while')
+        self.stack.append("while")
 
     def end_while(self):
-        assert self.stack and self.stack.pop() == 'while'
+        assert self.stack and self.stack.pop() == "while"
 
         self.end_block()
         self.add_line("done")
 
-    def begin_for(self, conditional: 'ShellConditional'):
+    def begin_for(self, conditional: "ShellConditional"):
         self.add_line("for " + str(conditional) + "; do")
         self.begin_block()
-        self.stack.append('for')
+        self.stack.append("for")
 
     def end_for(self):
-        assert self.stack and self.stack.pop() == 'for'
+        assert self.stack and self.stack.pop() == "for"
 
         self.end_block()
         self.add_line("done")
 
-    def begin_if(self, conditional: 'ShellConditional'):
+    def begin_if(self, conditional: "ShellConditional"):
         self.add_line("if " + str(conditional) + "; then")
         self.begin_block()
-        self.stack.append('if')
+        self.stack.append("if")
 
-    def begin_elif(self, conditional: 'ShellConditional'):
-        assert self.stack and self.stack.pop() == 'if'
+    def begin_elif(self, conditional: "ShellConditional"):
+        assert self.stack and self.stack.pop() == "if"
         self.end_block()
 
         self.add_line("elif " + str(conditional) + "; then")
         self.begin_block()
-        self.stack.append('if')
+        self.stack.append("if")
 
     def begin_else(self):
-        assert self.stack and self.stack.pop() == 'if'
+        assert self.stack and self.stack.pop() == "if"
         self.end_block()
 
         self.add_line("else")
         self.begin_block()
-        self.stack.append('if')
+        self.stack.append("if")
 
-    def begin_if_elif(self, conditional: 'ShellConditional'):
+    def begin_if_elif(self, conditional: "ShellConditional"):
         if self.stack[-1] != "if":
             return self.begin_if(conditional)
         return self.begin_elif(conditional)
 
     def end_if(self):
-        assert self.stack and self.stack.pop() == 'if'
+        assert self.stack and self.stack.pop() == "if"
         self.end_block()
         self.add_line("fi")
 
@@ -117,44 +117,44 @@ class ShellCodeGen:
 
     def define_var(self, var_name: str, value=None):
         if value is None:
-            self.add_line('local ' + var_name)
+            self.add_line("local " + var_name)
         else:
-            self.add_line('local ' + var_name + '="' + str(value) + '"')
+            self.add_line("local " + var_name + '="' + str(value) + '"')
 
     def export_var(self, var_name: str, value=None):
         if value is None:
-            self.add_line('export ' + var_name)
+            self.add_line("export " + var_name)
         else:
-            self.add_line('export ' + var_name + '="' + str(value) + '"')
+            self.add_line("export " + var_name + '="' + str(value) + '"')
         self.log_if_verbose(var_name)
 
     def define_array(self, array_name: str, value=None):
         if value is None:
-            self.add_line('local ' + array_name + '=()')
+            self.add_line("local " + array_name + "=()")
         elif isinstance(value, (tuple, list)):
-            line = 'local ' + array_name + '=('
+            line = "local " + array_name + "=("
             line += " ".join(map(lambda x: '"' + str(x) + '"', value))
-            line += ')'
+            line += ")"
             self.add_line(line)
         else:
-            self.add_line('local ' + array_name + '=("' + str(value) + '")')
+            self.add_line("local " + array_name + '=("' + str(value) + '")')
         self.log_if_verbose(array_name + "[@]")
 
     def increment_var(self, var_name: str, amount: int = 1):
-        self.add_line(var_name + '=$((' + var_name + ' + ' + str(amount) + '))')
+        self.add_line(var_name + "=$((" + var_name + " + " + str(amount) + "))")
 
     def append_array(self, var_name: str, value):
         if isinstance(value, (tuple, list)):
-            line = array_name + '+=('
+            line = array_name + "+=("
             line += " ".join(map(lambda x: '"' + str(x) + '"', value))
-            line += ')'
+            line += ")"
             self.add_line(line)
         else:
             self.add_line(var_name + '+=("' + str(value) + '")')
         self.log_if_verbose(var_name + "[@]")
 
     def prepend_array(self, var_name: str, value):
-        line = var_name + '=('
+        line = var_name + "=("
         if isinstance(value, (tuple, list)):
             line += " ".join(map(lambda x: '"' + str(x) + '"', values))
         else:
@@ -167,16 +167,16 @@ class ShellCodeGen:
     def shift_array(self, var_name: str):
         self.add_line(var_name + '=( "${' + var_name + '[@]:1}" )')
 
-    def get_array(self, var_name: str, index : int = 0):
-        return '${' + var_name + '[' + str(index) + ']}'
+    def get_array(self, var_name: str, index: int = 0):
+        return "${" + var_name + "[" + str(index) + "]}"
 
     def write(self, line: str):
         self.write_buffer += line
         if line.endswith("\n"):
-            parts = self.write_buffer.split('\n')
+            parts = self.write_buffer.split("\n")
             for part in parts[:-1]:
                 self.code.append(part)
-            self.write_buffer = ''
+            self.write_buffer = ""
 
     def to_file(self, _file=sys.stdout, allow_partial=False):
         if not allow_partial:
@@ -188,12 +188,12 @@ class ShellCodeGen:
     def log_if_verbose(self, var_name):
         cond = ShellConditional.str_var_not_empty("SHARG_VERBOSE")
         self.begin_if(cond)
-        if var_name.endswith('[@]'):
-            self.add_line('echo -n "' + var_name[:-len("[@]")] + '=" 1>&2')
+        if var_name.endswith("[@]"):
+            self.add_line('echo -n "' + var_name[: -len("[@]")] + '=" 1>&2')
             self.add_line('echo -n "${' + var_name + '}" 1>&2')
             self.add_line('echo " | len=${#' + var_name + '}" 1>&2')
         else:
-            self.add_line('echo "' + var_name + '=${' + var_name + '}" 1>&2')
+            self.add_line('echo "' + var_name + "=${" + var_name + '}" 1>&2')
         self.end_if()
 
     def log_message_if_verbose(self, line):
@@ -201,6 +201,7 @@ class ShellCodeGen:
         self.begin_if(cond)
         self.add_line('echo "' + line + '"')
         self.end_if()
+
 
 class ShellConditional:
     c_type = ""
@@ -219,62 +220,62 @@ class ShellConditional:
     @classmethod
     def str_var_equals_value(cls, var_name: str, value: str):
         obj = cls()
-        obj.lhs = 'x$' + var_name
-        obj.operator = '=='
-        obj.rhs = 'x' + value
-        obj.c_type = 'string'
+        obj.lhs = "x$" + var_name
+        obj.operator = "=="
+        obj.rhs = "x" + value
+        obj.c_type = "string"
         return obj
 
     @classmethod
     def substr_var_equals_value(cls, var_name: str, value: str):
         obj = cls()
-        obj.lhs = 'x${' + var_name + ':0:' + str(len(value)) + '}'
-        obj.operator = '=='
-        obj.rhs = 'x' + value
-        obj.c_type = 'string'
+        obj.lhs = "x${" + var_name + ":0:" + str(len(value)) + "}"
+        obj.operator = "=="
+        obj.rhs = "x" + value
+        obj.c_type = "string"
         return obj
 
     @classmethod
     def str_var_not_equals_value(cls, var_name, value):
         obj = cls()
-        obj.lhs = 'x$' + var_name
-        obj.operator = '!='
-        obj.rhs = 'x' + value
-        obj.c_type = 'string'
+        obj.lhs = "x$" + var_name
+        obj.operator = "!="
+        obj.rhs = "x" + value
+        obj.c_type = "string"
         return obj
 
     @classmethod
     def str_var_equals_var(cls, lhs_var, rhs_var):
         obj = cls()
-        obj.lhs = 'x$' + lhs_var
-        obj.operator = '=='
-        obj.rhs = 'x' + rhs_var
-        obj.c_type = 'string'
+        obj.lhs = "x$" + lhs_var
+        obj.operator = "=="
+        obj.rhs = "x" + rhs_var
+        obj.c_type = "string"
         return obj
 
     @classmethod
     def str_var_not_equals_var(cls, lhs_var, rhs_var):
         obj = cls()
-        obj.lhs = 'x$' + lhs_var
-        obj.operator = '!='
-        obj.rhs = 'x' + rhs_var
-        obj.c_type = 'string'
+        obj.lhs = "x$" + lhs_var
+        obj.operator = "!="
+        obj.rhs = "x" + rhs_var
+        obj.c_type = "string"
         return obj
 
     @classmethod
     def str_var_empty(cls, var_name):
         obj = cls()
-        obj.c_type = 'check'
-        obj.operator = '-z'
-        obj.rhs = '$' + var_name
+        obj.c_type = "check"
+        obj.operator = "-z"
+        obj.rhs = "$" + var_name
         return obj
 
     @classmethod
     def str_var_not_empty(cls, var_name):
         obj = cls()
-        obj.c_type = 'check'
-        obj.operator = '-n'
-        obj.rhs = '$' + var_name
+        obj.c_type = "check"
+        obj.operator = "-n"
+        obj.rhs = "$" + var_name
         return obj
 
     @classmethod
@@ -283,11 +284,11 @@ class ShellConditional:
 
         obj = cls()
         obj.lhs = var_name
-        if var_name.startswith("{") or var_name == '#':
-            obj.lhs = '$' + obj.lhs
-        obj.operator = '>'
+        if var_name.startswith("{") or var_name == "#":
+            obj.lhs = "$" + obj.lhs
+        obj.operator = ">"
         obj.rhs = str(value)
-        obj.c_type = 'numeric'
+        obj.c_type = "numeric"
         return obj
 
     @classmethod
@@ -296,11 +297,11 @@ class ShellConditional:
 
         obj = cls()
         obj.lhs = var_name
-        if var_name.startswith("{") or var_name == '#':
-            obj.lhs = '$' + obj.lhs
-        obj.operator = '>='
+        if var_name.startswith("{") or var_name == "#":
+            obj.lhs = "$" + obj.lhs
+        obj.operator = ">="
         obj.rhs = str(value)
-        obj.c_type = 'numeric'
+        obj.c_type = "numeric"
         return obj
 
     @classmethod
@@ -309,11 +310,11 @@ class ShellConditional:
 
         obj = cls()
         obj.lhs = var_name
-        if var_name.startswith("{") or var_name == '#':
-            obj.lhs = '$' + obj.lhs
-        obj.operator = '=='
+        if var_name.startswith("{") or var_name == "#":
+            obj.lhs = "$" + obj.lhs
+        obj.operator = "=="
         obj.rhs = str(value)
-        obj.c_type = 'numeric'
+        obj.c_type = "numeric"
         return obj
 
     @classmethod
@@ -322,11 +323,11 @@ class ShellConditional:
 
         obj = cls()
         obj.lhs = var_name
-        if var_name.startswith("{") or var_name == '#':
-            obj.lhs = '$' + obj.lhs
-        obj.operator = '!='
+        if var_name.startswith("{") or var_name == "#":
+            obj.lhs = "$" + obj.lhs
+        obj.operator = "!="
         obj.rhs = str(value)
-        obj.c_type = 'numeric'
+        obj.c_type = "numeric"
         return obj
 
     @classmethod
@@ -335,11 +336,11 @@ class ShellConditional:
 
         obj = cls()
         obj.lhs = var_name
-        if var_name.startswith("{") or var_name == '#':
-            obj.lhs = '$' + obj.lhs
-        obj.operator = '<='
+        if var_name.startswith("{") or var_name == "#":
+            obj.lhs = "$" + obj.lhs
+        obj.operator = "<="
         obj.rhs = str(value)
-        obj.c_type = 'numeric'
+        obj.c_type = "numeric"
         return obj
 
     @classmethod
@@ -348,50 +349,50 @@ class ShellConditional:
 
         obj = cls()
         obj.lhs = var_name
-        if var_name.startswith("{") or var_name == '#':
-            obj.lhs = '$' + obj.lhs
-        obj.operator = '<'
+        if var_name.startswith("{") or var_name == "#":
+            obj.lhs = "$" + obj.lhs
+        obj.operator = "<"
         obj.rhs = str(value)
-        obj.c_type = 'numeric'
+        obj.c_type = "numeric"
         return obj
 
     @classmethod
     def is_dir(cls, path):
         obj = cls()
-        obj.c_type = 'check'
-        obj.operator = '-d'
+        obj.c_type = "check"
+        obj.operator = "-d"
         obj.rhs = path
         return obj
 
     @classmethod
     def not_is_dir(cls, path):
         obj = cls()
-        obj.c_type = 'check'
-        obj.operator = '! -d'
+        obj.c_type = "check"
+        obj.operator = "! -d"
         obj.rhs = path
         return obj
 
     @classmethod
     def is_file(cls, path):
         obj = cls()
-        obj.c_type = 'check'
-        obj.operator = '-f'
+        obj.c_type = "check"
+        obj.operator = "-f"
         obj.rhs = path
         return obj
 
     @classmethod
     def not_is_file(cls, path):
         obj = cls()
-        obj.c_type = 'check'
-        obj.operator = '! -f'
+        obj.c_type = "check"
+        obj.operator = "! -f"
         obj.rhs = path
         return obj
 
     @classmethod
     def c_and(cls, *args):
         obj = cls()
-        obj.operator = '&&'
-        obj.c_type = 'joined'
+        obj.operator = "&&"
+        obj.c_type = "joined"
         obj.parts = []
 
         for arg in args:
@@ -406,8 +407,8 @@ class ShellConditional:
     @classmethod
     def c_or(cls, *args):
         obj = cls()
-        obj.operator = '||'
-        obj.c_type = 'joined'
+        obj.operator = "||"
+        obj.c_type = "joined"
         obj.parts = []
 
         for arg in args:
@@ -421,19 +422,17 @@ class ShellConditional:
 
     def __str__(self):
         line = ""
-        if self.c_type == 'string':
-            line = '[ "' + self.lhs + '" ' + self.operator + ' "' + \
-                   self.rhs + '" ]'
-        elif self.c_type == 'numeric':
-            line = '(( ' + self.lhs + ' ' + self.operator + ' ' + \
-                   self.rhs + ' ))'
-        elif self.c_type == 'check':
-            line = '[ ' + self.operator + ' "' + self.rhs + '" ]'
-        elif self.c_type == 'joined':
+        if self.c_type == "string":
+            line = '[ "' + self.lhs + '" ' + self.operator + ' "' + self.rhs + '" ]'
+        elif self.c_type == "numeric":
+            line = "(( " + self.lhs + " " + self.operator + " " + self.rhs + " ))"
+        elif self.c_type == "check":
+            line = "[ " + self.operator + ' "' + self.rhs + '" ]'
+        elif self.c_type == "joined":
             str_inner = map(str, self.parts)
-            line = (' ' + self.operator + ' ').join(str_inner)
-            line = '{ ' + line + '; }'
-        elif self.c_type == 'fixed':
+            line = (" " + self.operator + " ").join(str_inner)
+            line = "{ " + line + "; }"
+        elif self.c_type == "fixed":
             return self.line
         else:
             raise Exception("Unknown conditional type: %s" % self.c_type)
