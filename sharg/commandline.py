@@ -152,12 +152,13 @@ class CommandLine:
             name=name,
             var_position=self.bash_var_position,
             position=self.positional_arguments,
-            help_text=help_text,
             argument_type=argument_type,
             whitelist=whitelist,
             value=value,
             default=default,
         )
+
+        arg.help_text.short_desc = help_text
 
         self.positional_arguments += 1
         self.arguments.append(arg)

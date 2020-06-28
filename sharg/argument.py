@@ -1,6 +1,7 @@
 import sys
 from typing import Dict, List, Optional
 
+from .help import HelpText, HelpType
 from .shell import ShellConditional as SC
 from .shell import ShellCodeGen as SCG
 from .value import Value
@@ -28,7 +29,7 @@ class Argument:
     var_name = None
 
     # Help text for this argument.
-    help_text = None
+    help_text: Optional[HelpText] = None
 
     position: Optional[int] = None
     var_position: Optional[str] = None
@@ -46,7 +47,6 @@ class Argument:
         name=None,
         var_position=None,
         position=None,
-        help_text=None,
         argument_type=None,
         whitelist=None,
         value=None,
@@ -55,7 +55,7 @@ class Argument:
         self.name = name
         self.var_position = var_position
         self.position = position
-        self.help_text = help_text
+        self.help_text = HelpText(self, HelpType.Argument)
         self.var_name = name.replace("-", "_")
         self.value_type = argument_type
         self.whitelist = whitelist
@@ -86,14 +86,10 @@ class Argument:
         return sorted(all_keys)
 
     def format_help(self, _file=sys.stdout, _indent=0, _increment=2):
-        indent = " " * _indent
         indent2 = " " * (_indent + _increment)
         indent3 = " " * (_indent + _increment + _increment)
 
-        print(indent + self.name, end="", file=_file)
-        if self.help_text:
-            print(": " + self.help_text, end="", file=_file)
-        print("", file=_file)
+        self.help_text.format_help(_file=_file, _indent=_indent, _increment=_increment)
 
         if self.value_type == Value.Subparser:
             groups, _ = self.__groups__()
@@ -119,7 +115,7 @@ class Argument:
                         file=_file,
                     )
             else:
-                for key in self.whitelist:
+                for key in sorted(self.whitelist.keys()):
                     print(
                         indent2 + "- " + key + ": " + self.whitelist[key].description,
                         file=_file,
@@ -139,6 +135,8 @@ class Argument:
 
     def format_bash_parser(self, code: SCG, optional, remaining):
         assert isinstance(self.var_position, str)
+        assert isinstance(self.value_type, Value)
+
         if not optional or remaining == 0:
             cond = SC.int_var_equals_value(self.var_position, self.position)
             code.begin_if_elif(cond)

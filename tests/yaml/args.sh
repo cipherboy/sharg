@@ -634,12 +634,12 @@ manage keys used to encrypt passwords
 
 Arguments:
   key_cmd: key management action
-    - init: initialize the key manager
-    - import: import a key from gpg's database
+    - delete: delete a key from the key manager
     - export: export a key into GnuPG's database and sign it
+    - import: import a key from gpg's database
+    - init: initialize the key manager
     - list: list all keys in the key manager
     - regen: recreate all .gpg-id files and re-encrypt passwords
-    - delete: delete a key from the key manager
     - rename: change the nickname of a key
     - update: update a key in the database
 
@@ -1221,11 +1221,11 @@ manage groups of keys used to encrypt passwords
 
 Arguments:
   group_cmd: group management action
-    - create: create a new group
     - add: add keys to a group
-    - remove: remove keys from a group
+    - create: create a new group
     - delete: delete a group
     - list: list all groups
+    - remove: remove keys from a group
 
 Options:
   --help, -h: Print this help text.
@@ -1669,11 +1669,11 @@ manage keys associated with directories
 
 Arguments:
   dir_cmd: directory management action
-    - create: track a new directory
     - add: add keys to a directory
-    - remove: remove keys from a directory
+    - create: track a new directory
     - delete: delete keys for a directory
     - list: list all directories
+    - remove: remove keys from a directory
 
 Options:
   --help, -h: Print this help text.
@@ -2122,9 +2122,9 @@ manage keys in GnuPG's database
 
 Arguments:
   gpg_cmd: gpg management action
+    - export: export a GPG key to a file
     - generate: generae a new GPG key
     - import: import a GPG key from a file
-    - export: export a GPG key to a file
     - list: list all keys tracked by GPG
     - password: change the password on a key
     - trust: trust and sign the specified GPG key
@@ -3321,9 +3321,9 @@ manipulate a JSON-encoded password file
 Arguments:
   json_cmd: json manipulation action
     - get: get a key's value from a file's JSON data
-    - set: set a key's value in a file's JSON data
-    - retype: type the key's value from a file's JSON data
     - kinit: obtain a Kerberos ticket from information in the specified file's JSON data
+    - retype: type the key's value from a file's JSON data
+    - set: set a key's value in a file's JSON data
 
 Options:
   --help, -h: Print this help text.
