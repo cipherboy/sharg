@@ -25,77 +25,99 @@ class Value(Enum):
         whitelist=None,
         value=None,
     ):
-        tmp_var = "__tmp_" + var_name
-
         if self == Value.FalseTrue:
             code.set_var(var_name, "true")
         elif self == Value.TrueFalse:
             code.set_var(var_name, "false")
         elif self == Value.Directory:
-            code.define_var(tmp_var, source)
-            if do_shift:
-                code.add_line("shift")
-            code.add_line("")
-
-            cond = SC.not_is_dir("$" + tmp_var)
-            code.begin_if(cond)
-            code.add_line(
-                '_handle_parse_error "' + long_name + '" ' + '"$' + tmp_var + '"'
-            )
-            code.begin_else()
-            code.set_var(var_name, "$" + tmp_var)
-            code.end_if()
+            self.format_bash_dir(code, long_name, var_name, source, do_shift, value)
         elif self == Value.File:
-            code.define_var(tmp_var, source)
-            if do_shift:
-                code.add_line("shift")
-            code.add_line("")
-
-            cond = SC.not_is_file("$" + tmp_var)
-            code.begin_if(cond)
-            code.add_line(
-                '_handle_parse_error "' + long_name + '" ' + '"$' + tmp_var + '"'
-            )
-            code.begin_else()
-            code.set_var(var_name, "$" + tmp_var)
-            code.end_if()
+            self.format_bash_file(code, long_name, var_name, source, do_shift, value)
         elif self == Value.String:
             code.set_var(var_name, source)
             if do_shift:
                 code.add_line("shift")
         elif self in (Value.Whitelist, Value.Subparser):
-            code.define_var(tmp_var, source)
-            if do_shift:
-                code.add_line("shift")
-            code.add_line("")
-
-            conds = []
-            for item in sorted(whitelist):
-                cond = SC.str_var_equals_value(tmp_var, item)
-                full_cond = [cond]
-                if self == Value.Subparser:
-                    for alias in whitelist[item].aliases:
-                        full_cond.append(SC.str_var_equals_value(tmp_var, alias))
-
-                if len(full_cond) > 1:
-                    cond = SC.c_or(full_cond)
-
-                conds.append((item, cond))
-
-            value, cond = conds[0]
-            code.begin_if(cond)
-            code.set_var(var_name, value)
-            for value, cond in conds[1:]:
-                code.begin_elif(cond)
-                code.set_var(var_name, value)
-            code.begin_else()
-            code.add_line(
-                '_handle_parse_error "' + long_name + '" ' + '"$' + tmp_var + '"'
+            self.format_bash_whitelist(
+                code, long_name, var_name, source, do_shift, whitelist, value
             )
-            code.end_if()
         elif self == Value.Array:
             code.append_array(var_name, source)
             if do_shift:
                 code.add_line("shift")
         elif self == Value.Constant:
             code.set_var(var_name, value)
+
+    def format_bash_dir(
+        self, code, long_name, var_name, source, do_shift=False, value=None,
+    ):
+        tmp_var = "__tmp_" + var_name
+
+        code.define_var(tmp_var, source)
+        if do_shift:
+            code.add_line("shift")
+        code.add_line("")
+
+        cond = SC.not_is_dir("$" + tmp_var)
+        code.begin_if(cond)
+        code.add_line('_handle_parse_error "' + long_name + '" ' + '"$' + tmp_var + '"')
+        code.begin_else()
+        code.set_var(var_name, "$" + tmp_var)
+        code.end_if()
+
+    def format_bash_file(
+        self, code, long_name, var_name, source, do_shift=False, value=None,
+    ):
+        tmp_var = "__tmp_" + var_name
+
+        code.define_var(tmp_var, source)
+        if do_shift:
+            code.add_line("shift")
+        code.add_line("")
+
+        cond = SC.not_is_file("$" + tmp_var)
+        code.begin_if(cond)
+        code.add_line('_handle_parse_error "' + long_name + '" ' + '"$' + tmp_var + '"')
+        code.begin_else()
+        code.set_var(var_name, "$" + tmp_var)
+        code.end_if()
+
+    def format_bash_whitelist(
+        self,
+        code,
+        long_name,
+        var_name,
+        source,
+        do_shift=False,
+        whitelist=None,
+        value=None,
+    ):
+        tmp_var = "__tmp_" + var_name
+
+        code.define_var(tmp_var, source)
+        if do_shift:
+            code.add_line("shift")
+        code.add_line("")
+
+        conds = []
+        for item in sorted(whitelist):
+            cond = SC.str_var_equals_value(tmp_var, item)
+            full_cond = [cond]
+            if self == Value.Subparser:
+                for alias in whitelist[item].aliases:
+                    full_cond.append(SC.str_var_equals_value(tmp_var, alias))
+
+            if len(full_cond) > 1:
+                cond = SC.c_or(full_cond)
+
+            conds.append((item, cond))
+
+        value, cond = conds[0]
+        code.begin_if(cond)
+        code.set_var(var_name, value)
+        for value, cond in conds[1:]:
+            code.begin_elif(cond)
+            code.set_var(var_name, value)
+        code.begin_else()
+        code.add_line('_handle_parse_error "' + long_name + '" ' + '"$' + tmp_var + '"')
+        code.end_if()
