@@ -5,10 +5,29 @@ from .shell import ShellConditional as SC
 from .shell import ShellCodeGen as SCG
 from .value import Value
 
+"""
+This source file contains only the Argument class, described more
+below.
+"""
+
 
 class Argument:
+    """
+    The Argument class represents a single logical argument passed on the
+    command line.
+
+    An argument differs from an option in that the latter usually begins with
+    a prefix ('-', '--', or '/') and arguments are positional whereas options
+    can usually be in any order.
+    """
+
+    # Human readable name of this argument.
     name = None
+
+    # Name of this argument, made into a "safe" variable name.
     var_name = None
+
+    # Help text for this argument.
     help_text = None
 
     position: Optional[int] = None

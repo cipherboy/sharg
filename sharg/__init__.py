@@ -17,11 +17,12 @@ from .commandline import CommandLine
 from .config import parse_yaml, parse_dict
 
 __all__ = [
-    'ShellCodeGen',
-    'ShellConditional',
-    'Value',
-    'Argument',
-    'Option',
-    'CommandLine',
-    'parse_yaml', 'parse_dict'
+    "ShellCodeGen",
+    "ShellConditional",
+    "Value",
+    "Argument",
+    "Option",
+    "CommandLine",
+    "parse_yaml",
+    "parse_dict",
 ]
