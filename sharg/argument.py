@@ -1,4 +1,5 @@
 import sys
+from typing import Dict, List, Optional
 
 from .shell import ShellConditional as SC
 from .shell import ShellCodeGen as SCG
@@ -10,13 +11,13 @@ class Argument:
     var_name = None
     help_text = None
 
-    position = None
-    var_position = None
+    position: Optional[int] = None
+    var_position: Optional[str] = None
 
     value_type = None
 
-    whitelist = []
-    aliases = {}
+    whitelist: List[str] = []
+    aliases: Dict[str, str] = {}
     value = None
 
     default_value = None
@@ -118,6 +119,7 @@ class Argument:
             code.set_var(self.var_name, self.default_value)
 
     def format_bash_parser(self, code: SCG, optional, remaining):
+        assert isinstance(self.var_position, str)
         if not optional or remaining == 0:
             cond = SC.int_var_equals_value(self.var_position, self.position)
             code.begin_if_elif(cond)

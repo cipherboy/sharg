@@ -1,4 +1,5 @@
 import sys
+from typing import Dict
 
 from .value import Value
 from .shell import ShellConditional as SC
@@ -15,7 +16,7 @@ class Option:
     parse_unix_style = False
     parse_equals_value = True
 
-    aliases = {}
+    aliases: Dict[str, str] = {}
     whitelist = None
     value = None
 

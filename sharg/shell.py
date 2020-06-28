@@ -143,20 +143,20 @@ class ShellCodeGen:
     def increment_var(self, var_name: str, amount: int = 1):
         self.add_line(var_name + "=$((" + var_name + " + " + str(amount) + "))")
 
-    def append_array(self, var_name: str, value):
+    def append_array(self, array_name: str, value):
         if isinstance(value, (tuple, list)):
             line = array_name + "+=("
             line += " ".join(map(lambda x: '"' + str(x) + '"', value))
             line += ")"
             self.add_line(line)
         else:
-            self.add_line(var_name + '+=("' + str(value) + '")')
-        self.log_if_verbose(var_name + "[@]")
+            self.add_line(array_name + '+=("' + str(value) + '")')
+        self.log_if_verbose(array_name + "[@]")
 
     def prepend_array(self, var_name: str, value):
         line = var_name + "=("
         if isinstance(value, (tuple, list)):
-            line += " ".join(map(lambda x: '"' + str(x) + '"', values))
+            line += " ".join(map(lambda x: '"' + str(x) + '"', value))
         else:
             line += '"' + str(value) + '"'
 
@@ -208,7 +208,7 @@ class ShellConditional:
     lhs = ""
     operator = ""
     rhs = ""
-    parts = []
+    parts: List[str] = []
 
     def __init__(self):
         self.c_type = ""
