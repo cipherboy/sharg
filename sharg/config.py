@@ -279,6 +279,8 @@ def parse_dict(obj: dict, parse_path="") -> CommandLine:
     _mixed_options_arguments = obj.get("mixed_options_arguments", False)
     _aliases = obj.get("aliases", [])
     _grammar = obj.get("grammar", [])
+    _pre_parse_hook = obj.get("pre_parse_hook", None)
+    _pre_dispatch_hook = obj.get("pre_dispatch_hook", None)
     _function_name = obj.get("function", None)
 
     result: CommandLine = CommandLine(prog=_prog, usage=_usage,
@@ -288,6 +290,8 @@ def parse_dict(obj: dict, parse_path="") -> CommandLine:
                                       add_help=_add_help,
                                       catch_remainder=_catch_remainder,
                                       aliases=_aliases, grammar=_grammar,
+                                      pre_parse_hook=_pre_parse_hook,
+                                      pre_dispatch_hook=_pre_dispatch_hook,
                                       function_name=_function_name)
 
     result.mixed_options_arguments = _mixed_options_arguments

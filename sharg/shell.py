@@ -317,6 +317,19 @@ class ShellConditional:
         return obj
 
     @classmethod
+    def int_var_not_equals_value(cls, var_name, value):
+        assert isinstance(value, int)
+
+        obj = cls()
+        obj.lhs = var_name
+        if var_name.startswith("{") or var_name == '#':
+            obj.lhs = '$' + obj.lhs
+        obj.operator = '!='
+        obj.rhs = str(value)
+        obj.c_type = 'numeric'
+        return obj
+
+    @classmethod
     def int_var_less_equals_value(cls, var_name, value):
         assert isinstance(value, int)
 

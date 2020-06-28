@@ -39,10 +39,14 @@ class CommandLine:
 
     help_indent_increment = 2
 
+    pre_parse_hook = None
+    pre_dispatch_hook = None
+
     def __init__(self, prog="", usage=None, description=None, group=None,
                  example=None, epilog=None, equals=None, unix=None,
                  add_help=True, catch_remainder=False, aliases=[],
-                 grammar=[], function_name=None):
+                 grammar=[], pre_parse_hook=None, pre_dispatch_hook=None,
+                 function_name=None):
         assert isinstance(prog, str)
         assert usage is None or isinstance(usage, str)
         assert description is None or isinstance(description, str)
@@ -55,6 +59,8 @@ class CommandLine:
         assert isinstance(catch_remainder, bool)
         assert isinstance(aliases, list)
         assert isinstance(grammar, list)
+        assert pre_parse_hook is None or isinstance(pre_parse_hook, str)
+        assert pre_dispatch_hook is None or isinstance(pre_dispatch_hook, str)
         assert function_name is None or isinstance(function_name, str)
 
         self.options = []
@@ -84,6 +90,10 @@ class CommandLine:
 
         self.catch_remainder = catch_remainder
         self.grammar = grammar
+
+        self.pre_parse_hook = pre_parse_hook
+        self.pre_dispatch_hook = pre_dispatch_hook
+
         self.function_name = function_name
 
         self.__generate_usage__()
@@ -208,6 +218,10 @@ class CommandLine:
             dispatch_function = self.function_name + "_" + dispatch_function
 
         code.begin_function(parse_function)
+        if self.pre_parse_hook:
+            code.add_line(self.pre_parse_hook + ' "$@"')
+            code.add_line(None)
+
         code.define_var('parse_args_print_help', 'false')
         code.define_var(self.bash_var_position, 0)
 
@@ -376,6 +390,14 @@ class CommandLine:
 
         if subparser:
             code.begin_function(dispatch_function)
+            if self.pre_dispatch_hook:
+                code.add_line(self.pre_dispatch_hook + ' "$@"')
+                code.define_var('pre_dispatch_hook_ret', '$?')
+                cond = SC.int_var_not_equals_value('pre_dispatch_hook_ret', 0)
+                code.begin_if(cond)
+                code.add_line('return $pre_dispatch_hook_ret')
+                code.end_if
+                code.add_line(None)
 
             for item in sorted(subparser.whitelist):
                 cond = SC.str_var_equals_value(subparser.var_name, item)
