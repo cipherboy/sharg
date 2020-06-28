@@ -310,7 +310,7 @@ class CommandLine:
             elif item.startswith("arguments.") and not item.endswith("..."):
                 arg_name = item[len("arguments.") :]
                 argument = self.find_argument(arg_name)
-                assert argument != None
+                assert argument is not None
 
                 argument.position = position
                 position += 1
@@ -324,7 +324,7 @@ class CommandLine:
             elif item.startswith("arguments.") and item.endswith("..."):
                 arg_name = item[len("arguments.") : -len("...")]
                 argument = self.find_argument(arg_name)
-                assert argument != None
+                assert argument is not None
 
                 argument.position = position
                 position += 1
@@ -340,7 +340,7 @@ class CommandLine:
             elif item.startswith("[arguments.") and item.endswith("...]"):
                 arg_name = item[len("[arguments.") : -len("...]")]
                 argument = self.find_argument(arg_name)
-                assert argument != None
+                assert argument is not None
 
                 argument.position = position
                 position += 1
@@ -355,7 +355,7 @@ class CommandLine:
             elif item.startswith("[arguments.") and item.endswith("]"):
                 arg_name = item[len("[arguments.") : -len("]")]
                 argument = self.find_argument(arg_name)
-                assert argument != None
+                assert argument is not None
 
                 argument.position = position
                 position += 1
@@ -496,7 +496,7 @@ class CommandLine:
                     _code=code, _file=_file, _indent=_indent, _increment=_increment
                 )
 
-        if _code == None:
+        if _code is None:
             code.to_file(_file=_file)
 
     def format_man(self, _file=sys.stdout, _indent=0):

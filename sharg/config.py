@@ -69,14 +69,14 @@ def assert_type(obj, value_key, value_type, parse_path):
 
 
 def assert_in(obj, value_key, value_type, parse_path):
-    if not value_key in obj:
+    if value_key not in obj:
         __missing_key__(obj, value_key, value_type, parse_path)
 
     assert_type(obj, value_key, value_type, parse_path)
 
 
 def assert_if_in(obj, value_key, value_type, parse_path):
-    if not value_key in obj:
+    if value_key not in obj:
         return False
 
     assert_type(obj, value_key, value_type, parse_path)
