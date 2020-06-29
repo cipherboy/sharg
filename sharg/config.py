@@ -1,4 +1,3 @@
-import io
 import os
 import yaml
 
@@ -8,13 +7,16 @@ from .commandline import CommandLine
 from .value import Value
 
 
-def parse_yaml(yaml_file):
+def parse_yaml(yaml_file) -> CommandLine:
+    """
+    Parse a YAML file (either path or open file handle), parsing the
+    resulting contents into a CommandLine object.
+    """
     contents = yaml_file
 
     if isinstance(yaml_file, str) and os.path.exists(yaml_file):
         yaml_file = open(yaml_file, "r")
-    if isinstance(yaml_file, io.IOBase):
-        contents = yaml_file.read()
+    contents = yaml_file.read()
 
     obj = yaml.safe_load(contents)
     return parse_dict(obj)

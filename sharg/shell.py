@@ -15,6 +15,10 @@ class ShellCodeGen:
 
     write_buffer: str = ""
 
+    def __init__(self):
+        self.code = []
+        self.stack = []
+
     def add_line(self, line: str, indent: Optional[int] = None):
         if indent is None:
             indent = self.indent
