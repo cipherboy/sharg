@@ -19,7 +19,11 @@ class Argument:
 
     An argument differs from an option in that the latter usually begins with
     a prefix ('-', '--', or '/') and arguments are positional whereas options
-    can usually be in any order.
+    can usually be in any order. Note that when options take a value, the
+    value is not called an argument.
+
+    Arguments can take various types ("value_type") and can contain aliases
+    mapping certain values to others.
     """
 
     # Human readable name of this argument.
@@ -40,10 +44,19 @@ class Argument:
     # Type of this positional argument.
     value_type: Value
 
+    # A whitelist of allowed values, when used.
     whitelist: List[str] = []
+
+    # Aliases mapping one value to another, when used.
     aliases: Dict[str, str] = {}
+
+    # The actual value of this argument, when the argument is a Constant
+    # value_type. This is less useful with arguments as the value on the
+    # command line is discard.
     value = None
 
+    # The default value of this argument. Used for setting arguments ahead
+    # of values.
     default_value = None
 
     def __init__(
