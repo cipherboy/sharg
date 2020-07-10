@@ -103,7 +103,12 @@ class Argument:
 
         for key in self.whitelist:
             subcmd = self.whitelist[key]
-            if subcmd.group == group:
+
+            # Use is for comparison against None. This helps with overloaded
+            # __eq__ methods.
+            if group is None and subcmd.group is None:
+                all_keys.add(key)
+            elif subcmd.group == group:
                 all_keys.add(key)
 
         return sorted(all_keys)
@@ -114,6 +119,13 @@ class Argument:
         is just a single help line, but when the argument dispatches
         subcommands, we have to display additional information about what
         values can be passed.
+
+        Some of this help text could be context sensitive in the future. If
+        we're just listing some basic information, we could display only a
+        brief summary. On the other hand, if a specific subcommand was
+        passed, we could provide a more extensive description.
+
+        Most of this is controlled by the help_text member.
         """
 
         indent2 = " " * (_indent + _increment)
@@ -152,19 +164,38 @@ class Argument:
                     )
 
     def format_bash(self, context, code: SCG, optional=False, remaining=0):
+        """
+        Given the specified context and code generator instance, builds the
+        Bash source code for parsing this option.
+
+        Optional denotes whether or not this argument is optional (i.e., can
+        be missing) and remaining denotes how many additional arguments are
+        are left to parse.
+        """
+
+        # Currently there are two known contexts:
+        # - prehook, which allows the argument to execute logic prior to
+        #   command-line parsing
+        # - parser, which executes during command-line parsing and parses
+        #   just this specified argument
         if context == "prehook":
-            self.format_bash_prehook(code, optional, remaining)
+            self.__format_bash_prehook__(code, optional, remaining)
         elif context == "parser":
-            self.format_bash_parser(code, optional, remaining)
+            self.__format_bash_parser__(code, optional, remaining)
         else:
             assert False
 
-    def format_bash_prehook(self, code: SCG, optional, remaining):
+    def __format_bash_prehook__(self, code: SCG, optional: bool, remaining: int):
+        # Currently there is only one known type of prehook: setting a
+        # default value. This is most useful when this positional argument
+        # is optional.
         if self.default_value:
             code.set_var(self.var_name, self.default_value)
 
-    def format_bash_parser(self, code: SCG, optional, remaining):
+    def __format_bash_parser__(self, code: SCG, optional: bool, remaining: int):
         if not optional or remaining == 0:
+            # Add a constraint that checks whether or not we're at the correct
+            # position for this argument.
             cond = SC.int_var_equals_value(self.var_position, self.position)
             code.begin_if_elif(cond)
             if self.value_type == Value.Array:
