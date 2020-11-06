@@ -8,8 +8,30 @@ from .value import Value
 from .argument import Argument
 from .option import Option
 
+"""
+This source file contains only the CommandLine class, described more below.
+"""
+
 
 class CommandLine:
+    """
+    The CommandLine class stores the context necessary to parse and generate
+    documentation about the describe program's command line options and
+    arguments.
+
+    sharg understands a couple of types of command line objects:
+
+     - Named options, which usually begin with a prefix ('-', '--', or '/'),
+       which can sometimes take a value, and
+     - Positional arguments, which can store a value.
+
+    We describe the structure of the command line via a rudimentary grammar,
+    which controls how we parse the value of the program's argv.
+
+    Arguments and options can additionally have type information associated
+    with it. When available in the target language.
+    """
+
     options: List[Option] = []
     arguments: List[Argument] = []
     grammar: List[str] = []
@@ -447,7 +469,6 @@ class CommandLine:
 
         if subparser:
             code.begin_function(dispatch_function)
-
 
             cond = SC.str_var_equals_value("parse_args_print_help", "true")
             code.begin_if(cond)
