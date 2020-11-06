@@ -485,7 +485,7 @@ function ___p_create_parse_args() {
             if [ -n "$SHARG_VERBOSE" ]; then
                 echo "parse_args_print_help=${parse_args_print_help}" 1>&2
             fi
-        elif { [ "x$arg" == "x--without-git" ] || [ "x$arg" == "x-without-git" ] || [ "x$arg" == "x-n" ]; }; then
+        elif { [ "x$arg" == "x--without-git" ] || [ "x$arg" == "x-without-git" ] || [ "x$arg" == "x-n" ] || [ "x$arg" == "x--without-git" ] || [ "x$arg" == "x-without-git" ] || [ "x$arg" == "x--no-git" ] || [ "x$arg" == "x-no-git" ]; }; then
             init_git="false"
             if [ -n "$SHARG_VERBOSE" ]; then
                 echo "init_git=${init_git}" 1>&2
@@ -629,7 +629,7 @@ function ___p_keys_parse_args() {
 }
 function ___p_keys_print_help() {
     cat - << ___p_keys_print_help_EOF
-Usage: p keys [options] <key_cmd> [vars.key_cmd_args...]
+    Aliases: without-git, no-gitUsage: p keys [options] <key_cmd> [vars.key_cmd_args...]
 manage keys used to encrypt passwords
 
 Arguments:
@@ -2706,7 +2706,7 @@ function ___p_ls_parse_args() {
             if [ -n "$SHARG_VERBOSE" ]; then
                 echo "parse_args_print_help=${parse_args_print_help}" 1>&2
             fi
-        elif { [ "x$arg" == "x--directory" ] || [ "x$arg" == "x-directory" ] || [ "x$arg" == "x-d" ]; }; then
+        elif { [ "x$arg" == "x--directory" ] || [ "x$arg" == "x-directory" ] || [ "x$arg" == "x-d" ] || [ "x$arg" == "x--dir" ] || [ "x$arg" == "x-dir" ]; }; then
             directory="true"
             if [ -n "$SHARG_VERBOSE" ]; then
                 echo "directory=${directory}" 1>&2
@@ -2766,7 +2766,7 @@ Arguments:
 Options:
   --help, -h: Print this help text.
   --directory, -d: list directories themselves, not their contents
-  --all, -a: list contents as they appear in the file system, not hiding extensions
+    Aliases: dir  --all, -a: list contents as they appear in the file system, not hiding extensions
 ___p_ls_print_help_EOF
 }
 function ___p_mkdir_parse_args() {
@@ -3023,12 +3023,12 @@ function ___p_cat_parse_args() {
             if [ -n "$SHARG_VERBOSE" ]; then
                 echo "cat_raw=${cat_raw}" 1>&2
             fi
-        elif { [ "x$arg" == "x--json-only" ] || [ "x$arg" == "x-json-only" ] || [ "x$arg" == "x-j" ]; }; then
+        elif { [ "x$arg" == "x--json-only" ] || [ "x$arg" == "x-json-only" ] || [ "x$arg" == "x-j" ] || [ "x$arg" == "x--json" ] || [ "x$arg" == "x-json" ]; }; then
             cat_json_only="true"
             if [ -n "$SHARG_VERBOSE" ]; then
                 echo "cat_json_only=${cat_json_only}" 1>&2
             fi
-        elif { [ "x$arg" == "x--password-only" ] || [ "x$arg" == "x-password-only" ] || [ "x$arg" == "x-p" ]; }; then
+        elif { [ "x$arg" == "x--password-only" ] || [ "x$arg" == "x-password-only" ] || [ "x$arg" == "x-p" ] || [ "x$arg" == "x--password" ] || [ "x$arg" == "x-password" ]; }; then
             cat_password_only="true"
             if [ -n "$SHARG_VERBOSE" ]; then
                 echo "cat_password_only=${cat_password_only}" 1>&2
@@ -3089,8 +3089,8 @@ Options:
   --help, -h: Print this help text.
   --raw, -r: raw, uncolorized, machine-readable output
   --json-only, -j: only output the json portion of these password entries, if present
-  --password-only, -p: only output the first line of the password entry
-  --no-color, -n: don't colorize the output
+    Aliases: json  --password-only, -p: only output the first line of the password entry
+    Aliases: password  --no-color, -n: don't colorize the output
 ___p_cat_print_help_EOF
 }
 function ___p_edit_parse_args() {
@@ -3178,12 +3178,12 @@ function ___p_generate_parse_args() {
                 echo "format=${format}" 1>&2
             fi
             shift
-        elif { [ "x${arg:0:9}" == "x--random=" ] || [ "x${arg:0:8}" == "x-random=" ]; }; then
+        elif { [ "x${arg:0:9}" == "x--random=" ] || [ "x${arg:0:8}" == "x-random=" ] || [ "x${arg:0:7}" == "x--rand=" ] || [ "x${arg:0:6}" == "x-rand=" ]; }; then
             mode="random"
             if [ -n "$SHARG_VERBOSE" ]; then
                 echo "mode=${mode}" 1>&2
             fi
-        elif { (( _parse_args_positional_index == 0 )) && { [ "x$arg" == "x--random" ] || [ "x$arg" == "x-random" ] || [ "x$arg" == "x-r" ]; }; }; then
+        elif { (( _parse_args_positional_index == 0 )) && { [ "x$arg" == "x--random" ] || [ "x$arg" == "x-random" ] || [ "x$arg" == "x-r" ] || [ "x$arg" == "x--rand" ] || [ "x$arg" == "x-rand" ]; }; }; then
             mode="random"
             if [ -n "$SHARG_VERBOSE" ]; then
                 echo "mode=${mode}" 1>&2
@@ -3236,7 +3236,7 @@ Options:
   --help, -h: Print this help text.
   --format, -f <str>: format string for generated password
   --random, -r: generate a 30 alphanumeric character password
-  --phrase, -p: generate a 3 word, 12 number phrase password
+    Aliases: rand  --phrase, -p: generate a 3 word, 12 number phrase password
   --save, -s <str>: save generated password to the specified password entry
 ___p_generate_print_help_EOF
 }
