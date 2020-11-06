@@ -452,14 +452,14 @@ class CommandLine:
             code.end_if()
             code.add_line("")
 
-        if not subparser:
-            cond = SC.str_var_equals_value("parse_args_print_help", "true")
-            code.begin_if(cond)
-            code.add_line(help_function)
-            code.add_line("return 1")
-            code.end_if()
-            code.add_line("return 0")
-            code.end_function()
+        cond = SC.str_var_equals_value("parse_args_print_help", "true")
+        code.begin_if(cond)
+        code.add_line(help_function)
+        code.add_line("return 1")
+        code.end_if()
+        code.add_line("return 0")
+
+        code.end_function()
 
         code.begin_function(help_function)
         code.add_line("cat - << " + help_function + "_EOF")
@@ -469,14 +469,6 @@ class CommandLine:
 
         if subparser:
             code.begin_function(dispatch_function)
-
-            cond = SC.str_var_equals_value("parse_args_print_help", "true")
-            code.begin_if(cond)
-            code.add_line(help_function)
-            code.add_line("return 1")
-            code.end_if()
-            code.add_line("return 0")
-            code.end_function()
 
             if self.pre_dispatch_hook:
                 code.add_line(self.pre_dispatch_hook + ' "$@"')

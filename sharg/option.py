@@ -1,5 +1,5 @@
 import sys
-from typing import Dict
+from typing import List
 
 from .help import HelpText, HelpType
 from .value import Value
@@ -17,7 +17,7 @@ class Option:
     parse_unix_style = False
     parse_equals_value = True
 
-    aliases: Dict[str, str] = {}
+    aliases: List[str] = []
     whitelist = None
     value = None
 
@@ -62,6 +62,14 @@ class Option:
                 conditionals.append(
                     SC.substr_var_equals_value("arg", "-" + self.long_name + "=")
                 )
+            for alias in self.aliases:
+                conditionals.append(
+                    SC.substr_var_equals_value("arg", "--" + alias + "=")
+                )
+                if self.parse_unix_style:
+                    conditionals.append(
+                        SC.substr_var_equals_value("arg", "-" + alias + "=")
+                    )
 
             code.begin_if_elif(SC.c_or(*conditionals))
             self.value_type.format_bash(
@@ -80,6 +88,11 @@ class Option:
             conditionals.append(SC.str_var_equals_value("arg", "-" + self.long_name))
         if self.short_name:
             conditionals.append(SC.str_var_equals_value("arg", "-" + self.short_name))
+
+        for alias in self.aliases:
+            conditionals.append(SC.str_var_equals_value("arg", "--" + alias))
+            if self.parse_unix_style:
+                conditionals.append(SC.str_var_equals_value("arg", "-" + alias))
 
         cond = SC.c_or(*conditionals)
         if positional:

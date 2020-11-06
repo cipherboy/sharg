@@ -49,7 +49,13 @@ class Value(Enum):
             code.set_var(var_name, value)
 
     def format_bash_dir(
-        self, code, long_name, var_name, source, do_shift=False, value=None,
+        self,
+        code,
+        long_name,
+        var_name,
+        source,
+        do_shift=False,
+        value=None,
     ):
         tmp_var = "__tmp_" + var_name
 
@@ -66,7 +72,13 @@ class Value(Enum):
         code.end_if()
 
     def format_bash_file(
-        self, code, long_name, var_name, source, do_shift=False, value=None,
+        self,
+        code,
+        long_name,
+        var_name,
+        source,
+        do_shift=False,
+        value=None,
     ):
         tmp_var = "__tmp_" + var_name
 

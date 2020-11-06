@@ -185,6 +185,10 @@ def parse_option(option: dict, result: CommandLine):
     if _var_name:
         opt.var_name = _var_name.replace("-", "_")
 
+    _o_aliases = option.get("aliases", None)
+    if _o_aliases:
+        opt.aliases = _o_aliases
+
 
 def parse_whitelist(obj: dict, parse_path="") -> Dict[str, CommandLine]:
     whitelist: Dict[str, CommandLine] = {}
