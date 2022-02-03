@@ -8,5 +8,5 @@ setup(name='sharg',
       author_email='alexander.m.scheel@gmail.com',
       license='GPLv3',
       packages=['sharg'],
-      install_requires=[],
+      install_requires=['pyyaml'],
       zip_safe=True)
