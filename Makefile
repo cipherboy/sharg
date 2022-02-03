@@ -37,7 +37,7 @@ lint:
 
 typecheck:
 	${PYTHON} -c 'import setuptools' || ${PYTHON} -m pip install --user setuptools
-	${PYTHON} -c 'import mypy' || ${PYTHON} -m pip install --user mypy
+	${PYTHON} -c 'import mypy' || ${PYTHON} -m pip install --user mypy types-PyYAML
 	${PYTHON} -m mypy sharg
 
 yaml:
