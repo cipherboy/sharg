@@ -104,7 +104,7 @@ class HelpText:
         print("", file=_file)
         if self.parent.aliases:
             joined_aliases = ", ".join(self.parent.aliases)
-            print(indent2 + "Aliases: " + joined_aliases, end="", file=_file)
+            print(indent2 + "Aliases: " + joined_aliases, file=_file)
 
     def format_markdown(self, _file=sys.stdout, _indent=0, _increment=2):
         pass
