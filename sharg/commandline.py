@@ -258,6 +258,13 @@ class CommandLine:
 
         return None
 
+    def find_option(self, long_name):
+        for option in self.options:
+            if option.long_name == long_name:
+                return option
+
+        return None
+
     def num_remaining(self, index=0):
         count = 0
         for item in self.grammar[index:]:
@@ -332,6 +339,19 @@ class CommandLine:
                             position=position,
                         )
                     need_endif = True
+            elif item.startswith("[options.") and item.endswith("]"):
+                opt_name = item[len("[options.") : -len("]")]
+                option = self.find_option(opt_name)
+                assert option is not None
+                assert not self.mixed_options_arguments
+
+                option.format_bash(
+                    code,
+                    positional=True,
+                    var_position=self.bash_var_position,
+                    position=position,
+                )
+                need_endif = True
             elif item.startswith("arguments.") and not item.endswith("..."):
                 arg_name = item[len("arguments.") :]
                 argument = self.find_argument(arg_name)

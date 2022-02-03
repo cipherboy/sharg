@@ -247,6 +247,10 @@ def validate_grammar(cli, parse_path=""):
         if item == "[options]":
             assert options
             seen_options.update(all_options)
+        elif item.startswith("[options.") and item.endswith("]"):
+            name = item[len("[options.") : -1 * len("]")]
+            assert name in all_options
+            seen_options.add(name)
         elif item.startswith("arguments.") and not item.endswith("..."):
             name = item[len("arguments.") :]
             assert name in all_arguments
