@@ -224,45 +224,45 @@ class ShellConditional:
     @classmethod
     def str_var_equals_value(cls, var_name: str, value: str):
         obj = cls()
-        obj.lhs = "x$" + var_name
+        obj.lhs = "$" + var_name
         obj.operator = "=="
-        obj.rhs = "x" + value
+        obj.rhs = value
         obj.c_type = "string"
         return obj
 
     @classmethod
     def substr_var_equals_value(cls, var_name: str, value: str):
         obj = cls()
-        obj.lhs = "x${" + var_name + ":0:" + str(len(value)) + "}"
+        obj.lhs = "${" + var_name + ":0:" + str(len(value)) + "}"
         obj.operator = "=="
-        obj.rhs = "x" + value
+        obj.rhs = value
         obj.c_type = "string"
         return obj
 
     @classmethod
     def str_var_not_equals_value(cls, var_name, value):
         obj = cls()
-        obj.lhs = "x$" + var_name
+        obj.lhs = "$" + var_name
         obj.operator = "!="
-        obj.rhs = "x" + value
+        obj.rhs = value
         obj.c_type = "string"
         return obj
 
     @classmethod
     def str_var_equals_var(cls, lhs_var, rhs_var):
         obj = cls()
-        obj.lhs = "x$" + lhs_var
+        obj.lhs = "$" + lhs_var
         obj.operator = "=="
-        obj.rhs = "x" + rhs_var
+        obj.rhs = "$" + rhs_var
         obj.c_type = "string"
         return obj
 
     @classmethod
     def str_var_not_equals_var(cls, lhs_var, rhs_var):
         obj = cls()
-        obj.lhs = "x$" + lhs_var
+        obj.lhs = "$" + lhs_var
         obj.operator = "!="
-        obj.rhs = "x" + rhs_var
+        obj.rhs = "$" + rhs_var
         obj.c_type = "string"
         return obj
 
