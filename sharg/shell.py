@@ -348,6 +348,19 @@ class ShellConditional:
         return obj
 
     @classmethod
+    def int_var_less_equals_var(cls, left_var_name, right_var_name):
+        obj = cls()
+        obj.lhs = left_var_name
+        if left_var_name.startswith("{") or left_var_name == "#":
+            obj.lhs = "$" + obj.lhs
+        obj.operator = "<="
+        obj.rhs = right_var_name
+        if right_var_name.startswith("{") or right_var_name == "#":
+            obj.rhs = "$" + obj.rhs
+        obj.c_type = "numeric"
+        return obj
+
+    @classmethod
     def int_var_less_value(cls, var_name, value):
         assert isinstance(value, int)
 
@@ -357,6 +370,19 @@ class ShellConditional:
             obj.lhs = "$" + obj.lhs
         obj.operator = "<"
         obj.rhs = str(value)
+        obj.c_type = "numeric"
+        return obj
+
+    @classmethod
+    def int_var_less_var(cls, left_var_name, right_var_name):
+        obj = cls()
+        obj.lhs = left_var_name
+        if left_var_name.startswith("{") or left_var_name == "#":
+            obj.lhs = "$" + obj.lhs
+        obj.operator = "<"
+        obj.rhs = right_var_name
+        if right_var_name.startswith("{") or right_var_name == "#":
+            obj.rhs = "$" + obj.rhs
         obj.c_type = "numeric"
         return obj
 
